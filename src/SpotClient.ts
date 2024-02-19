@@ -4,6 +4,7 @@ import { RestClientOptions } from './lib/requestUtils.js';
 import { SpotBrokerRebateRequest } from './types/request/spot.types.js';
 import { APIResponse } from './types/response/shared.js';
 import {
+  GetServiceSystemStatusResponse,
   SpotBrokerRebateResult,
   SystemTimeResult,
 } from './types/response/spot.types.js';
@@ -34,7 +35,17 @@ export class SpotClient extends BaseRestClient {
     return this.get('system/time');
   }
 
-  getSystemServiceStatus(): Promise<APIResponse<any>> {
+  getServiceSystemStatus(): Promise<
+    APIResponse<{
+      service: Array<{
+        title: string;
+        service_type: string;
+        status: number;
+        start_time: number;
+        end_time: number;
+      }>;
+    }>
+  > {
     return this.get('system/service');
   }
 
@@ -44,48 +55,170 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotCurrenciesV1(): Promise<APIResponse<any>> {
+  getSpotCurrenciesV1(): Promise<
+    APIResponse<{
+      currencies: Array<{
+        id: string;
+        name: string;
+        withdraw_enabled: boolean;
+        deposit_enabled: boolean;
+      }>;
+    }>
+  > {
     return this.get('spot/v1/currencies');
   }
 
-  getSpotTradingPairsV1(): Promise<APIResponse<any>> {
+  getSpotTradingPairsListV1(): Promise<
+    APIResponse<{
+      symbols: Array<{
+        symbol: string;
+        symbol_id: string;
+        base_currency: string;
+        quote_currency: string;
+        quote_increment: string;
+        base_min_size: string;
+        base_max_size: string;
+        price_min_precision: number;
+        price_max_precision: number;
+        expiration: string;
+        min_buy_amount: string;
+        min_sell_amount: string;
+      }>;
+    }>
+  > {
     return this.get('spot/v1/symbols');
   }
 
-  getSymbolDetails(): Promise<APIResponse<any>> {
+  getSpotSymbolDetails(): Promise<
+    APIResponse<{
+      symbol: string;
+      symbol_id: string;
+      base_currency: string;
+      quote_currency: string;
+      quote_increment: string;
+      base_min_size: string;
+      base_max_size: string;
+      price_min_precision: number;
+      price_max_precision: number;
+      expiration: string;
+      min_buy_amount: string;
+      min_sell_amount: string;
+    }>
+  > {
     return this.get('spot/v1/symbols/details');
   }
 
-  getSpotTickers(): Promise<APIResponse<any>> {
+  getSpotTickersV3(): Promise<
+    APIResponse<{
+      tickers: Array<{
+        symbol: string;
+        last_price: string;
+        quote_volume_24h: string;
+        base_volume_24h: string;
+        high_24h: string;
+        low_24h: string;
+        open_24h: string;
+        close_24h: string;
+        best_ask: string;
+        best_bid: string;
+      }>;
+    }>
+  > {
     return this.get('spot/quotation/v3/tickers');
   }
 
-  getSpotTicker(params?: { symbol: string }): Promise<APIResponse<any>> {
+  getSpotTicker(params?: { symbol: string }): Promise<
+    APIResponse<{
+      ticker: {
+        symbol: string;
+        last_price: string;
+        quote_volume_24h: string;
+        base_volume_24h: string;
+        high_24h: string;
+        low_24h: string;
+        open_24h: string;
+        close_24h: string;
+        best_ask: string;
+        best_bid: string;
+      };
+    }>
+  > {
     return this.get('spot/quotation/v3/ticker', params);
   }
 
   getSpotLatestKlineV3(params: {
     symbol: string;
     before?: number;
-    after: number;
+    after?: number;
     step?: number;
     limit?: number;
-  }): Promise<APIResponse<any>> {
+  }): Promise<
+    APIResponse<
+      Array<
+        [
+          string, // t - timestamp
+          string, // o - open price
+          string, // h - highest price
+          string, // l - lowest price
+          string, // c - close price
+          string, // v - trading volume, with a unit of currency
+          string, // qv - trading volume, the value is the quantity in quote currency
+        ]
+      >
+    >
+  > {
     return this.get('spot/quotation/v3/lite-klines', params);
   }
 
-  getKlines(): Promise<APIResponse<any>> {
-    return this.get(
-      'spot/quotation/v3/klines?symbol=BMX_ETH&step=15&before=1525760116&after=1525769116&limit=100',
-    );
+  getSpotHistoryKlineV3(params: {
+    symbol: string;
+    before?: number;
+    after?: number;
+    step?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      Array<
+        [
+          string, // t - timestamp
+          string, // o - open price
+          string, // h - highest price
+          string, // l - lowest price
+          string, // c - close price
+          string, // v - trading volume, with a unit of currency
+          string, // qv - trading volume, the value is the quantity in quote currency
+        ]
+      >
+    >
+  > {
+    return this.get('spot/quotation/v3/history-klines', params);
   }
 
-  getBooks(): Promise<APIResponse<any>> {
-    return this.get('spot/quotation/v3/books?symbol=BTC_USDT&limit=1');
+  getSpotDepthV3(params: { symbol: string; limit?: number }): Promise<
+    APIResponse<{
+      ts: string;
+      symbol: string;
+      asks: Array<[string, string]>;
+      bids: Array<[string, string]>;
+    }>
+  > {
+    return this.get('spot/quotation/v3/books', params);
   }
 
-  getTrades(): Promise<APIResponse<any>> {
-    return this.get('spot/quotation/v3/trades?symbol=BMX_ETH&limit=10');
+  getSpotRecentTrades(params: { symbol: string; limit?: number }): Promise<
+    APIResponse<
+      Array<
+        [
+          string, // symbol
+          string, // ts
+          string, // price
+          string, // size
+          string, // side
+        ]
+      >
+    >
+  > {
+    return this.get('spot/quotation/v3/trades', params);
   }
 
   /**
@@ -94,30 +227,118 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getV2Ticker(): Promise<APIResponse<any>> {
+  getSpotV2Ticker(): Promise<
+    APIResponse<{
+      tickers: Array<{
+        symbol: string;
+        last_price: string;
+        quote_volume_24h: string;
+        base_volume_24h: string;
+        high_24h: string;
+        low_24h: string;
+        open_24h: string;
+        close_24h: string;
+        best_ask: string;
+        best_ask_size: string;
+        best_bid: string;
+        best_bid_size: string;
+        fluctuation: string;
+        url: string;
+        timestamp: number;
+      }>;
+    }>
+  > {
     return this.get('spot/v2/ticker');
   }
 
-  getTickerDetail(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/ticker_detail?symbol=BTC_USDT');
+  getSpotTickerDetail(params: { symbol: string }): Promise<
+    APIResponse<{
+      symbol: string;
+      last_price: string;
+      quote_volume_24h: string;
+      base_volume_24h: string;
+      high_24h: string;
+      low_24h: string;
+      open_24h: string;
+      close_24h: string;
+      best_ask: string;
+      best_ask_size: string;
+      best_bid: string;
+      best_bid_size: string;
+      fluctuation: string;
+      timestamp: number;
+      url: string;
+    }>
+  > {
+    return this.get('spot/v1/ticker_detail', params);
   }
 
-  getSteps(): Promise<APIResponse<any>> {
+  getSpotKLineSteps(): Promise<
+    APIResponse<{
+      steps: number[];
+    }>
+  > {
     return this.get('spot/v1/steps');
   }
 
-  getSymbolKline(): Promise<APIResponse<any>> {
-    return this.get(
-      'spot/v1/symbols/kline?symbol=BMX_ETH&step=15&from=1525760116&to=1525769116',
-    );
+  getSymbolKline(params: {
+    symbol: string;
+    from: number;
+    to: number;
+    step?: number;
+  }): Promise<
+    APIResponse<
+      Array<{
+        timestamp: number;
+        open: string;
+        high: string;
+        low: string;
+        close: string;
+        last_price: string;
+        volume: string;
+        quote_volume: string;
+      }>
+    >
+  > {
+    return this.get('spot/v1/symbols/kline', params);
   }
 
-  getSymbolBook(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/symbols/book?symbol=BMX_ETH&precision=6');
+  getSpotSymbolBook(params: {
+    symbol: string;
+    precision?: string;
+    size?: number;
+  }): Promise<
+    APIResponse<{
+      timestamp: number;
+      buys: Array<{
+        amount: string;
+        total: string;
+        price: string;
+        count: string;
+      }>;
+      sells: Array<{
+        amount: string;
+        total: string;
+        price: string;
+        count: string;
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/symbols/book', params);
   }
 
-  getSymbolTrades(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/symbols/trades?symbol=BMX_ETH');
+  getSymbolTrades(params: { symbol: string; n?: number }): Promise<
+    APIResponse<{
+      trades: Array<{
+        amount: string;
+        order_time: number;
+        price: string;
+        count: string;
+        type: string;
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/symbols/trades', params);
   }
 
   /**
@@ -126,15 +347,46 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getAccountBalance(): Promise<APIResponse<any>> {
-    return this.getPrivate('account/v1/wallet');
+  getAccountBalance(params?: { currency?: string }): Promise<
+    APIResponse<{
+      wallet: Array<{
+        currency: string;
+        name: string;
+        available: string;
+        frozen: string;
+      }>;
+    }>
+  > {
+    return this.getPrivate('account/v1/wallet', params);
   }
 
-  getCurrenciesAccount(): Promise<APIResponse<any>> {
+  getCurrenciesAccount(): Promise<
+    APIResponse<{
+      currencies: Array<{
+        currency: string;
+        name: string;
+        contract_address: string | null;
+        network: string;
+        withdraw_enabled: boolean;
+        deposit_enabled: boolean;
+        withdraw_minsize: string | null;
+        withdraw_minfee: string | null;
+      }>;
+    }>
+  > {
     return this.get('account/v1/currencies');
   }
 
-  getSpotWallet(): Promise<APIResponse<any>> {
+  getSpotWallet(): Promise<
+    APIResponse<{
+      wallet: Array<{
+        id: string;
+        available: string;
+        name: string;
+        frozen: string;
+      }>;
+    }>
+  > {
     return this.getPrivate('spot/v1/wallet');
   }
 
@@ -156,29 +408,135 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('account/v1/withdraw/apply', params);
   }
 
-  getDepositWithdrawHistory(): Promise<APIResponse<any>> {
-    return this.get('account/v2/deposit-withdraw/history');
+  getDepositWithdrawHistory(params?: {
+    currency?: string;
+    operation_type: 'deposit' | 'withdraw';
+    N: number;
+  }): Promise<
+    APIResponse<{
+      records: Array<{
+        withdraw_id: string;
+        deposit_id: string;
+        operation_type: 'deposit' | 'withdraw';
+        currency: string;
+        apply_time: number;
+        arrival_amount: string;
+        fee: string;
+        status: number;
+        address: string;
+        address_memo: string;
+        tx_id: string;
+      }>;
+    }>
+  > {
+    return this.get('account/v2/deposit-withdraw/history', params);
   }
 
-  getDepositWithdrawDetail(): Promise<APIResponse<any>> {
-    return this.get('account/v1/deposit-withdraw/detail');
+  getDepositWithdrawDetail(params: { id: string }): Promise<
+    APIResponse<{
+      record: {
+        withdraw_id: string;
+        deposit_id: string;
+        operation_type: 'deposit' | 'withdraw';
+        currency: string;
+        apply_time: number;
+        arrival_amount: string;
+        fee: string;
+        status: number;
+        address: string;
+        address_memo: string;
+        tx_id: string;
+      };
+    }>
+  > {
+    return this.get('account/v1/deposit-withdraw/detail', params);
   }
 
-  getIsolatedMarginAccount(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/margin/isolated/account');
+  getIsolatedMarginAccount(params?: { symbol?: string }): Promise<
+    APIResponse<{
+      symbols: Array<{
+        symbol: string;
+        risk_rate: string;
+        risk_level: string;
+        buy_enabled: boolean;
+        sell_enabled: boolean;
+        liquidate_price: string;
+        liquidate_rate: string;
+        base: {
+          currency: string;
+          borrow_enabled: boolean;
+          borrowed: string;
+          borrow_unpaid: string;
+          interest_unpaid: string;
+          available: string;
+          frozen: string;
+          net_asset: string;
+          net_assetBTC: string;
+          total_asset: string;
+        };
+        quote: {
+          currency: string;
+          borrow_enabled: boolean;
+          borrowed: string;
+          borrow_unpaid: string;
+          interest_unpaid: string;
+          available: string;
+          frozen: string;
+          net_asset: string;
+          net_assetBTC: string;
+          total_asset: string;
+        };
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/margin/isolated/account', params);
   }
 
-  postIsolatedMarginTransfer(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/margin/isolated/transfer');
+  postIsolatedMarginTransfer(params: {
+    symbol: string;
+    currency: string;
+    amount: string;
+    side: 'in' | 'out';
+  }): Promise<
+    APIResponse<{
+      transfer_id: string;
+    }>
+  > {
+    return this.post('spot/v1/margin/isolated/transfer', params);
   }
 
-  getUserFee(): Promise<APIResponse<any>> {
+  getUserFee(): Promise<
+    APIResponse<{
+      user_rate_type: number;
+      level: string;
+      taker_fee_rate_A: string;
+      maker_fee_rate_A: string;
+      taker_fee_rate_B: string;
+      maker_fee_rate_B: string;
+      taker_fee_rate_C: string;
+      maker_fee_rate_C: string;
+    }>
+  > {
     return this.get('spot/v1/user_fee');
   }
 
-  getTradeFee(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/trade_fee');
+  getTradeFee(params: { symbol: string }): Promise<
+    APIResponse<{
+      symbol: string;
+      buy_taker_fee_rate: string;
+      sell_taker_fee_rate: string;
+      buy_maker_fee_rate: string;
+      sell_maker_fee_rate: string;
+    }>
+  > {
+    return this.get('spot/v1/trade_fee', params);
   }
+
+  /**
+   *
+   * Spot/Margin Trading Endpoints
+   *
+   **/
 
   submitSpotOrder(params: {
     symbol: string;
@@ -188,133 +546,591 @@ export class SpotClient extends BaseRestClient {
     size?: string;
     price?: string;
     notional?: string;
-  }): Promise<APIResponse<any>> {
-    return this.postPrivate('spot/v2/submit_order', params);
+  }): Promise<
+    APIResponse<{
+      order_id: string;
+    }>
+  > {
+    return this.post('spot/v2/submit_order', params);
   }
 
-  postMarginSubmitOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/margin/submit_order');
+  postMarginSubmitOrder(params: {
+    symbol: string;
+    side: 'buy' | 'sell';
+    type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+    clientOrderId?: string;
+    size: string;
+    price?: string;
+    notional?: string;
+  }): Promise<
+    APIResponse<{
+      order_id: number; // Note: The response type for order_id is number for margin orders
+    }>
+  > {
+    return this.post('spot/v1/margin/submit_order', params);
   }
 
-  postBatchOrders(): Promise<APIResponse<any>> {
-    return this.post('spot/v2/batch_orders');
+  postBatchOrders(params: {
+    order_params: Array<{
+      symbol: string;
+      side: 'buy' | 'sell';
+      type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+      client_order_id?: string;
+      size: string;
+      price?: string;
+      notional?: string;
+    }>;
+  }): Promise<
+    APIResponse<{
+      responses: Array<{
+        code: number;
+        msg: string;
+        data?: {
+          order_id: string;
+        };
+      }>;
+    }>
+  > {
+    return this.post('spot/v2/batch_orders', params);
   }
 
-  postCancelOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v3/cancel_order');
+  postCancelOrder(params: {
+    symbol: string;
+    order_id?: string;
+    client_order_id?: string;
+  }): Promise<
+    APIResponse<{
+      result: boolean;
+    }>
+  > {
+    // This function sends a POST request to the BitMart API to cancel a specified unfinished order
+    return this.post('spot/v3/cancel_order', params);
   }
 
-  postCancelOrders(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/cancel_orders');
+  postCancelOrders(params: {
+    symbol?: string;
+    side?: 'buy' | 'sell';
+  }): Promise<APIResponse<{}>> {
+    return this.post('spot/v1/cancel_orders', params);
   }
 
-  postQueryOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/order');
+  postQueryOrder(params: {
+    orderId: string;
+    queryState?: string;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<{
+      orderId: string;
+      clientOrderId: string;
+      symbol: string;
+      side: string;
+      orderMode: string;
+      type: string;
+      state: string;
+      price: string;
+      priceAvg: string;
+      size: string;
+      filledSize: string;
+      notional: string;
+      filledNotional: string;
+      createTime: number;
+      updateTime: number;
+    }>
+  > {
+    return this.post('spot/v4/query/order', params);
   }
 
-  postQueryClientOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/client-order');
+  postQueryClientOrder(params: {
+    clientOrderId: string;
+    queryState?: string;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<{
+      orderId: string;
+      clientOrderId: string;
+      symbol: string;
+      side: string;
+      orderMode: string;
+      type: string;
+      state: string;
+      price: string;
+      priceAvg: string;
+      size: string;
+      filledSize: string;
+      notional: string;
+      filledNotional: string;
+      createTime: number;
+      updateTime: number;
+    }>
+  > {
+    return this.post('spot/v4/query/client-order', params);
   }
 
-  postQueryOpenOrders(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/open-orders');
+  postQueryOpenOrders(params: {
+    symbol?: string;
+    orderMode?: 'spot' | 'iso_margin';
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<
+      Array<{
+        orderId: string;
+        clientOrderId: string;
+        symbol: string;
+        side: 'buy' | 'sell';
+        orderMode: 'spot' | 'iso_margin';
+        type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+        state: 'new' | 'partially_filled';
+        price: string;
+        priceAvg: string;
+        size: string;
+        filledSize: string;
+        notional: string;
+        filledNotional: string;
+        createTime: number;
+        updateTime: number;
+      }>
+    >
+  > {
+    return this.post('spot/v4/query/open-orders', params);
   }
 
-  postQueryHistoryOrders(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/history-orders');
+  postQueryHistoryOrders(params: {
+    symbol?: string;
+    orderMode?: 'spot' | 'iso_margin';
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<
+      Array<{
+        orderId: string;
+        clientOrderId: string;
+        symbol: string;
+        side: 'buy' | 'sell';
+        orderMode: 'spot' | 'iso_margin';
+        type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+        state: 'filled' | 'canceled' | 'partially_canceled';
+        price: string;
+        priceAvg: string;
+        size: string;
+        filledSize: string;
+        notional: string;
+        filledNotional: string;
+        createTime: number;
+        updateTime: number;
+      }>
+    >
+  > {
+    return this.post('spot/v4/query/history-orders', params);
   }
 
-  postQueryTrades(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/trades');
+  postQueryTrades(params: {
+    symbol?: string;
+    orderMode?: 'spot' | 'iso_margin';
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<
+      Array<{
+        tradeId: string;
+        orderId: string;
+        clientOrderId: string;
+        symbol: string;
+        side: 'buy' | 'sell';
+        orderMode: 'spot' | 'iso_margin';
+        type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+        price: string;
+        size: string;
+        notional: string;
+        fee: string;
+        feeCoinName: string;
+        tradeRole: 'taker' | 'maker';
+        createTime: number;
+        updateTime: number;
+      }>
+    >
+  > {
+    return this.post('spot/v4/query/trades', params);
   }
 
-  postQueryOrderTrades(): Promise<APIResponse<any>> {
-    return this.post('spot/v4/query/order-trades');
+  postQueryOrderTrades(params: {
+    orderId: string;
+    recvWindow?: number;
+  }): Promise<
+    APIResponse<
+      Array<{
+        tradeId: string;
+        orderId: string;
+        clientOrderId: string;
+        symbol: string;
+        side: 'buy' | 'sell';
+        orderMode: 'spot' | 'iso_margin';
+        type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+        price: string;
+        size: string;
+        notional: string;
+        fee: string;
+        feeCoinName: string;
+        tradeRole: 'taker' | 'maker';
+        createTime: number;
+        updateTime: number;
+      }>
+    >
+  > {
+    return this.post('spot/v4/query/order-trades', params);
   }
 
-  postSpotSubmitOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/submit_order');
+  /**
+   *
+   * Spot/Margin Trading Endpoints (History versions)
+   *
+   **/
+
+  postSpotSubmitOrder(params: {
+    symbol: string;
+    side: 'buy' | 'sell';
+    type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+    size?: string;
+    price?: string;
+    notional?: string;
+    clientOrderId?: string;
+  }): Promise<APIResponse<{ order_id: number }>> {
+    // Switching to the new endpoint as the old one will soon be unsupported
+    return this.post('spot/v2/submit_order', params);
   }
 
-  postSpotBatchOrders(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/batch_orders');
+  postSpotBatchOrders(params: {
+    orderParams: Array<{
+      symbol: string;
+      side: 'buy' | 'sell';
+      type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+      size?: string;
+      price?: string;
+      notional?: string;
+      clientOrderId?: string;
+    }>;
+  }): Promise<
+    APIResponse<{
+      orderResponses: Array<{
+        code: number;
+        msg: string;
+        data?: { orderId: number };
+      }>;
+    }>
+  > {
+    // Switching to the new endpoint as the old one will soon be unsupported
+    return this.post('spot/v2/batch_orders', params);
   }
 
-  postSpotCancelOrder(): Promise<APIResponse<any>> {
-    return this.post('spot/v2/cancel_order');
+  postSpotCancelOrder(params: {
+    order_id?: number;
+    clientOrderId?: string;
+  }): Promise<APIResponse<{ result: boolean }>> {
+    // Switching to the new endpoint as the old one will soon be unsupported
+    return this.post('spot/v3/cancel_order', params);
   }
 
-  getV2OrderDetail(): Promise<APIResponse<any>> {
-    return this.get('spot/v2/order_detail');
+  getV4QueryOrder(params: { orderId: string }): Promise<
+    APIResponse<{
+      order_id: string;
+      client_order_id?: string;
+      symbol: string;
+      create_time: number;
+      side: 'buy' | 'sell';
+      order_mode: 'spot' | 'iso_margin';
+      type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+      price: string;
+      price_avg: string;
+      size: string;
+      notional: string;
+      filled_notional: string;
+      filled_size: string;
+      unfilled_volume: string;
+      status: string;
+    }>
+  > {
+    return this.get('spot/v4/query/order', params);
   }
 
-  getV3Orders(): Promise<APIResponse<any>> {
-    return this.get('spot/v3/orders');
+  getV4QueryHistoryOrders(params: {
+    symbol: string;
+    order_mode?: 'spot' | 'iso_margin' | 'all';
+    N?: number;
+    start_time?: number;
+    end_time?: number;
+    status: '4' | '5' | '6' | '8' | '9' | '10' | '11';
+  }): Promise<
+    APIResponse<
+      Array<{
+        order_id: string;
+        symbol: string;
+        create_time: number;
+        side: 'buy' | 'sell';
+        order_mode: 'spot' | 'iso_margin';
+        type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+        price: string;
+        price_avg: string;
+        size: string;
+        notional: string;
+        filled_notional: string;
+        filled_size: string;
+        status: string;
+        client_order_id?: string;
+      }>
+    >
+  > {
+    return this.get('spot/v4/query/history-orders', params);
   }
 
-  getV2Trades(): Promise<APIResponse<any>> {
-    return this.get('spot/v2/trades');
+  getV4QueryTrades(params: {
+    symbol: string;
+    order_mode?: 'spot' | 'iso_margin' | 'all';
+    N?: number;
+    start_time?: number;
+    end_time?: number;
+    order_id?: string;
+  }): Promise<
+    APIResponse<
+      Array<{
+        detail_id: string;
+        order_id: string;
+        symbol: string;
+        create_time: number;
+        side: 'buy' | 'sell';
+        order_mode: 'spot' | 'iso_margin';
+        fees: string;
+        fee_coin_name: string;
+        notional: string;
+        price_avg: string;
+        size: string;
+        exec_type: 'M' | 'T';
+        client_order_id?: string;
+      }>
+    >
+  > {
+    return this.get('spot/v4/query/trades', params);
   }
 
-  postIsolatedMarginBorrow(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/margin/isolated/borrow');
+  /**
+   *
+   * Margin Loan Endpoints (History versions)
+   *
+   **/
+
+  postIsolatedMarginBorrow(params: {
+    symbol: string;
+    currency: string;
+    amount: string;
+  }): Promise<APIResponse<{ borrow_id: string }>> {
+    return this.post('spot/v1/margin/isolated/borrow', params);
   }
 
-  postIsolatedMarginRepay(): Promise<APIResponse<any>> {
-    return this.post('spot/v1/margin/isolated/repay');
+  postIsolatedMarginRepay(params: {
+    symbol: string;
+    currency: string;
+    amount: string;
+  }): Promise<APIResponse<{ repay_id: string }>> {
+    return this.post('spot/v1/margin/isolated/repay', params);
   }
 
-  getIsolatedMarginBorrowRecord(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/margin/isolated/borrow_record');
+  getIsolatedMarginBorrowRecord(params: {
+    symbol: string;
+    borrow_id?: string;
+    start_time?: number;
+    end_time?: number;
+    N?: number;
+  }): Promise<
+    APIResponse<{
+      records: Array<{
+        borrow_id: string;
+        symbol: string;
+        currency: string;
+        borrow_amount: string;
+        daily_interest: string;
+        hourly_interest: string;
+        interest_amount: string;
+        create_time: number;
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/margin/isolated/borrow_record', params);
   }
 
-  getIsolatedMarginRepayRecord(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/margin/isolated/repay_record');
+  getIsolatedMarginRepayRecord(params: {
+    symbol: string;
+    repay_id?: string;
+    currency?: string;
+    start_time?: number;
+    end_time?: number;
+    N?: number;
+  }): Promise<
+    APIResponse<{
+      records: Array<{
+        repay_id: string;
+        repay_time: number;
+        symbol: string;
+        currency: string;
+        repaid_amount: string;
+        repaid_principal: string;
+        repaid_interest: string;
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/margin/isolated/repay_record', params);
   }
 
-  getIsolatedMarginPairs(): Promise<APIResponse<any>> {
-    return this.get('spot/v1/margin/isolated/pairs');
+  getIsolatedMarginPairs(params?: { symbol?: string }): Promise<
+    APIResponse<{
+      symbols: Array<{
+        symbol: string;
+        max_leverage: string;
+        symbol_enabled: boolean;
+        base: {
+          currency: string;
+          daily_interest: string;
+          hourly_interest: string;
+          max_borrow_amount: string;
+          min_borrow_amount: string;
+          borrowable_amount: string;
+        };
+        quote: {
+          currency: string;
+          daily_interest: string;
+          hourly_interest: string;
+          max_borrow_amount: string;
+          min_borrow_amount: string;
+          borrowable_amount: string;
+        };
+      }>;
+    }>
+  > {
+    return this.get('spot/v1/margin/isolated/pairs', params);
   }
 
-  postSubToMain(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/main/v1/sub-to-main');
+  /**
+   *
+   * Subaccount Endpoints
+   *
+   **/
+
+  postSubToMain(params: {
+    requestNo: string;
+    amount: string;
+    currency: string;
+    subAccount: string;
+  }): Promise<APIResponse<{}>> {
+    return this.post('account/sub-account/main/v1/sub-to-main', params);
   }
 
-  postSubToMainSub(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/sub/v1/sub-to-main');
+  postSubToMainSub(params: {
+    requestNo: string;
+    amount: string;
+    currency: string;
+  }): Promise<APIResponse<{}>> {
+    return this.post('account/sub-account/sub/v1/sub-to-main', params);
   }
 
-  postMainToSub(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/main/v1/main-to-sub');
+  postMainToSub(params: {
+    requestNo: string;
+    amount: string;
+    currency: string;
+    subAccount: string;
+  }): Promise<APIResponse<{}>> {
+    return this.post('account/sub-account/main/v1/main-to-sub', params);
   }
 
-  postSubToSubMain(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/main/v1/sub-to-sub');
+  postSubToSubMain(params: {
+    requestNo: string;
+    amount: string;
+    currency: string;
+    fromAccount: string;
+    toAccount: string;
+  }): Promise<APIResponse<{}>> {
+    return this.post('account/sub-account/main/v1/sub-to-sub', params);
   }
 
-  postSubToSubSub(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/sub/v1/sub-to-sub');
+  postSubToSubSub(params: {
+    requestNo: string;
+    amount: string;
+    currency: string;
+    subAccount: string;
+  }): Promise<APIResponse<{}>> {
+    return this.post('account/sub-account/sub/v1/sub-to-sub', params);
   }
 
-  postSubToSub(): Promise<APIResponse<any>> {
-    return this.post('account/sub-account/sub/v1/sub-to-sub');
+  getSubAccountTransferHistory(params: {
+    moveType: 'spot to spot';
+    accountName?: string;
+    N: number;
+  }): Promise<
+    APIResponse<{
+      total: number;
+      historyList: Array<{
+        fromAccount: string;
+        fromWalletType: 'spot';
+        toAccount: string;
+        toWalletType: 'spot';
+        currency: string;
+        amount: string;
+        submissionTime: number;
+      }>;
+    }>
+  > {
+    return this.get('account/sub-account/main/v1/transfer-list', params);
   }
 
-  getTransferList(): Promise<APIResponse<any>> {
-    return this.get('account/sub-account/main/v1/transfer-list');
+  getTransferHistory(params: { moveType: 'spot to spot'; N: number }): Promise<
+    APIResponse<{
+      total: number;
+      historyList: Array<{
+        fromAccount: string;
+        fromWalletType: 'spot';
+        toAccount: string;
+        toWalletType: 'spot';
+        currency: string;
+        amount: string;
+        submissionTime: number;
+      }>;
+    }>
+  > {
+    return this.get('account/sub-account/v1/transfer-history', params);
   }
 
-  getTransferHistory(): Promise<APIResponse<any>> {
-    return this.get('account/sub-account/v1/transfer-history');
+  getMainWallet(params?: { subAccount?: string; currency?: string }): Promise<
+    APIResponse<{
+      wallet: Array<{
+        currency: string;
+        name: string;
+        available: string;
+        frozen: string;
+      }>;
+    }>
+  > {
+    return this.get('account/sub-account/main/v1/wallet', params);
   }
 
-  getMainWallet(): Promise<APIResponse<any>> {
-    return this.get('account/sub-account/main/v1/wallet');
-  }
-
-  getSubaccountList(): Promise<APIResponse<any>> {
+  getSubaccountList(): Promise<
+    APIResponse<{
+      subAccountList: Array<{
+        accountName: string;
+        status: number;
+      }>;
+    }>
+  > {
     return this.get('account/sub-account/main/v1/subaccount-list');
   }
+
+  /**
+   *
+   * Rebate Endpoints
+   *
+   **/
 
   getBrokerRebate(
     params?: SpotBrokerRebateRequest,
