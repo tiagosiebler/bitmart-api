@@ -55,7 +55,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotCurrenciesV1(): Promise<
+  getSpotCurrencyListV1(): Promise<
     APIResponse<{
       currencies: Array<{
         id: string;
@@ -89,7 +89,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols');
   }
 
-  getSpotSymbolDetails(): Promise<
+  getSpotTradingPairDetailsV1(): Promise<
     APIResponse<{
       symbol: string;
       symbol_id: string;
@@ -108,7 +108,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols/details');
   }
 
-  getSpotTickersV3(): Promise<
+  getSpotAllTickersV3(): Promise<
     APIResponse<{
       tickers: Array<{
         symbol: string;
@@ -127,7 +127,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/quotation/v3/tickers');
   }
 
-  getSpotTicker(params?: { symbol: string }): Promise<
+  getSpotTickerV3(params?: { symbol: string }): Promise<
     APIResponse<{
       ticker: {
         symbol: string;
@@ -194,7 +194,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/quotation/v3/history-klines', params);
   }
 
-  getSpotDepthV3(params: { symbol: string; limit?: number }): Promise<
+  getSpotOrderBookDepthV3(params: { symbol: string; limit?: number }): Promise<
     APIResponse<{
       ts: string;
       symbol: string;
@@ -227,7 +227,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotV2Ticker(): Promise<
+  getSpotAllTickersV2(): Promise<
     APIResponse<{
       tickers: Array<{
         symbol: string;
@@ -251,7 +251,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v2/ticker');
   }
 
-  getSpotTickerDetail(params: { symbol: string }): Promise<
+  getSpotTickerV1(params: { symbol: string }): Promise<
     APIResponse<{
       symbol: string;
       last_price: string;
@@ -273,7 +273,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/ticker_detail', params);
   }
 
-  getSpotKLineSteps(): Promise<
+  getSpotKLineStepV1(): Promise<
     APIResponse<{
       steps: number[];
     }>
@@ -281,7 +281,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/steps');
   }
 
-  getSymbolKline(params: {
+  getSpotSymbolKlineV1(params: {
     symbol: string;
     from: number;
     to: number;
@@ -303,7 +303,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols/kline', params);
   }
 
-  getSpotSymbolBook(params: {
+  getSpotOrderBookDepthV1(params: {
     symbol: string;
     precision?: string;
     size?: number;
@@ -327,7 +327,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols/book', params);
   }
 
-  getSymbolTrades(params: { symbol: string; n?: number }): Promise<
+  getSpotRecentTradesV1(params: { symbol: string; n?: number }): Promise<
     APIResponse<{
       trades: Array<{
         amount: string;
@@ -347,7 +347,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getAccountBalance(params?: { currency?: string }): Promise<
+  getSpotAccountBalance(params?: { currency?: string }): Promise<
     APIResponse<{
       wallet: Array<{
         currency: string;
@@ -360,7 +360,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('account/v1/wallet', params);
   }
 
-  getCurrenciesAccount(): Promise<
+  getSpotCurrencies(): Promise<
     APIResponse<{
       currencies: Array<{
         currency: string;
@@ -377,7 +377,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v1/currencies');
   }
 
-  getSpotWallet(): Promise<
+  getSpotWalletBalance(): Promise<
     APIResponse<{
       wallet: Array<{
         id: string;
@@ -390,11 +390,11 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('spot/v1/wallet');
   }
 
-  getDepositAddress(): Promise<APIResponse<any>> {
+  getSpotDepositAddress(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/deposit/address');
   }
 
-  getWithdrawCharge(): Promise<APIResponse<any>> {
+  getSpotWithdrawQuota(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/withdraw/charge');
   }
 
@@ -432,7 +432,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v2/deposit-withdraw/history', params);
   }
 
-  getDepositWithdrawDetail(params: { id: string }): Promise<
+  getDepositWithdrawDetails(params: { id: string }): Promise<
     APIResponse<{
       record: {
         withdraw_id: string;
@@ -452,7 +452,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v1/deposit-withdraw/detail', params);
   }
 
-  getIsolatedMarginAccount(params?: { symbol?: string }): Promise<
+  getSpotMarginAccountDetails(params?: { symbol?: string }): Promise<
     APIResponse<{
       symbols: Array<{
         symbol: string;
@@ -492,7 +492,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/margin/isolated/account', params);
   }
 
-  postIsolatedMarginTransfer(params: {
+  submitMarginTransfer(params: {
     symbol: string;
     currency: string;
     amount: string;
@@ -505,7 +505,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/isolated/transfer', params);
   }
 
-  getUserFee(): Promise<
+  getUserFees(): Promise<
     APIResponse<{
       user_rate_type: number;
       level: string;
@@ -520,7 +520,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/user_fee');
   }
 
-  getTradeFee(params: { symbol: string }): Promise<
+  getTradeFees(params: { symbol: string }): Promise<
     APIResponse<{
       symbol: string;
       buy_taker_fee_rate: string;
@@ -554,7 +554,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v2/submit_order', params);
   }
 
-  postMarginSubmitOrder(params: {
+  SubmitMarginOrder(params: {
     symbol: string;
     side: 'buy' | 'sell';
     type: 'limit' | 'market' | 'limit_maker' | 'ioc';
@@ -570,7 +570,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/submit_order', params);
   }
 
-  postBatchOrders(params: {
+  submitBatchOrder(params: {
     order_params: Array<{
       symbol: string;
       side: 'buy' | 'sell';
@@ -594,7 +594,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v2/batch_orders', params);
   }
 
-  postCancelOrder(params: {
+  cancelOrder(params: {
     symbol: string;
     order_id?: string;
     client_order_id?: string;
@@ -607,14 +607,14 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v3/cancel_order', params);
   }
 
-  postCancelOrders(params: {
+  cancelBatchOrder(params: {
     symbol?: string;
     side?: 'buy' | 'sell';
   }): Promise<APIResponse<{}>> {
     return this.post('spot/v1/cancel_orders', params);
   }
 
-  postQueryOrder(params: {
+  getSpotOrderById(params: {
     orderId: string;
     queryState?: string;
     recvWindow?: number;
@@ -640,7 +640,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v4/query/order', params);
   }
 
-  postQueryClientOrder(params: {
+  getSpotOrderByClientOrderId(params: {
     clientOrderId: string;
     queryState?: string;
     recvWindow?: number;
@@ -666,7 +666,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v4/query/client-order', params);
   }
 
-  postQueryOpenOrders(params: {
+  getSpotOpenOrders(params: {
     symbol?: string;
     orderMode?: 'spot' | 'iso_margin';
     startTime?: number;
@@ -697,7 +697,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v4/query/open-orders', params);
   }
 
-  postQueryHistoryOrders(params: {
+  getSpotHistoryOrders(params: {
     symbol?: string;
     orderMode?: 'spot' | 'iso_margin';
     startTime?: number;
@@ -728,7 +728,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v4/query/history-orders', params);
   }
 
-  postQueryTrades(params: {
+  getSpotTrades(params: {
     symbol?: string;
     orderMode?: 'spot' | 'iso_margin';
     startTime?: number;
@@ -759,10 +759,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v4/query/trades', params);
   }
 
-  postQueryOrderTrades(params: {
-    orderId: string;
-    recvWindow?: number;
-  }): Promise<
+  getSpotOrders(params: { orderId: string; recvWindow?: number }): Promise<
     APIResponse<
       Array<{
         tradeId: string;
@@ -792,7 +789,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  postSpotSubmitOrder(params: {
+  submitSpotOrderV1(params: {
     symbol: string;
     side: 'buy' | 'sell';
     type: 'limit' | 'market' | 'limit_maker' | 'ioc';
@@ -801,11 +798,10 @@ export class SpotClient extends BaseRestClient {
     notional?: string;
     clientOrderId?: string;
   }): Promise<APIResponse<{ order_id: number }>> {
-    // Switching to the new endpoint as the old one will soon be unsupported
-    return this.post('spot/v2/submit_order', params);
+    return this.post('spot/v1/submit_order', params);
   }
 
-  postSpotBatchOrders(params: {
+  submitSpotBatchOrdersV1(params: {
     orderParams: Array<{
       symbol: string;
       side: 'buy' | 'sell';
@@ -825,18 +821,18 @@ export class SpotClient extends BaseRestClient {
     }>
   > {
     // Switching to the new endpoint as the old one will soon be unsupported
-    return this.post('spot/v2/batch_orders', params);
+    return this.post('spot/v1/batch_orders', params);
   }
 
-  postSpotCancelOrder(params: {
+  cancelSpotOrderV2(params: {
     order_id?: number;
     clientOrderId?: string;
   }): Promise<APIResponse<{ result: boolean }>> {
     // Switching to the new endpoint as the old one will soon be unsupported
-    return this.post('spot/v3/cancel_order', params);
+    return this.post('spot/v2/cancel_order', params);
   }
 
-  getV4QueryOrder(params: { orderId: string }): Promise<
+  getSpotOrderV2(params: { orderId: string }): Promise<
     APIResponse<{
       order_id: string;
       client_order_id?: string;
@@ -855,10 +851,10 @@ export class SpotClient extends BaseRestClient {
       status: string;
     }>
   > {
-    return this.get('spot/v4/query/order', params);
+    return this.get('spot/v2/order_detail', params);
   }
 
-  getV4QueryHistoryOrders(params: {
+  getAccountOrdersV3(params: {
     symbol: string;
     order_mode?: 'spot' | 'iso_margin' | 'all';
     N?: number;
@@ -888,7 +884,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v4/query/history-orders', params);
   }
 
-  getV4QueryTrades(params: {
+  getAccountTradeListV2(params: {
     symbol: string;
     order_mode?: 'spot' | 'iso_margin' | 'all';
     N?: number;
@@ -923,7 +919,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  postIsolatedMarginBorrow(params: {
+  borrowMarginV1(params: {
     symbol: string;
     currency: string;
     amount: string;
@@ -931,7 +927,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/isolated/borrow', params);
   }
 
-  postIsolatedMarginRepay(params: {
+  repayMarginV1(params: {
     symbol: string;
     currency: string;
     amount: string;
@@ -939,7 +935,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/isolated/repay', params);
   }
 
-  getIsolatedMarginBorrowRecord(params: {
+  getMarginBorrowRecordV1(params: {
     symbol: string;
     borrow_id?: string;
     start_time?: number;
@@ -962,7 +958,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/margin/isolated/borrow_record', params);
   }
 
-  getIsolatedMarginRepayRecord(params: {
+  getMarginRepayRecordV1(params: {
     symbol: string;
     repay_id?: string;
     currency?: string;
@@ -985,7 +981,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/margin/isolated/repay_record', params);
   }
 
-  getIsolatedMarginPairs(params?: { symbol?: string }): Promise<
+  getIsolatedMarginPairsv1(params?: { symbol?: string }): Promise<
     APIResponse<{
       symbols: Array<{
         symbol: string;
@@ -1019,7 +1015,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  postSubToMain(params: {
+  sendSubToMain(params: {
     requestNo: string;
     amount: string;
     currency: string;
@@ -1028,7 +1024,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('account/sub-account/main/v1/sub-to-main', params);
   }
 
-  postSubToMainSub(params: {
+  sendSubToMainSub(params: {
     requestNo: string;
     amount: string;
     currency: string;
@@ -1036,7 +1032,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('account/sub-account/sub/v1/sub-to-main', params);
   }
 
-  postMainToSub(params: {
+  sendMainToSub(params: {
     requestNo: string;
     amount: string;
     currency: string;
@@ -1045,7 +1041,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('account/sub-account/main/v1/main-to-sub', params);
   }
 
-  postSubToSubMain(params: {
+  sendSubToSubMain(params: {
     requestNo: string;
     amount: string;
     currency: string;
@@ -1055,7 +1051,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('account/sub-account/main/v1/sub-to-sub', params);
   }
 
-  postSubToSubSub(params: {
+  sendSubToSubSub(params: {
     requestNo: string;
     amount: string;
     currency: string;
@@ -1064,7 +1060,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('account/sub-account/sub/v1/sub-to-sub', params);
   }
 
-  getSubAccountTransferHistory(params: {
+  getSubTransferList(params: {
     moveType: 'spot to spot';
     accountName?: string;
     N: number;
@@ -1085,7 +1081,10 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/sub-account/main/v1/transfer-list', params);
   }
 
-  getTransferHistory(params: { moveType: 'spot to spot'; N: number }): Promise<
+  getSubTransferHistory(params: {
+    moveType: 'spot to spot';
+    N: number;
+  }): Promise<
     APIResponse<{
       total: number;
       historyList: Array<{
@@ -1102,7 +1101,10 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/sub-account/v1/transfer-history', params);
   }
 
-  getMainWallet(params?: { subAccount?: string; currency?: string }): Promise<
+  getSubSpotWallet(params?: {
+    subAccount?: string;
+    currency?: string;
+  }): Promise<
     APIResponse<{
       wallet: Array<{
         currency: string;
