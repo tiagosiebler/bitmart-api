@@ -1,6 +1,9 @@
 import { AxiosRequestConfig } from 'axios';
 import { BaseRestClient, RestClientType } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
+import { SpotBrokerRebateRequest } from './types/request/spot.types.js';
+import { APIResponse } from './types/response/shared.js';
+import { SpotBrokerRebateResult } from './types/response/spot.types.js';
 
 /**
  *
@@ -304,5 +307,11 @@ export class SpotClient extends BaseRestClient {
 
   getSubaccountList(): Promise<any> {
     return this.get('account/sub-account/main/v1/subaccount-list');
+  }
+
+  getBrokerRebate(
+    params?: SpotBrokerRebateRequest,
+  ): Promise<APIResponse<SpotBrokerRebateResult>> {
+    return this.getPrivate('spot/v1/broker/rebate', params);
   }
 }
