@@ -327,20 +327,6 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols/book', params);
   }
 
-  getSpotRecentTradesV1(params: { symbol: string; n?: number }): Promise<
-    APIResponse<{
-      trades: Array<{
-        amount: string;
-        order_time: number;
-        price: string;
-        count: string;
-        type: string;
-      }>;
-    }>
-  > {
-    return this.get('spot/v1/symbols/trades', params);
-  }
-
   /**
    *
    * Funding Account Endpoints
