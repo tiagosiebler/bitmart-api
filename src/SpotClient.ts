@@ -917,7 +917,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Sub-Account to Main-Account (For Sub-Account)
    */
-  submitSubTranfserSubToMainV1(params: {
+  submitSubTransferSubToMainV1(params: {
     requestNo: string;
     amount: string;
     currency: string;
