@@ -1010,7 +1010,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/sub-account/main/v1/wallet', params);
   }
 
-  getSubaccountsV1(): Promise<
+  getSubAccountsV1(): Promise<
     APIResponse<{
       subAccountList: Array<{
         accountName: string;
