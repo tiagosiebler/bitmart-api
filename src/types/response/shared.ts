@@ -4,3 +4,4 @@ export interface APIResponse<TData = {}> {
   trace: string;
   data: TData;
 }
+

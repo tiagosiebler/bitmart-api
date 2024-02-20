@@ -5,11 +5,15 @@ import {
   CancelOrderV3Params,
   CancelOrdersForSideV1Params,
   GetAccountBalancesV1Params,
+  GetAccountDepositAddressV1Params,
   GetAccountSubTransfersV1Params,
   GetActualFeeRateV1Params,
   GetDepositWithdrawDetailsV1Params,
   GetDepositWithdrawHistoryV2Params,
   GetMarginAccountDetailsV1Params,
+  GetMarginBorrowRecordV1Params,
+  GetMarginBorrowingRatesV1Params,
+  GetMarginRepayRecordV1Params,
   GetSpotHistoryKlineV3Params,
   GetSpotKlinesV1Params,
   GetSpotLatestKlineV3Params,
@@ -25,6 +29,8 @@ import {
   GetSpotTradeHistoryV4Params,
   GetSubSpotWalletBalancesV1Params,
   GetSubTransfersV1Params,
+  MarginBorrowV1Params,
+  MarginRepayV1Params,
   SpotBrokerRebateRequest,
   SubmitBatchOrderV2Params,
   SubmitMainTransferMainToSubV1Params,
@@ -222,11 +228,15 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('spot/v1/wallet');
   }
 
-  getAccountDepositAddressV1(): Promise<APIResponse<any>> {
-    return this.getPrivate('account/v1/deposit/address');
+  getAccountDepositAddressV1(
+    params: GetAccountDepositAddressV1Params,
+  ): Promise<APIResponse<any>> {
+    return this.getPrivate('account/v1/deposit/address', params);
   }
 
-  getAccountWithdrawQuotaV1(): Promise<APIResponse<any>> {
+  getAccountWithdrawQuotaV1(
+    params: GetAccountDepositAddressV1Params,
+  ): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/withdraw/charge');
   }
 
@@ -359,49 +369,36 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  marginBorrowV1(params: {
-    symbol: string;
-    currency: string;
-    amount: string;
-  }): Promise<APIResponse<MarginBorrowV1Result>> {
+  marginBorrowV1(
+    params: MarginBorrowV1Params,
+  ): Promise<APIResponse<MarginBorrowV1Result>> {
     return this.postPrivate('spot/v1/margin/isolated/borrow', params);
   }
 
-  marginRepayV1(params: {
-    symbol: string;
-    currency: string;
-    amount: string;
-  }): Promise<APIResponse<MarginRepayV1Result>> {
+  marginRepayV1(
+    params: MarginRepayV1Params,
+  ): Promise<APIResponse<MarginRepayV1Result>> {
     return this.postPrivate('spot/v1/margin/isolated/repay', params);
   }
 
-  getMarginBorrowRecordV1(params: {
-    symbol: string;
-    borrow_id?: string;
-    start_time?: number;
-    end_time?: number;
-    N?: number;
-  }): Promise<APIResponse<GetMarginBorrowRecordV1Result>> {
+  getMarginBorrowRecordV1(
+    params: GetMarginBorrowRecordV1Params,
+  ): Promise<APIResponse<GetMarginBorrowRecordV1Result>> {
     return this.getPrivate('spot/v1/margin/isolated/borrow_record', params);
   }
 
-  getMarginRepayRecordV1(params: {
-    symbol: string;
-    repay_id?: string;
-    currency?: string;
-    start_time?: number;
-    end_time?: number;
-    N?: number;
-  }): Promise<APIResponse<GetMarginRepayRecordV1Result>> {
+  getMarginRepayRecordV1(
+    params: GetMarginRepayRecordV1Params,
+  ): Promise<APIResponse<GetMarginRepayRecordV1Result>> {
     return this.getPrivate('spot/v1/margin/isolated/repay_record', params);
   }
 
   /**
    * Get Trading Pair Borrowing Rate and Amount
    */
-  getMarginBorrowingRatesV1(params?: {
-    symbol?: string;
-  }): Promise<APIResponse<GetMarginBorrowingRatesV1Result>> {
+  getMarginBorrowingRatesV1(
+    params?: GetMarginBorrowingRatesV1Params,
+  ): Promise<APIResponse<GetMarginBorrowingRatesV1Result>> {
     return this.getPrivate('spot/v1/margin/isolated/pairs', params);
   }
 
