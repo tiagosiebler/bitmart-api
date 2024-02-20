@@ -108,7 +108,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/symbols/details');
   }
 
-  getSpotAllTickersV3(): Promise<
+  getSpotTickersV3(): Promise<
     APIResponse<{
       tickers: Array<{
         symbol: string;
@@ -227,7 +227,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotAllTickersV2(): Promise<
+  getSpotTickersV2(): Promise<
     APIResponse<{
       tickers: Array<{
         symbol: string;
@@ -273,7 +273,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/ticker_detail', params);
   }
 
-  getSpotKLineStepV1(): Promise<
+  getSpotKLineStepsV1(): Promise<
     APIResponse<{
       steps: number[];
     }>
@@ -281,7 +281,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/steps');
   }
 
-  getSpotSymbolKlineV1(params: {
+  getSpotKlinesV1(params: {
     symbol: string;
     from: number;
     to: number;
@@ -390,11 +390,11 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('spot/v1/wallet');
   }
 
-  getSpotDepositAddressV1(): Promise<APIResponse<any>> {
+  getAccountDepositAddressV1(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/deposit/address');
   }
 
-  getSpotWithdrawQuotaV1(): Promise<APIResponse<any>> {
+  getAccountWithdrawQuotaV1(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/withdraw/charge');
   }
 
@@ -432,7 +432,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v2/deposit-withdraw/history', params);
   }
 
-  getDepositWithdrawDetails(params: { id: string }): Promise<
+  getDepositWithdrawDetailsV1(params: { id: string }): Promise<
     APIResponse<{
       record: {
         withdraw_id: string;
@@ -452,7 +452,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v1/deposit-withdraw/detail', params);
   }
 
-  getSpotMarginAccountDetails(params?: { symbol?: string }): Promise<
+  getMarginAccountDetailsV1(params?: { symbol?: string }): Promise<
     APIResponse<{
       symbols: Array<{
         symbol: string;
@@ -492,7 +492,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/margin/isolated/account', params);
   }
 
-  submitMarginTransfer(params: {
+  submitMarginTransferV1(params: {
     symbol: string;
     currency: string;
     amount: string;
@@ -505,7 +505,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/isolated/transfer', params);
   }
 
-  getUserFees(): Promise<
+  getBasicFeeRateV1(): Promise<
     APIResponse<{
       user_rate_type: number;
       level: string;
@@ -520,7 +520,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/user_fee');
   }
 
-  getTradeFees(params: { symbol: string }): Promise<
+  getActualFeeRateV1(params: { symbol: string }): Promise<
     APIResponse<{
       symbol: string;
       buy_taker_fee_rate: string;
@@ -538,7 +538,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  submitSpotOrder(params: {
+  submitSpotOrderV2(params: {
     symbol: string;
     side: 'buy' | 'sell';
     type: 'limit' | 'market' | 'limit_maker' | 'ioc';
@@ -554,7 +554,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v2/submit_order', params);
   }
 
-  SubmitMarginOrder(params: {
+  submitMarginOrderV1(params: {
     symbol: string;
     side: 'buy' | 'sell';
     type: 'limit' | 'market' | 'limit_maker' | 'ioc';
@@ -570,7 +570,7 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v1/margin/submit_order', params);
   }
 
-  submitBatchOrder(params: {
+  submitBatchOrderV2(params: {
     order_params: Array<{
       symbol: string;
       side: 'buy' | 'sell';
@@ -594,11 +594,13 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v2/batch_orders', params);
   }
 
-  cancelOrder(params: {
-    symbol: string;
-    order_id?: string;
-    client_order_id?: string;
-  }): Promise<
+  cancelOrderV3(
+    params: {
+      symbol: string;
+      order_id?: string;
+      client_order_id?: string;
+    } & ({ order_id: string } | { client_order_id: string }),
+  ): Promise<
     APIResponse<{
       result: boolean;
     }>
