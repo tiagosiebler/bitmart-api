@@ -256,6 +256,7 @@ export abstract class BaseRestClient {
 
     const res: SignedRequest<T> = {
       originalParams: {
+        recvWindow: this.options.recvWindow,
         ...data,
       },
       sign: '',
@@ -277,17 +278,16 @@ export abstract class BaseRestClient {
       const signRequestParams =
         method === 'GET' || method === 'DELETE'
           ? serializeParams(
-              data,
+              res.originalParams,
               strictParamValidation,
               encodeQueryStringValues,
               '?',
             )
-          : JSON.stringify(data) || '';
+          : JSON.stringify(res.originalParams) || '';
 
       const paramsStr = `${timestamp}#${this.apiMemo}#${signRequestParams}`;
 
       res.sign = await signMessage(paramsStr, this.apiSecret, 'hex');
-
       res.queryParamsWithSign = signRequestParams;
       return res;
     }

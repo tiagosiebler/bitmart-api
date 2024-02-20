@@ -35,7 +35,7 @@ async function start() {
     //   size: String(qty),
     // });
 
-    const res = await client.submitSpotOrder({
+    const res = await client.submitSpotOrderV2({
       symbol: 'BTC_USDT',
       side: 'sell',
       type: 'market',

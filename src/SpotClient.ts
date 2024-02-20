@@ -609,7 +609,10 @@ export class SpotClient extends BaseRestClient {
     return this.post('spot/v3/cancel_order', params);
   }
 
-  cancelBatchOrder(params: {
+  /**
+   * Cancel all outstanding orders in the specified side for a trading pair
+   */
+  cancelOrdersForSideV1(params: {
     symbol?: string;
     side?: 'buy' | 'sell';
   }): Promise<APIResponse<{}>> {
