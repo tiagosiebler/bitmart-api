@@ -35,7 +35,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('system/time');
   }
 
-  getServiceSystemStatus(): Promise<
+  getSystemStatus(): Promise<
     APIResponse<{
       service: Array<{
         title: string;
@@ -55,7 +55,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotCurrencyListV1(): Promise<
+  getSpotCurrenciesV1(): Promise<
     APIResponse<{
       currencies: Array<{
         id: string;
@@ -68,7 +68,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('spot/v1/currencies');
   }
 
-  getSpotTradingPairsListV1(): Promise<
+  getSpotTradingPairsV1(): Promise<
     APIResponse<{
       symbols: Array<{
         symbol: string;
@@ -347,7 +347,7 @@ export class SpotClient extends BaseRestClient {
    *
    **/
 
-  getSpotAccountBalance(params?: { currency?: string }): Promise<
+  getAccountBalancesV1(params?: { currency?: string }): Promise<
     APIResponse<{
       wallet: Array<{
         currency: string;
@@ -360,7 +360,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('account/v1/wallet', params);
   }
 
-  getSpotCurrencies(): Promise<
+  getAccountCurrenciesV1(): Promise<
     APIResponse<{
       currencies: Array<{
         currency: string;
@@ -377,7 +377,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('account/v1/currencies');
   }
 
-  getSpotWalletBalance(): Promise<
+  getSpotWalletBalanceV1(): Promise<
     APIResponse<{
       wallet: Array<{
         id: string;
@@ -390,15 +390,15 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('spot/v1/wallet');
   }
 
-  getSpotDepositAddress(): Promise<APIResponse<any>> {
+  getSpotDepositAddressV1(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/deposit/address');
   }
 
-  getSpotWithdrawQuota(): Promise<APIResponse<any>> {
+  getSpotWithdrawQuotaV1(): Promise<APIResponse<any>> {
     return this.getPrivate('account/v1/withdraw/charge');
   }
 
-  submitWithdrawal(params: {
+  submitWithdrawalV1(params: {
     currency: string;
     amount: string;
     destination: 'To Digital Address';
@@ -408,7 +408,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('account/v1/withdraw/apply', params);
   }
 
-  getDepositWithdrawHistory(params?: {
+  getDepositWithdrawHistoryV2(params?: {
     currency?: string;
     operation_type: 'deposit' | 'withdraw';
     N: number;
