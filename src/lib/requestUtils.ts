@@ -8,7 +8,10 @@ export interface RestClientOptions {
   /** Your API memo (can be anything) that you included when creating this API key */
   apiMemo?: string;
 
-  /** Override the max size of the request window (in ms) */
+  /**
+   * Override the default/global max size of the request window (in ms) for signed api calls.
+   * If you don't include a recv window when making an API call, this value will be used as default
+   */
   recvWindow?: number;
 
   /** Default: false. If true, we'll throw errors if any params are undefined */
@@ -26,9 +29,9 @@ export interface RestClientOptions {
 
 export function serializeParams<T extends Record<string, any> | undefined = {}>(
   params: T,
-  strict_validation = false,
-  encodeValues: boolean = true,
-  prefixWith: string = '',
+  strict_validation: boolean | undefined,
+  encodeValues: boolean,
+  prefixWith: string,
 ): string {
   if (!params) {
     return '';
@@ -81,13 +84,3 @@ export function isWsPong(msg: any): boolean {
   }
   return false;
 }
-
-/**
- * Used to switch how authentication/requests work under the hood (primarily for SPOT since it's different there)
- */
-export const REST_CLIENT_TYPE_ENUM = {
-  spot: 'spot',
-  futures: 'futures',
-  broker: 'broker',
-  v2: 'v2',
-} as const;

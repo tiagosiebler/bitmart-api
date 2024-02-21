@@ -1,5 +1,9 @@
 import { AxiosRequestConfig } from 'axios';
-import { BaseRestClient, RestClientType } from './lib/BaseRestClient.js';
+import {
+  BaseRestClient,
+  REST_CLIENT_TYPE_ENUM,
+  RestClientType,
+} from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
   CancelOrderV3Params,
@@ -43,7 +47,7 @@ import {
   SubmitSubTransferSubToSubV1Params,
   SubmitWithdrawalV1Params,
 } from './types/request/spot.types.js';
-import { APIResponse } from './types/response/shared.js';
+import { APIResponse } from './types/response/shared.types.js';
 import {
   CancelOrderV3Result,
   GetAccountBalancesV1Result,
@@ -93,9 +97,9 @@ import {
 } from './types/response/spot.types.js';
 
 /**
- *
+ * Unified REST API client for all of Bitmart's REST APIs
  */
-export class SpotClient extends BaseRestClient {
+export class RestClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
@@ -105,7 +109,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   getClientType(): RestClientType {
-    return 'spot';
+    return REST_CLIENT_TYPE_ENUM.main;
   }
 
   /**

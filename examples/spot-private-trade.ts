@@ -1,4 +1,4 @@
-import { SpotClient } from '../src';
+import { RestClient } from '../src';
 
 const readWriteAccount = {
   key: 'keyHere',
@@ -9,7 +9,7 @@ const readWriteAccount = {
 async function start() {
   const account = readWriteAccount;
 
-  const client = new SpotClient({
+  const client = new RestClient({
     apiKey: account.key,
     apiSecret: account.secret,
     apiMemo: account.memo,

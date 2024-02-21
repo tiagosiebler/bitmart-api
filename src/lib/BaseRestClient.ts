@@ -16,7 +16,7 @@ const MISSING_API_KEYS_ERROR =
  * Used to switch how authentication/requests work under the hood
  */
 export const REST_CLIENT_TYPE_ENUM = {
-  spot: 'spot',
+  main: 'main',
 } as const;
 
 export type RestClientType =
