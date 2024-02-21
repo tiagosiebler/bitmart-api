@@ -546,8 +546,8 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('contract/private/trades');
   }
 
-  getFuturesTransferList(): Promise<APIResponse<any>> {
-    return this.postPrivate('account/v1/transfer-contract-list');
+  getFuturesTransfers(): Promise<APIResponse<any>> {
+    return this.getPrivate('account/v1/transfer-contract-list');
   }
 
   submitFuturesOrder(): Promise<APIResponse<any>> {
