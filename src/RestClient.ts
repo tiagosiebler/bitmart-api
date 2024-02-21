@@ -97,6 +97,53 @@ import {
   SystemTimeResult,
   getAccountCurrenciesV1Result,
 } from './types/response/spot.types.js';
+import {
+  GetFuturesContractDetailsParams,
+  GetFuturesContractDepthParams,
+  GetFuturesOpenInterestParams,
+  GetFuturesFundingRateParams,
+  GetFuturesOrderParams,
+  GetFuturesOrderHistoryParams,
+  GetFuturesOpenOrdersParams,
+  GetFuturesPlanOrdersParams,
+  GetFuturesPositionsParams,
+  GetFuturesTradesParams,
+  GetFuturesTransfersParams,
+  SubmitFuturesOrderParams,
+  CancelFuturesOrderParams,
+  CancelAllFuturesOrdersParams,
+  CancelFuturesPlanOrderParams,
+  SetFuturesLeverageParams,
+  SubmitFuturesPlanOrderParams,
+  SubmitFuturesTransferParams,
+  GetFuturesSubTransferHistoryParams,
+  GetFuturesSubTransfersParams,
+  GetFuturesSubWalletParams,
+  SubmitFuturesSubToMainSubFromSubParams,
+  TransferFuturesAssetsParams,
+  GetFuturesAffiliateRebatesParams,
+  GetFuturesAffiliateTradesParams,
+} from 'types/request/futures.types.js';
+import {
+  GetFuturesContractDetailsResult,
+  GetFuturesContractDepthResult,
+  GetFuturesOpenInterestResult,
+  GetFuturesFundingRateResult,
+  GetFuturesAssetsResult,
+  GetFuturesOrderResult,
+  GetFuturesOrderHistoryResult,
+  GetFuturesOpenOrdersResult,
+  GetFuturesPlanOrdersResult,
+  GetFuturesPositionsResult,
+  GetFuturesTradesResult,
+  GetFuturesTransfersResult,
+  SubmitFuturesOrderResult,
+  SetFuturesLeverageResult,
+  SubmitFuturesPlanOrderResult,
+  SubmitFuturesTransferResult,
+  GetFuturesSubTransfersResult,
+  GetFuturesSubWalletResult,
+} from 'types/response/futures.types.js';
 
 /**
  * Unified REST API client for all of Bitmart's REST APIs
@@ -486,20 +533,28 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  getFuturesContractDetails(): Promise<APIResponse<any>> {
-    return this.get('contract/public/details');
+  getFuturesContractDetails(
+    params?: GetFuturesContractDetailsParams,
+  ): Promise<APIResponse<GetFuturesContractDetailsResult>> {
+    return this.get('contract/public/details', params);
   }
 
-  getFuturesContractDepth(): Promise<APIResponse<any>> {
-    return this.get('contract/public/depth');
+  getFuturesContractDepth(
+    params: GetFuturesContractDepthParams,
+  ): Promise<APIResponse<GetFuturesContractDepthResult>> {
+    return this.get('contract/public/depth', params);
   }
 
-  getFuturesOpenInterest(): Promise<APIResponse<any>> {
-    return this.get('contract/public/open-interest');
+  getFuturesOpenInterest(
+    params: GetFuturesOpenInterestParams,
+  ): Promise<APIResponse<GetFuturesOpenInterestResult>> {
+    return this.get('contract/public/open-interest', params);
   }
 
-  getFuturesFundingRate(): Promise<APIResponse<any>> {
-    return this.get('contract/public/funding-rate');
+  getFuturesFundingRate(
+    params: GetFuturesFundingRateParams,
+  ): Promise<APIResponse<GetFuturesFundingRateResult>> {
+    return this.get('contract/public/funding-rate', params);
   }
 
   getFuturesKlines(): Promise<APIResponse<any>> {
@@ -512,7 +567,7 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  getFuturesAssets(): Promise<APIResponse<any>> {
+  getFuturesAssets(): Promise<APIResponse<GetFuturesAssetsResult>> {
     return this.getPrivate('contract/private/assets-detail');
   }
 
@@ -522,60 +577,88 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  getFuturesOrder(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/order');
+  getFuturesOrder(
+    params: GetFuturesOrderParams,
+  ): Promise<APIResponse<GetFuturesOrderResult>> {
+    return this.getPrivate('contract/private/order', params);
   }
 
-  getFuturesOrderHistory(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/order-history');
+  getFuturesOrderHistory(
+    params: GetFuturesOrderHistoryParams,
+  ): Promise<APIResponse<GetFuturesOrderHistoryResult>> {
+    return this.getPrivate('contract/private/order-history', params);
   }
 
-  getFuturesOpenOrders(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/getFutures-open-orders');
+  getFuturesOpenOrders(
+    params?: GetFuturesOpenOrdersParams,
+  ): Promise<APIResponse<GetFuturesOpenOrdersResult>> {
+    return this.getPrivate('contract/private/get-open-orders', params);
   }
 
-  getFuturesPlanOrders(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/current-plan-order');
+  getFuturesPlanOrders(
+    params?: GetFuturesPlanOrdersParams,
+  ): Promise<APIResponse<GetFuturesPlanOrdersResult>> {
+    return this.getPrivate('contract/private/current-plan-order', params);
   }
 
-  getFuturesPositions(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/position');
+  getFuturesPositions(
+    params?: GetFuturesPositionsParams,
+  ): Promise<APIResponse<GetFuturesPositionsResult>> {
+    return this.getPrivate('contract/private/position', params);
   }
 
-  getFuturesTrades(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/trades');
+  getFuturesTrades(
+    params: GetFuturesTradesParams,
+  ): Promise<APIResponse<GetFuturesTradesResult>> {
+    return this.getPrivate('contract/private/trades', params);
   }
 
-  getFuturesTransfers(): Promise<APIResponse<any>> {
-    return this.getPrivate('account/v1/transfer-contract-list');
+  getFuturesTransfers(
+    params: GetFuturesTransfersParams,
+  ): Promise<APIResponse<GetFuturesTransfersResult>> {
+    return this.getPrivate('account/v1/transfer-contract-list', params);
   }
 
-  submitFuturesOrder(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/submit-order');
+  submitFuturesOrder(
+    params: SubmitFuturesOrderParams,
+  ): Promise<APIResponse<SubmitFuturesOrderResult>> {
+    return this.postPrivate('contract/private/submit-order', params);
   }
 
-  cancelFuturesOrder(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/cancel-order');
+  cancelFuturesOrder(
+    params: CancelFuturesOrderParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-order', params);
   }
 
-  cancelAllFuturesOrders(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/cancel-orders');
+  cancelAllFuturesOrders(
+    params: CancelAllFuturesOrdersParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-orders', params);
   }
 
-  submitFuturesPlanOrder(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/submit-plan-order');
+  submitFuturesPlanOrder(
+    params: SubmitFuturesPlanOrderParams,
+  ): Promise<APIResponse<SubmitFuturesPlanOrderResult>> {
+    return this.postPrivate('contract/private/submit-plan-order', params);
   }
 
-  cancelFuturesPlanOrder(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/cancel-plan-order');
+  cancelFuturesPlanOrder(
+    params: CancelFuturesPlanOrderParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-plan-order', params);
   }
 
-  submitFuturesTransfer(): Promise<APIResponse<any>> {
-    return this.postPrivate('account/v1/transfer-contract');
+  submitFuturesTransfer(
+    params: SubmitFuturesTransferParams,
+  ): Promise<APIResponse<SubmitFuturesTransferResult>> {
+    return this.postPrivate('account/v1/transfer-contract', params);
   }
 
-  setFuturesLeverage(): Promise<APIResponse<any>> {
-    return this.postPrivate('contract/private/submit-leverage');
+  setFuturesLeverage(
+    params: SetFuturesLeverageParams,
+  ): Promise<APIResponse<SetFuturesLeverageResult>> {
+    return this.postPrivate('contract/private/submit-leverage', params);
   }
 
   /**
@@ -584,30 +667,58 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  submitFuturesSubToMainTransferFromMain(): Promise<APIResponse<any>> {
-    return this.postPrivate('account/contract/sub-account/main/v1/sub-to-main');
-  }
-
-  submitFuturesMainToSubTransferFromMain(): Promise<APIResponse<any>> {
-    return this.postPrivate('account/contract/sub-account/main/v1/main-to-sub');
-  }
-
-  submitFuturesSubToMainSubFromSub(): Promise<APIResponse<any>> {
-    return this.postPrivate('account/contract/sub-account/sub/v1/sub-to-main');
-  }
-
-  getFuturesSubWallet(): Promise<APIResponse<any>> {
-    return this.getPrivate('account/contract/sub-account/main/v1/wallet');
-  }
-
-  getFuturesSubTransfers(): Promise<APIResponse<any>> {
-    return this.getPrivate(
-      'account/contract/sub-account/main/v1/transfer-list',
+  submitFuturesSubToMainTransferFromMain(
+    params: TransferFuturesAssetsParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate(
+      'account/contract/sub-account/main/v1/sub-to-main',
+      params,
     );
   }
 
-  getFuturesSubTransferHistory(): Promise<APIResponse<any>> {
-    return this.getPrivate('account/contract/sub-account/v1/transfer-history');
+  submitFuturesMainToSubTransferFromMain(
+    params: TransferFuturesAssetsParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate(
+      'account/contract/sub-account/main/v1/main-to-sub',
+      params,
+    );
+  }
+
+  submitFuturesSubToMainSubFromSub(
+    params: SubmitFuturesSubToMainSubFromSubParams,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate(
+      'account/contract/sub-account/sub/v1/sub-to-main',
+      params,
+    );
+  }
+
+  getFuturesSubWallet(
+    params?: GetFuturesSubWalletParams,
+  ): Promise<APIResponse<GetFuturesSubWalletResult>> {
+    return this.getPrivate(
+      'account/contract/sub-account/main/v1/wallet',
+      params,
+    );
+  }
+
+  getFuturesSubTransfers(
+    params: GetFuturesSubTransfersParams,
+  ): Promise<APIResponse<GetFuturesSubTransfersResult>> {
+    return this.getPrivate(
+      'account/contract/sub-account/main/v1/transfer-list',
+      params,
+    );
+  }
+
+  getFuturesSubTransferHistory(
+    params: GetFuturesSubTransferHistoryParams,
+  ): Promise<APIResponse<GetFuturesSubTransfersResult>> {
+    return this.getPrivate(
+      'account/contract/sub-account/v1/transfer-history',
+      params,
+    );
   }
 
   /**
@@ -616,12 +727,16 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  getFuturesAffiliateRebates(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/affiliate/rebate-list');
+  getFuturesAffiliateRebates(
+    params: GetFuturesAffiliateRebatesParams,
+  ): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/affiliate/rebate-list', params);
   }
 
-  getFuturesAffiliateTrades(): Promise<APIResponse<any>> {
-    return this.getPrivate('contract/private/affiliate/trade-list');
+  getFuturesAffiliateTrades(
+    params: GetFuturesAffiliateTradesParams,
+  ): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/affiliate/trade-list', params);
   }
 
   /**

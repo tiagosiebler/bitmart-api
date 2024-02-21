@@ -28,6 +28,7 @@
     "ws": "^7.4.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.11.6",
     "@typescript-eslint/parser": "^5.46.0",
