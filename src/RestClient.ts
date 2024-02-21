@@ -1,10 +1,13 @@
 import { AxiosRequestConfig } from 'axios';
+
 import {
   BaseRestClient,
   REST_CLIENT_TYPE_ENUM,
   RestClientType,
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
+import { APIResponse } from './types/response/shared.types.js';
+
 import {
   CancelOrderV3Params,
   CancelOrdersForSideV1Params,
@@ -47,7 +50,6 @@ import {
   SubmitSubTransferSubToSubV1Params,
   SubmitWithdrawalV1Params,
 } from './types/request/spot.types.js';
-import { APIResponse } from './types/response/shared.types.js';
 import {
   CancelOrderV3Result,
   GetAccountBalancesV1Result,
@@ -472,7 +474,159 @@ export class RestClient extends BaseRestClient {
 
   /**
    *
-   * Rebate Endpoints
+   *****************
+   * USD-M Futures *
+   *****************
+   *
+   */
+
+  /**
+   *
+   * Futures Market Data
+   *
+   */
+
+  getFuturesContractDetails(): Promise<APIResponse<any>> {
+    return this.get('contract/public/details');
+  }
+
+  getFuturesContractDepth(): Promise<APIResponse<any>> {
+    return this.get('contract/public/depth');
+  }
+
+  getFuturesOpenInterest(): Promise<APIResponse<any>> {
+    return this.get('contract/public/open-interest');
+  }
+
+  getFuturesFundingRate(): Promise<APIResponse<any>> {
+    return this.get('contract/public/funding-rate');
+  }
+
+  getFuturesKlines(): Promise<APIResponse<any>> {
+    return this.get('contract/public/kline');
+  }
+
+  /**
+   *
+   * Futures Account Data
+   *
+   */
+
+  getFuturesAssets(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/assets-detail');
+  }
+
+  /**
+   *
+   * Futures Trading
+   *
+   */
+
+  getFuturesOrder(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/order');
+  }
+
+  getFuturesOrderHistory(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/order-history');
+  }
+
+  getFuturesOpenOrders(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/getFutures-open-orders');
+  }
+
+  getFuturesPlanOrders(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/current-plan-order');
+  }
+
+  getFuturesPositions(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/position');
+  }
+
+  getFuturesTrades(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/trades');
+  }
+
+  getFuturesTransferList(): Promise<APIResponse<any>> {
+    return this.postPrivate('account/v1/transfer-contract-list');
+  }
+
+  submitFuturesOrder(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/submit-order');
+  }
+
+  cancelFuturesOrder(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-order');
+  }
+
+  cancelAllFuturesOrders(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-orders');
+  }
+
+  submitFuturesPlanOrder(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/submit-plan-order');
+  }
+
+  cancelFuturesPlanOrder(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-plan-order');
+  }
+
+  submitFuturesTransfer(): Promise<APIResponse<any>> {
+    return this.postPrivate('account/v1/transfer-contract');
+  }
+
+  setFuturesLeverage(): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/submit-leverage');
+  }
+
+  /**
+   *
+   * Futures Sub-Account Endpoints
+   *
+   */
+
+  submitFuturesSubToMainTransferFromMain(): Promise<APIResponse<any>> {
+    return this.postPrivate('account/contract/sub-account/main/v1/sub-to-main');
+  }
+
+  submitFuturesMainToSubTransferFromMain(): Promise<APIResponse<any>> {
+    return this.postPrivate('account/contract/sub-account/main/v1/main-to-sub');
+  }
+
+  submitFuturesSubToMainSubFromSub(): Promise<APIResponse<any>> {
+    return this.postPrivate('account/contract/sub-account/sub/v1/sub-to-main');
+  }
+
+  getFuturesSubWallet(): Promise<APIResponse<any>> {
+    return this.getPrivate('account/contract/sub-account/main/v1/wallet');
+  }
+
+  getFuturesSubTransfers(): Promise<APIResponse<any>> {
+    return this.getPrivate(
+      'account/contract/sub-account/main/v1/transfer-list',
+    );
+  }
+
+  getFuturesSubTransferHistory(): Promise<APIResponse<any>> {
+    return this.getPrivate('account/contract/sub-account/v1/transfer-history');
+  }
+
+  /**
+   *
+   * Futures Affiliate Endpoints
+   *
+   */
+
+  getFuturesAffiliateRebates(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/affiliate/rebate-list');
+  }
+
+  getFuturesAffiliateTrades(): Promise<APIResponse<any>> {
+    return this.getPrivate('contract/private/affiliate/trade-list');
+  }
+
+  /**
+   *
+   * API Broker Endpoints
    *
    **/
 
