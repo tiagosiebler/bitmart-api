@@ -181,7 +181,7 @@ export type GetFuturesPositionsResult = {
   current_amount: string;
   unrealized_value: string;
   realized_value: string;
-  position_type: 1 | 2; // Adjusted to positive numbers as requested
+  position_type: 1 | 2;
 }[];
 
 export type GetFuturesTradesResult = {

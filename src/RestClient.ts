@@ -123,6 +123,7 @@ import {
   TransferFuturesAssetsParams,
   GetFuturesAffiliateRebatesParams,
   GetFuturesAffiliateTradesParams,
+  GetFuturesKlinesParams,
 } from 'types/request/futures.types.js';
 import {
   GetFuturesContractDetailsResult,
@@ -143,6 +144,7 @@ import {
   SubmitFuturesTransferResult,
   GetFuturesSubTransfersResult,
   GetFuturesSubWalletResult,
+  GetFuturesKlinesResult,
 } from 'types/response/futures.types.js';
 
 /**
@@ -557,8 +559,10 @@ export class RestClient extends BaseRestClient {
     return this.get('contract/public/funding-rate', params);
   }
 
-  getFuturesKlines(): Promise<APIResponse<any>> {
-    return this.get('contract/public/kline');
+  getFuturesKlines(
+    params: GetFuturesKlinesParams,
+  ): Promise<APIResponse<GetFuturesKlinesResult>> {
+    return this.get('contract/public/kline', params);
   }
 
   /**
