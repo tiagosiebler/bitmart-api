@@ -114,7 +114,7 @@ export interface SubmitMarginOrderV1Params {
 }
 
 // Interface for submitBatchOrderV2 parameters
-export interface SubmitBatchOrderV2Params {
+export interface SubmitBatchOrdersV2Params {
   order_params: {
     symbol: string;
     side: 'buy' | 'sell';
@@ -127,7 +127,7 @@ export interface SubmitBatchOrderV2Params {
 }
 
 // Interface for cancelOrderV3 parameters
-export type CancelOrderV3Params = {
+export type CancelOrdersV3Params = {
   symbol: string;
   order_id?: string;
   client_order_id?: string;

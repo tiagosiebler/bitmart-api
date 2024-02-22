@@ -1,6 +1,6 @@
-export interface APIResponse<TData = {}> {
+export interface APIResponse<TData = {}, TCode = number> {
   message: string;
-  code: number;
+  code: TCode;
   trace: string;
   data: TData;
 }

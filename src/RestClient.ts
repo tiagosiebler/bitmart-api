@@ -6,10 +6,10 @@ import {
   RestClientType,
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
-import { APIResponse } from './types/response/shared.types.js';
+import { APIResponse, OrderSide } from './types/response/shared.types.js';
 
 import {
-  CancelOrderV3Params,
+  CancelOrdersV3Params,
   CancelOrdersForSideV1Params,
   GetAccountBalancesV1Params,
   GetAccountDepositAddressV1Params,
@@ -39,7 +39,7 @@ import {
   MarginBorrowV1Params,
   MarginRepayV1Params,
   SpotBrokerRebateRequest,
-  SubmitBatchOrderV2Params,
+  SubmitBatchOrdersV2Params,
   SubmitMainTransferMainToSubV1Params,
   SubmitMainTransferSubToMainV1Params,
   SubmitMainTransferSubToSubV1Params,
@@ -62,7 +62,7 @@ import {
   GetSpotOpenOrdersV4Result,
   SpotOrderBookDepthResultV1,
   GetSpotOrderBookDepthResultV3,
-  GetSpotOrderByIdV4Result,
+  SpotOrderV4,
   GetSpotOrderHistoryV4Result,
   GetSpotOrderTransactionsV4Result,
   SpotTickerV1,
@@ -93,6 +93,7 @@ import {
   AccountWithdrawQuotaV1,
   AccountDepositWithdrawHistoryV2,
   SymbolMarginAccountDetailsV1,
+  SubmittedSpotBatchOrderResponseV2,
 } from './types/response/spot.types.js';
 import {
   GetFuturesContractDetailsParams,
@@ -346,66 +347,70 @@ export class RestClient extends BaseRestClient {
 
   submitSpotOrderV2(
     params: SubmitSpotOrderV2Params,
-  ): Promise<APIResponse<SubmitSpotOrderV2Result>> {
+  ): Promise<APIResponse<{ order_id: string }>> {
     return this.postPrivate('spot/v2/submit_order', params);
   }
 
   submitMarginOrderV1(
     params: SubmitMarginOrderV1Params,
-  ): Promise<APIResponse<SubmitMarginOrderV1Result>> {
+  ): Promise<APIResponse<{ order_id: number }>> {
     return this.postPrivate('spot/v1/margin/submit_order', params);
   }
 
-  submitBatchOrderV2(
-    params: SubmitBatchOrderV2Params,
-  ): Promise<APIResponse<SubmitBatchOrderV2Result>> {
+  submitSpotBatchOrdersV2(
+    params: SubmitBatchOrdersV2Params,
+  ): Promise<APIResponse<{ responses: SubmittedSpotBatchOrderResponseV2[] }>> {
     return this.postPrivate('spot/v2/batch_orders', params);
   }
 
   cancelOrderV3(
-    params: CancelOrderV3Params,
-  ): Promise<APIResponse<CancelOrderV3Result>> {
-    // This function sends a POST request to the BitMart API to cancel a specified unfinished order
+    params: CancelOrdersV3Params,
+  ): Promise<APIResponse<{ result: boolean }>> {
     return this.postPrivate('spot/v3/cancel_order', params);
   }
 
-  /**
-   * Cancel all outstanding orders in the specified side for a trading pair
-   */
-  cancelOrdersForSideV1(
-    params: CancelOrdersForSideV1Params,
-  ): Promise<APIResponse<{}>> {
+  /** Cancel Batch Order (v1) */
+  cancelSpotOrdersV1(params?: {
+    symbol?: string;
+    side?: OrderSide;
+  }): Promise<APIResponse<{}>> {
     return this.postPrivate('spot/v1/cancel_orders', params);
   }
 
+  /**
+   * Query a spot order by order ID
+   */
   getSpotOrderByIdV4(
     params: GetSpotOrderByIdV4Params,
-  ): Promise<APIResponse<GetSpotOrderByIdV4Result>> {
+  ): Promise<APIResponse<SpotOrderV4>> {
     return this.postPrivate('spot/v4/query/order', params);
   }
 
+  /**
+   * Query a spot order by client order ID
+   */
   getSpotOrderByClientOrderIdV4(
     params: GetSpotOrderByClientOrderIdV4Params,
-  ): Promise<APIResponse<GetSpotOrderByIdV4Result>> {
+  ): Promise<APIResponse<SpotOrderV4>> {
     return this.postPrivate('spot/v4/query/client-order', params);
   }
 
   getSpotOpenOrdersV4(
     params?: GetSpotOpenOrdersV4Params,
-  ): Promise<APIResponse<GetSpotOpenOrdersV4Result>> {
+  ): Promise<APIResponse<SpotOrderV4[]>> {
     return this.postPrivate('spot/v4/query/open-orders', params);
   }
 
   getSpotHistoricOrdersV4(
     params?: GetSpotOrderHistoryV4Params,
-  ): Promise<APIResponse<GetSpotOrderHistoryV4Result>> {
+  ): Promise<APIResponse<SpotOrderV4[]>> {
     return this.postPrivate('spot/v4/query/history-orders', params);
   }
 
   /**
    * Account Trade List(v4)
    */
-  getSpotTransactionsV4(
+  getSpotAccountTradesV4(
     params?: GetSpotTradeHistoryV4Params,
   ): Promise<APIResponse<GetSpotTradeHistoryV4Result>> {
     return this.postPrivate('spot/v4/query/trades', params);
@@ -414,7 +419,7 @@ export class RestClient extends BaseRestClient {
   /**
    * Get all transaction records for a single order
    */
-  getSpotOrderTransactionsV4(params: {
+  getSpotAccountOrderTradesV4(params: {
     orderId: string;
     recvWindow?: number;
   }): Promise<APIResponse<GetSpotOrderTransactionsV4Result>> {

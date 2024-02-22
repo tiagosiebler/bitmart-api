@@ -260,38 +260,37 @@ export interface GetActualFeeRateV1Result {
   sell_maker_fee_rate: string;
 }
 
-// Interface for submitSpotOrderV2 response
-export interface SubmitSpotOrderV2Result {
-  order_id: string;
+/**
+ *
+ * Spot/Margin Trading Endpoints
+ *
+ **/
+
+/**
+ * order_id is only present when successful
+ */
+export interface SubmittedSpotBatchOrderSuccessResponseV2 {
+  code: 0;
+  msg: string;
+  data: {
+    order_id: string;
+  };
 }
 
-// Interface for submitMarginOrderV1 response
-export interface SubmitMarginOrderV1Result {
-  order_id: number; // Note: The response type for order_id is number for margin orders
+export interface SubmittedSpotBatchOrderFailureResponseV2 {
+  code: number;
+  msg: string;
 }
 
-// Interface for submitBatchOrderV2 response
-export interface SubmitBatchOrderV2Result {
-  responses: {
-    code: number;
-    msg: string;
-    data?: {
-      order_id: string;
-    };
-  }[];
-}
+export type SubmittedSpotBatchOrderResponseV2 =
+  | SubmittedSpotBatchOrderSuccessResponseV2
+  | SubmittedSpotBatchOrderFailureResponseV2;
 
-// Interface for cancelOrderV3 response
-export interface CancelOrderV3Result {
-  result: boolean;
-}
-
-// Interface for getSpotOrderByIdV4 response
-export interface GetSpotOrderByIdV4Result {
+export interface SpotOrderV4 {
   orderId: string;
   clientOrderId: string;
   symbol: string;
-  side: string;
+  side: OrderSide;
   orderMode: string;
   type: string;
   state: string;
@@ -304,63 +303,6 @@ export interface GetSpotOrderByIdV4Result {
   createTime: number;
   updateTime: number;
 }
-
-// Interface for getSpotOrderByClientOrderIdV4 response
-export interface GetSpotOrderByClientOrderIdV4Result {
-  orderId: string;
-  clientOrderId: string;
-  symbol: string;
-  side: string;
-  orderMode: string;
-  type: string;
-  state: string;
-  price: string;
-  priceAvg: string;
-  size: string;
-  filledSize: string;
-  notional: string;
-  filledNotional: string;
-  createTime: number;
-  updateTime: number;
-}
-
-// Interface for getSpotOpenOrdersV4 response
-export type GetSpotOpenOrdersV4Result = {
-  orderId: string;
-  clientOrderId: string;
-  symbol: string;
-  side: string;
-  orderMode: string;
-  type: string;
-  state: string;
-  price: string;
-  priceAvg: string;
-  size: string;
-  filledSize: string;
-  notional: string;
-  filledNotional: string;
-  createTime: number;
-  updateTime: number;
-}[];
-
-// Interface for getSpotOrderHistoryV4 response
-export type GetSpotOrderHistoryV4Result = {
-  orderId: string;
-  clientOrderId: string;
-  symbol: string;
-  side: string;
-  orderMode: string;
-  type: string;
-  state: string;
-  price: string;
-  priceAvg: string;
-  size: string;
-  filledSize: string;
-  notional: string;
-  filledNotional: string;
-  createTime: number;
-  updateTime: number;
-}[];
 
 // Interface for getSpotTradeHistoryV4 response
 export interface GetSpotTradeHistoryV4Result {
@@ -368,7 +310,7 @@ export interface GetSpotTradeHistoryV4Result {
   orderId: string;
   clientOrderId: string;
   symbol: string;
-  side: 'buy' | 'sell';
+  side: OrderSide;
   orderMode: 'spot' | 'margin'; // Assuming 'margin' could be another possible value
   type: 'limit' | 'market'; // Add more types as needed
   price: string;
@@ -388,7 +330,7 @@ export interface GetSpotOrderTransactionsV4Result {
   orderId: string;
   clientOrderId: string;
   symbol: string;
-  side: 'buy' | 'sell';
+  side: OrderSide;
   orderMode: 'spot' | 'iso_margin';
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
   price: string;
