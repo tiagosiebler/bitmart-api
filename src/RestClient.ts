@@ -436,13 +436,13 @@ export class RestClient extends BaseRestClient {
 
   marginBorrowV1(
     params: MarginBorrowV1Params,
-  ): Promise<APIResponse<MarginBorrowV1Result>> {
+  ): Promise<APIResponse<{ borrow_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/borrow', params);
   }
 
   marginRepayV1(
     params: MarginRepayV1Params,
-  ): Promise<APIResponse<MarginRepayV1Result>> {
+  ): Promise<APIResponse<{ repay_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/repay', params);
   }
 

@@ -339,16 +339,11 @@ export interface SpotAccountOrderTradeV4 {
   createTime: number;
   updateTime: number;
 }
-
-// Interface for marginBorrowV1 response
-export interface MarginBorrowV1Result {
-  borrow_id: string;
-}
-
-// Interface for marginRepayV1 response
-export interface MarginRepayV1Result {
-  repay_id: string;
-}
+/**
+ *
+ * Margin Loan Endpoints (History versions)
+ *
+ **/
 
 // Interface for getMarginBorrowRecordV1 response
 export interface GetMarginBorrowRecordV1Result {
