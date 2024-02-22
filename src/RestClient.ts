@@ -52,50 +52,46 @@ import {
 } from './types/request/spot.types.js';
 import {
   CancelOrderV3Result,
-  GetAccountBalancesV1Result,
   GetAccountSubTransfersV1Result,
   GetActualFeeRateV1Result,
   GetBasicFeeRateV1Result,
-  GetDepositWithdrawDetailsV1Result,
-  GetDepositWithdrawHistoryV2Result,
   GetMarginAccountDetailsV1Result,
   GetMarginBorrowRecordV1Result,
   GetMarginBorrowingRatesV1Result,
   GetMarginRepayRecordV1Result,
-  GetSpotCurrenciesV1Result,
-  GetSpotHistoryKlineV3Result,
-  GetSpotKLineStepsV1Result,
-  GetSpotKlinesV1Result,
-  GetSpotLatestKlineV3Result,
   GetSpotOpenOrdersV4Result,
   GetSpotOrderBookDepthV1Result,
   GetSpotOrderBookDepthV3Result,
   GetSpotOrderByIdV4Result,
   GetSpotOrderHistoryV4Result,
   GetSpotOrderTransactionsV4Result,
-  GetSpotRecentTradesResult,
-  GetSpotTickerV1Result,
-  GetSpotTickerV3Result,
-  GetSpotTickersV2Result,
-  GetSpotTickersV3Result,
+  SpotTickerV1,
   GetSpotTradeHistoryV4Result,
-  GetSpotTradingPairDetailsV1Result,
-  GetSpotTradingPairsV1Result,
-  GetSpotWalletBalanceV1Result,
   GetSubAccountsV1Result,
   GetSubSpotWalletBalancesV1Result,
   GetSubTransfersV1Result,
-  GetSystemStatusResult,
   MarginBorrowV1Result,
   MarginRepayV1Result,
+  ServiceStatusRow,
   SpotBrokerRebateResult,
+  SpotCurrencyV1,
+  SpotTickerV3,
+  ArrayFormSpotTickerV3,
+  SpotTradingPairDetailsV1,
   SubmitBatchOrderV2Result,
   SubmitMarginOrderV1Result,
   SubmitMarginTransferV1Result,
   SubmitSpotOrderV2Result,
-  SubmitWithdrawalV1Result,
   SystemTimeResult,
-  getAccountCurrenciesV1Result,
+  ArrayFormSpotKlineV3,
+  ArrayFormSpotRecentTrade,
+  SpotKlineV1,
+  AccountCurrencyBalanceV1,
+  AccountCurrencyV1,
+  SpotWalletBalanceV1,
+  AccountDepositAddressV1,
+  AccountWithdrawQuotaV1,
+  AccountDepositWithdrawHistoryV2,
 } from './types/response/spot.types.js';
 import {
   GetFuturesContractDetailsParams,
@@ -173,7 +169,7 @@ export class RestClient extends BaseRestClient {
     return this.get('system/time');
   }
 
-  getSystemStatus(): Promise<APIResponse<GetSystemStatusResult>> {
+  getSystemStatus(): Promise<APIResponse<{ service: ServiceStatusRow[] }>> {
     return this.get('system/service');
   }
 
@@ -183,39 +179,41 @@ export class RestClient extends BaseRestClient {
    *
    **/
 
-  getSpotCurrenciesV1(): Promise<APIResponse<GetSpotCurrenciesV1Result>> {
+  getSpotCurrenciesV1(): Promise<
+    APIResponse<{ currencies: SpotCurrencyV1[] }>
+  > {
     return this.get('spot/v1/currencies');
   }
 
-  getSpotTradingPairsV1(): Promise<APIResponse<GetSpotTradingPairsV1Result>> {
+  getSpotTradingPairsV1(): Promise<APIResponse<{ symbols: string[] }>> {
     return this.get('spot/v1/symbols');
   }
 
   getSpotTradingPairDetailsV1(): Promise<
-    APIResponse<GetSpotTradingPairDetailsV1Result>
+    APIResponse<{ symbols: SpotTradingPairDetailsV1[] }>
   > {
     return this.get('spot/v1/symbols/details');
   }
 
-  getSpotTickersV3(): Promise<APIResponse<GetSpotTickersV3Result>> {
+  getSpotTickersV3(): Promise<APIResponse<ArrayFormSpotTickerV3[]>> {
     return this.get('spot/quotation/v3/tickers');
   }
 
   getSpotTickerV3(
     params?: GetSpotTickerV3Params,
-  ): Promise<APIResponse<GetSpotTickerV3Result>> {
+  ): Promise<APIResponse<SpotTickerV3>> {
     return this.get('spot/quotation/v3/ticker', params);
   }
 
   getSpotLatestKlineV3(
     params: GetSpotLatestKlineV3Params,
-  ): Promise<APIResponse<GetSpotLatestKlineV3Result>> {
+  ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/lite-klines', params);
   }
 
   getSpotHistoryKlineV3(
     params: GetSpotHistoryKlineV3Params,
-  ): Promise<APIResponse<GetSpotHistoryKlineV3Result>> {
+  ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/history-klines', params);
   }
 
@@ -227,7 +225,7 @@ export class RestClient extends BaseRestClient {
 
   getSpotRecentTrades(
     params: GetSpotRecentTradesParams,
-  ): Promise<APIResponse<GetSpotRecentTradesResult>> {
+  ): Promise<APIResponse<ArrayFormSpotRecentTrade[]>> {
     return this.get('spot/quotation/v3/trades', params);
   }
 
@@ -237,23 +235,23 @@ export class RestClient extends BaseRestClient {
    *
    **/
 
-  getSpotTickersV2(): Promise<APIResponse<GetSpotTickersV2Result>> {
+  getSpotTickersV2(): Promise<APIResponse<{ tickers: SpotTickerV1[] }>> {
     return this.get('spot/v2/ticker');
   }
 
   getSpotTickerV1(
     params: GetSpotTickerV1Params,
-  ): Promise<APIResponse<GetSpotTickerV1Result>> {
+  ): Promise<APIResponse<SpotTickerV1>> {
     return this.get('spot/v1/ticker_detail', params);
   }
 
-  getSpotKLineStepsV1(): Promise<APIResponse<GetSpotKLineStepsV1Result>> {
+  getSpotKLineStepsV1(): Promise<APIResponse<{ steps: number[] }>> {
     return this.get('spot/v1/steps');
   }
 
   getSpotKlinesV1(
     params: GetSpotKlinesV1Params,
-  ): Promise<APIResponse<GetSpotKlinesV1Result>> {
+  ): Promise<APIResponse<{ klines: SpotKlineV1[] }>> {
     return this.get('spot/v1/symbols/kline', params);
   }
 
@@ -271,45 +269,49 @@ export class RestClient extends BaseRestClient {
 
   getAccountBalancesV1(
     params?: GetAccountBalancesV1Params,
-  ): Promise<APIResponse<GetAccountBalancesV1Result>> {
+  ): Promise<APIResponse<{ wallet: AccountCurrencyBalanceV1[] }>> {
     return this.getPrivate('account/v1/wallet', params);
   }
 
-  getAccountCurrenciesV1(): Promise<APIResponse<getAccountCurrenciesV1Result>> {
+  getAccountCurrenciesV1(): Promise<
+    APIResponse<{ currencies: AccountCurrencyV1[] }>
+  > {
     return this.get('account/v1/currencies');
   }
 
-  getSpotWalletBalanceV1(): Promise<APIResponse<GetSpotWalletBalanceV1Result>> {
+  getSpotWalletBalanceV1(): Promise<
+    APIResponse<{ wallet: SpotWalletBalanceV1[] }>
+  > {
     return this.getPrivate('spot/v1/wallet');
   }
 
   getAccountDepositAddressV1(
     params: GetAccountDepositAddressV1Params,
-  ): Promise<APIResponse<any>> {
+  ): Promise<APIResponse<AccountDepositAddressV1>> {
     return this.getPrivate('account/v1/deposit/address', params);
   }
 
   getAccountWithdrawQuotaV1(
     params: GetAccountDepositAddressV1Params,
-  ): Promise<APIResponse<any>> {
-    return this.getPrivate('account/v1/withdraw/charge');
+  ): Promise<APIResponse<AccountWithdrawQuotaV1>> {
+    return this.getPrivate('account/v1/withdraw/charge', params);
   }
 
   submitWithdrawalV1(
     params: SubmitWithdrawalV1Params,
-  ): Promise<APIResponse<SubmitWithdrawalV1Result>> {
+  ): Promise<APIResponse<{ withdrawal_id: string }>> {
     return this.postPrivate('account/v1/withdraw/apply', params);
   }
 
   getDepositWithdrawHistoryV2(
     params?: GetDepositWithdrawHistoryV2Params,
-  ): Promise<APIResponse<GetDepositWithdrawHistoryV2Result>> {
+  ): Promise<APIResponse<{ records: AccountDepositWithdrawHistoryV2[] }>> {
     return this.getPrivate('account/v2/deposit-withdraw/history', params);
   }
 
-  getDepositWithdrawDetailsV1(
-    params: GetDepositWithdrawDetailsV1Params,
-  ): Promise<APIResponse<GetDepositWithdrawDetailsV1Result>> {
+  getDepositWithdrawDetail(params: {
+    id: string;
+  }): Promise<APIResponse<{ record: AccountDepositWithdrawHistoryV2 }>> {
     return this.getPrivate('account/v1/deposit-withdraw/detail', params);
   }
 

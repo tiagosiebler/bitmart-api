@@ -1,109 +1,116 @@
+import { OrderSide } from './shared.types';
+
 // Interface for getSystemTime response
 export interface SystemTimeResult {
   server_time: number;
 }
 
-// Interface for getSystemStatus response
-export interface GetSystemStatusResult {
-  service: {
-    title: string;
-    service_type: string;
-    status: number;
-    start_time: number;
-    end_time: number;
-  }[];
+export interface ServiceStatusRow {
+  title: string;
+  service_type: string;
+  status: number;
+  start_time: number;
+  end_time: number;
 }
 
-// Interface for getSpotCurrenciesV1 response
-export interface GetSpotCurrenciesV1Result {
-  currencies: {
-    id: string;
-    name: string;
-    withdraw_enabled: boolean;
-    deposit_enabled: boolean;
-  }[];
+export interface SpotCurrencyV1 {
+  id: string;
+  name: string;
+  withdraw_enabled: boolean;
+  deposit_enabled: boolean;
 }
 
-// Interface for getSpotTradingPairsV1 response
-export interface GetSpotTradingPairsV1Result {
-  symbols: string[];
-}
-
-// Interface for getSpotTradingPairDetailsV1 response
-export interface GetSpotTradingPairDetailsV1Result {
-  symbols: {
-    symbol: string;
-    symbol_id: string;
-    base_currency: string;
-    quote_currency: string;
-    quote_increment: string;
-    base_min_size: string;
-    base_max_size: string;
-    price_min_precision: number;
-    price_max_precision: number;
-    expiration: string;
-    min_buy_amount: string;
-    min_sell_amount: string;
-  }[];
-}
-
-// Interface for getSpotTickersV3 response
-export type GetSpotTickersV3Result = {
+export interface SpotTradingPairDetailsV1 {
   symbol: string;
-  last_price: string;
-  quote_volume_24h: string;
-  base_volume_24h: string;
+  symbol_id: string;
+  base_currency: string;
+  quote_currency: string;
+  quote_increment: string;
+  base_min_size: string;
+  base_max_size: string;
+  price_min_precision: number;
+  price_max_precision: number;
+  expiration: string;
+  min_buy_amount: string;
+  min_sell_amount: string;
+}
+
+/**
+ * [symbol, last, v_24h, qv_24h, open_24h, high_24h, low_24h, fluctuation, bid_px, bid_sz, ask_px, ask_sz, ts]
+ */
+export type ArrayFormSpotTickerV3 = [
+  string, // symbol
+  string, // last
+  string, // v_24h
+  string, // qv_24h
+  string, // open_24h
+  string, // high_24h
+  string, // low_24h
+  string, // fluctuation
+  string, // bid_px
+  string, // bid_sz
+  string, // ask_px
+  string, // ask_sz
+  string, // ts
+];
+
+export interface SpotTickerV3 {
+  symbol: string;
+  last: string;
+  v_24h: string;
+  qv_24h: string;
+  open_24h: string;
   high_24h: string;
   low_24h: string;
-  open_24h: string;
-  close_24h: string;
-  best_ask: string;
-  best_bid: string;
-}[];
+  fluctuation: string;
+  bid_px: string;
+  bid_sz: string;
+  ask_px: string;
+  ask_sz: string;
+  ts: string;
+}
 
-// Interface for getSpotTickerV3 response
-export type GetSpotTickerV3Result = string[][];
+/**
+ * [t,o,h,l,c,v,qv]
+ */
+export type ArrayFormSpotKlineV3 = [
+  string, // t
+  string, // o
+  string, // h
+  string, // l
+  string, // c
+  string, // v
+  string, // qv
+];
 
-// Interface for getSpotLatestKlineV3 response
-export type GetSpotLatestKlineV3Result = string[][];
-
-// Interface for getSpotHistoryKlineV3 response
-export type GetSpotHistoryKlineV3Result = string[][];
+/**
+ * [price, amount]
+ */
+export type BookPriceLevel = [
+  string, // price
+  string, // amount
+];
 
 // Interface for getSpotOrderBookDepthV3 response
 export interface GetSpotOrderBookDepthV3Result {
   ts: string;
   symbol: string;
-  asks: string[][];
-  bids: string[][];
+  asks: BookPriceLevel[];
+  bids: BookPriceLevel[];
 }
 
-// Interface for getSpotRecentTrades response
-export type GetSpotRecentTradesResult = string[][];
+/**
+ * [symbol, ts, price, size, side]
+ */
+export type ArrayFormSpotRecentTrade = [
+  string, // symbol
+  string, // ts
+  string, // price
+  string, // size
+  OrderSide, // side
+];
 
-// Interface for getSpotTickersV2 response
-export interface GetSpotTickersV2Result {
-  tickers: {
-    symbol: string;
-    last_price: string;
-    quote_volume_24h: string;
-    base_volume_24h: string;
-    high_24h: string;
-    low_24h: string;
-    open_24h: string;
-    close_24h: string;
-    best_ask: string;
-    best_ask_size: string;
-    best_bid: string;
-    best_bid_size: string;
-    fluctuation: string;
-    url: string;
-    timestamp: number;
-  }[];
-}
-
-// Interface for getSpotTickerV1 response
-export interface GetSpotTickerV1Result {
+export interface SpotTickerV1 {
   symbol: string;
   last_price: string;
   quote_volume_24h: string;
@@ -121,111 +128,82 @@ export interface GetSpotTickerV1Result {
   url: string;
 }
 
-// Interface for getSpotKLineStepsV1 response
-export interface GetSpotKLineStepsV1Result {
-  steps: number[];
+export interface SpotKlineV1 {
+  timestamp: number;
+  open: string;
+  high: string;
+  low: string;
+  close: string;
+  last_price: string;
+  volume: string;
+  quote_volume: string;
 }
 
-// Interface for getSpotKlinesV1 response
-export interface GetSpotKlinesV1Result {
-  klines: {
-    timestamp: number;
-    open: string;
-    high: string;
-    low: string;
-    close: string;
-    last_price: string;
-    volume: string;
-    quote_volume: string;
-  }[];
+export interface SpotBookLevelV1 {
+  amount: string;
+  total: string;
+  price: string;
+  count: string;
 }
 
 // Interface for getSpotOrderBookDepthV1 response
 export interface GetSpotOrderBookDepthV1Result {
   timestamp: number;
-  buys: {
-    amount: string;
-    total: string;
-    price: string;
-    count: string;
-  }[];
-  sells: {
-    amount: string;
-    total: string;
-    price: string;
-    count: string;
-  }[];
+  buys: SpotBookLevelV1[];
+  sells: SpotBookLevelV1[];
 }
 
-// Interface for getAccountBalancesV1 response
-export interface GetAccountBalancesV1Result {
-  wallet: {
-    currency: string;
-    name: string;
-    available: string;
-    frozen: string;
-  }[];
-}
-export interface getAccountCurrenciesV1Result {
-  currencies: {
-    currency: string;
-    name: string;
-    contract_address: any; // Can be null, so typed as any
-    network: string;
-    withdraw_enabled: boolean;
-    deposit_enabled: boolean;
-    withdraw_minsize: any; // Can be null, so typed as any
-    withdraw_minfee: any; // Can be null, so typed as any
-  }[];
+export interface AccountCurrencyBalanceV1 {
+  currency: string;
+  name: string;
+  available: string;
+  frozen: string;
 }
 
-// Interface for getSpotWalletBalanceV1 response
-export interface GetSpotWalletBalanceV1Result {
-  wallet: {
-    id: string;
-    available: string;
-    name: string;
-    frozen: string;
-  }[];
+export interface AccountCurrencyV1 {
+  currency: string;
+  name: string;
+  contract_address: string | null;
+  network: string;
+  withdraw_enabled: boolean;
+  deposit_enabled: boolean;
+  withdraw_minsize: string | null;
+  withdraw_minfee: string | null;
 }
 
-// Interface for submitWithdrawalV1 response
-export interface SubmitWithdrawalV1Result {
-  withdrawal_id: string;
+export interface SpotWalletBalanceV1 {
+  id: string;
+  available: string;
+  name: string;
+  frozen: string;
 }
 
-// Interface for getDepositWithdrawHistoryV2 response
-export interface GetDepositWithdrawHistoryV2Result {
-  records: {
-    withdraw_id: string;
-    deposit_id: string;
-    operation_type: 'deposit' | 'withdraw';
-    currency: string;
-    apply_time: number;
-    arrival_amount: string;
-    fee: string;
-    status: number;
-    address: string;
-    address_memo: string;
-    tx_id: string;
-  }[];
+export interface AccountDepositAddressV1 {
+  currency: string;
+  chain: string;
+  address: string;
+  address_memo: string;
 }
 
-// Interface for getDepositWithdrawDetailsV1 response
-export interface GetDepositWithdrawDetailsV1Result {
-  record: {
-    withdraw_id: string;
-    deposit_id: string;
-    operation_type: 'deposit' | 'withdraw';
-    currency: string;
-    apply_time: number;
-    arrival_amount: string;
-    fee: string;
-    status: number;
-    address: string;
-    address_memo: string;
-    tx_id: string;
-  };
+export interface AccountWithdrawQuotaV1 {
+  today_available_withdraw_BTC: string;
+  min_withdraw: string;
+  withdraw_precision: number;
+  withdraw_fee: string;
+}
+
+export interface AccountDepositWithdrawHistoryV2 {
+  withdraw_id: string;
+  deposit_id: string;
+  operation_type: 'deposit' | 'withdraw';
+  currency: string;
+  apply_time: number;
+  arrival_amount: string;
+  fee: string;
+  status: number;
+  address: string;
+  address_memo: string;
+  tx_id: string;
 }
 
 // Interface for getMarginAccountDetailsV1 response

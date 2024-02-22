@@ -20,13 +20,13 @@ async function start() {
     const price = 52000;
     const qty = usdValue / price;
 
-    const limitBuyOrder = {
-      symbol: 'BTC_USDT',
-      side: 'buy',
-      type: 'limit',
-      size: String(qty),
-      price: String(price),
-    };
+    // const limitBuyOrder = {
+    //   symbol: 'BTC_USDT',
+    //   side: 'buy',
+    //   type: 'limit',
+    //   size: String(qty),
+    //   price: String(price),
+    // };
 
     // const res = await client.submitSpotOrder({
     //   symbol: 'BTC_USDT',

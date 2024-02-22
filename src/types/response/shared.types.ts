@@ -4,3 +4,5 @@ export interface APIResponse<TData = {}> {
   trace: string;
   data: TData;
 }
+
+export type OrderSide = 'buy' | 'sell';
