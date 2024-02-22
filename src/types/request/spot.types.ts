@@ -83,22 +83,12 @@ export interface GetDepositWithdrawDetailsV1Params {
   id: string;
 }
 
-// Interface for getMarginAccountDetailsV1 parameters
-export interface GetMarginAccountDetailsV1Params {
-  symbol?: string;
-}
-
 // Interface for submitMarginTransferV1 parameters
 export interface SubmitMarginTransferV1Params {
   symbol: string;
   currency: string;
   amount: string;
   side: 'in' | 'out';
-}
-
-// Interface for getActualFeeRateV1 parameters
-export interface GetActualFeeRateV1Params {
-  symbol: string;
 }
 
 // Interface for submitSpotOrderV2 parameters

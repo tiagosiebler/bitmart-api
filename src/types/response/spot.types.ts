@@ -92,7 +92,7 @@ export type BookPriceLevel = [
 ];
 
 // Interface for getSpotOrderBookDepthV3 response
-export interface GetSpotOrderBookDepthV3Result {
+export interface GetSpotOrderBookDepthResultV3 {
   ts: string;
   symbol: string;
   asks: BookPriceLevel[];
@@ -147,7 +147,7 @@ export interface SpotBookLevelV1 {
 }
 
 // Interface for getSpotOrderBookDepthV1 response
-export interface GetSpotOrderBookDepthV1Result {
+export interface SpotOrderBookDepthResultV1 {
   timestamp: number;
   buys: SpotBookLevelV1[];
   sells: SpotBookLevelV1[];
@@ -206,50 +206,41 @@ export interface AccountDepositWithdrawHistoryV2 {
   tx_id: string;
 }
 
-// Interface for getMarginAccountDetailsV1 response
-export interface GetMarginAccountDetailsV1Result {
-  symbols: {
-    symbol: string;
-    risk_rate: string;
-    risk_level: string;
-    buy_enabled: boolean;
-    sell_enabled: boolean;
-    liquidate_price: string;
-    liquidate_rate: string;
-    base: {
-      currency: string;
-      borrow_enabled: boolean;
-      borrowed: string;
-      borrow_unpaid: string;
-      interest_unpaid: string;
-      available: string;
-      frozen: string;
-      net_asset: string;
-      net_assetBTC: string;
-      total_asset: string;
-    };
-    quote: {
-      currency: string;
-      borrow_enabled: boolean;
-      borrowed: string;
-      borrow_unpaid: string;
-      interest_unpaid: string;
-      available: string;
-      frozen: string;
-      net_asset: string;
-      net_assetBTC: string;
-      total_asset: string;
-    };
-  }[];
+export interface SymbolMarginAccountDetailsV1 {
+  symbol: string;
+  risk_rate: string;
+  risk_level: string;
+  buy_enabled: boolean;
+  sell_enabled: boolean;
+  liquidate_price: string;
+  liquidate_rate: string;
+  base: {
+    currency: string;
+    borrow_enabled: boolean;
+    borrowed: string;
+    borrow_unpaid: string;
+    interest_unpaid: string;
+    available: string;
+    frozen: string;
+    net_asset: string;
+    net_assetBTC: string;
+    total_asset: string;
+  };
+  quote: {
+    currency: string;
+    borrow_enabled: boolean;
+    borrowed: string;
+    borrow_unpaid: string;
+    interest_unpaid: string;
+    available: string;
+    frozen: string;
+    net_asset: string;
+    net_assetBTC: string;
+    total_asset: string;
+  };
 }
 
-// Interface for submitMarginTransferV1 response
-export interface SubmitMarginTransferV1Result {
-  transfer_id: string;
-}
-
-// Interface for getBasicFeeRateV1 response
-export interface GetBasicFeeRateV1Result {
+export interface BasicFeeRateV1 {
   user_rate_type: number;
   level: string;
   taker_fee_rate_A: string;

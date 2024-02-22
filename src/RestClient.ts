@@ -54,14 +54,14 @@ import {
   CancelOrderV3Result,
   GetAccountSubTransfersV1Result,
   GetActualFeeRateV1Result,
-  GetBasicFeeRateV1Result,
+  BasicFeeRateV1,
   GetMarginAccountDetailsV1Result,
   GetMarginBorrowRecordV1Result,
   GetMarginBorrowingRatesV1Result,
   GetMarginRepayRecordV1Result,
   GetSpotOpenOrdersV4Result,
-  GetSpotOrderBookDepthV1Result,
-  GetSpotOrderBookDepthV3Result,
+  SpotOrderBookDepthResultV1,
+  GetSpotOrderBookDepthResultV3,
   GetSpotOrderByIdV4Result,
   GetSpotOrderHistoryV4Result,
   GetSpotOrderTransactionsV4Result,
@@ -92,6 +92,7 @@ import {
   AccountDepositAddressV1,
   AccountWithdrawQuotaV1,
   AccountDepositWithdrawHistoryV2,
+  SymbolMarginAccountDetailsV1,
 } from './types/response/spot.types.js';
 import {
   GetFuturesContractDetailsParams,
@@ -219,7 +220,7 @@ export class RestClient extends BaseRestClient {
 
   getSpotOrderBookDepthV3(
     params: GetSpotOrderBookDepthV3Params,
-  ): Promise<APIResponse<GetSpotOrderBookDepthV3Result>> {
+  ): Promise<APIResponse<GetSpotOrderBookDepthResultV3>> {
     return this.get('spot/quotation/v3/books', params);
   }
 
@@ -257,7 +258,7 @@ export class RestClient extends BaseRestClient {
 
   getSpotOrderBookDepthV1(
     params: GetSpotOrderBookDepthV1Params,
-  ): Promise<APIResponse<GetSpotOrderBookDepthV1Result>> {
+  ): Promise<APIResponse<SpotOrderBookDepthResultV1>> {
     return this.get('spot/v1/symbols/book', params);
   }
 
@@ -309,31 +310,31 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('account/v2/deposit-withdraw/history', params);
   }
 
-  getDepositWithdrawDetail(params: {
+  getDepositWithdrawDetailV1(params: {
     id: string;
   }): Promise<APIResponse<{ record: AccountDepositWithdrawHistoryV2 }>> {
     return this.getPrivate('account/v1/deposit-withdraw/detail', params);
   }
 
-  getMarginAccountDetailsV1(
-    params?: GetMarginAccountDetailsV1Params,
-  ): Promise<APIResponse<GetMarginAccountDetailsV1Result>> {
+  getMarginAccountDetailsV1(params?: {
+    symbol?: string;
+  }): Promise<APIResponse<{ symbols: SymbolMarginAccountDetailsV1[] }>> {
     return this.getPrivate('spot/v1/margin/isolated/account', params);
   }
 
-  submitMarginTransferV1(
+  submitMarginAssetTransferV1(
     params: SubmitMarginTransferV1Params,
-  ): Promise<APIResponse<SubmitMarginTransferV1Result>> {
+  ): Promise<APIResponse<{ transfer_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/transfer', params);
   }
 
-  getBasicFeeRateV1(): Promise<APIResponse<GetBasicFeeRateV1Result>> {
+  getBasicFeeRateV1(): Promise<APIResponse<BasicFeeRateV1>> {
     return this.getPrivate('spot/v1/user_fee');
   }
 
-  getActualFeeRateV1(
-    params: GetActualFeeRateV1Params,
-  ): Promise<APIResponse<GetActualFeeRateV1Result>> {
+  getActualSpotTradeFeeRateV1(params: {
+    symbol: string;
+  }): Promise<APIResponse<GetActualFeeRateV1Result>> {
     return this.getPrivate('spot/v1/trade_fee', params);
   }
 
