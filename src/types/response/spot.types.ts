@@ -304,8 +304,7 @@ export interface SpotOrderV4 {
   updateTime: number;
 }
 
-// Interface for getSpotTradeHistoryV4 response
-export interface GetSpotTradeHistoryV4Result {
+export interface SpotAccountTradeV4 {
   tradeId: string;
   orderId: string;
   clientOrderId: string;
@@ -322,10 +321,8 @@ export interface GetSpotTradeHistoryV4Result {
   createTime: number;
   updateTime: number;
 }
-[];
 
-// Interface for getSpotOrderTransactionsV4 response
-export interface GetSpotOrderTransactionsV4Result {
+export interface SpotAccountOrderTradeV4 {
   tradeId: string;
   orderId: string;
   clientOrderId: string;
@@ -342,7 +339,6 @@ export interface GetSpotOrderTransactionsV4Result {
   createTime: number;
   updateTime: number;
 }
-[];
 
 // Interface for marginBorrowV1 response
 export interface MarginBorrowV1Result {

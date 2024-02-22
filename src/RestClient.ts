@@ -94,6 +94,8 @@ import {
   AccountDepositWithdrawHistoryV2,
   SymbolMarginAccountDetailsV1,
   SubmittedSpotBatchOrderResponseV2,
+  SpotAccountTradeV4,
+  SpotAccountOrderTradeV4,
 } from './types/response/spot.types.js';
 import {
   GetFuturesContractDetailsParams,
@@ -412,7 +414,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotAccountTradesV4(
     params?: GetSpotTradeHistoryV4Params,
-  ): Promise<APIResponse<GetSpotTradeHistoryV4Result>> {
+  ): Promise<APIResponse<SpotAccountTradeV4[]>> {
     return this.postPrivate('spot/v4/query/trades', params);
   }
 
@@ -422,7 +424,7 @@ export class RestClient extends BaseRestClient {
   getSpotAccountOrderTradesV4(params: {
     orderId: string;
     recvWindow?: number;
-  }): Promise<APIResponse<GetSpotOrderTransactionsV4Result>> {
+  }): Promise<APIResponse<SpotAccountOrderTradeV4[]>> {
     return this.postPrivate('spot/v4/query/order-trades', params);
   }
 
