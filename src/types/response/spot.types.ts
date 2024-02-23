@@ -232,7 +232,7 @@ export interface SymbolMarginAccountDetailsV1 {
 }
 
 export interface BasicFeeRateV1 {
-  user_rate_type: number;
+  user_rate_type: 0 | 1 | 2;
   level: string;
   taker_fee_rate_A: string;
   maker_fee_rate_A: string;
