@@ -71,7 +71,6 @@ export interface GetFuturesAssetsResult {
   unrealized: string;
 }
 
-/* 
 // Define the response data type
 export interface GetFuturesOrderResult {
   order_id: string;
@@ -162,62 +161,6 @@ export interface GetFuturesPlanOrdersResult {
   open_type: FuturesOpenType;
   create_time: number;
   update_time: number;
-} */
-
-// Base interface for common order fields
-export interface FuturesOrderBase {
-  order_id: string;
-  client_order_id: string;
-  price: string;
-  size: string;
-  symbol: string;
-  state: 1 | 2 | 4; // Union type for order status, adjust as needed for specific interfaces
-  side: 1 | 2 | 3 | 4; // Union type for order side
-  leverage: string;
-  open_type: FuturesOpenType; // Union type for open type
-  deal_avg_price: string;
-  deal_size: string;
-  create_time: number;
-  update_time: number;
-  // Optional fields based on the provided documentation
-  activation_price?: string;
-  callback_rate?: string;
-  activation_price_type?: 1 | 2; // Union type for activation price type
-  executive_order_id?: string;
-}
-
-// Define the response data type by extending FuturesOrderBase
-export interface GetFuturesOrderResult extends FuturesOrderBase {
-  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl'; // Specific to this interface
-  preset_take_profit_price_type?: 1 | 2; // Union type for pre-set TP price type
-  preset_stop_loss_price_type?: 1 | 2; // Union type for pre-set SL price type
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-}
-
-// Define the response data type by extending FuturesOrderBase
-export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
-  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing'; // Specific to this interface
-}
-
-// Define the response data type by extending FuturesOrderBase
-export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
-  type: 'limit' | 'market' | 'trailing'; // Specific to this interface
-}
-
-// Define the response data type by extending FuturesOrderBase
-export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
-  executive_price: string;
-  trigger_price: string;
-  mode: number;
-  price_way: number;
-  price_type: number;
-  plan_category: 1 | 2;
-  type: 'plan' | 'take_profit' | 'stop_loss'; // Specific to this interface
-  preset_take_profit_price_type?: 1 | 2; // Union type for pre-set TP price type
-  preset_stop_loss_price_type?: 1 | 2; // Union type for pre-set SL price type
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
 }
 
 export interface GetFuturesPositionsResult extends BaseResult {
@@ -243,11 +186,7 @@ export interface GetFuturesTradesResult {
   order_id: string;
   trade_id: string;
   symbol: string;
-  side:
-    | 'buy_open_long'
-    | 'buy_close_short'
-    | 'sell_close_long'
-    | 'sell_open_short';
+  side: 1 | 2 | 3 | 4;
   price: string;
   vol: string;
   exec_type: 'Taker' | 'Maker';
