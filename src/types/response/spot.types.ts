@@ -206,6 +206,19 @@ export interface AccountDepositWithdrawHistoryV2 {
   tx_id: string;
 }
 
+export interface MarginV1BaseQuote {
+  currency: string;
+  borrow_enabled: boolean;
+  borrowed: string;
+  borrow_unpaid: string;
+  interest_unpaid: string;
+  available: string;
+  frozen: string;
+  net_asset: string;
+  net_assetBTC: string;
+  total_asset: string;
+}
+
 export interface SymbolMarginAccountDetailsV1 {
   symbol: string;
   risk_rate: string;
@@ -214,30 +227,8 @@ export interface SymbolMarginAccountDetailsV1 {
   sell_enabled: boolean;
   liquidate_price: string;
   liquidate_rate: string;
-  base: {
-    currency: string;
-    borrow_enabled: boolean;
-    borrowed: string;
-    borrow_unpaid: string;
-    interest_unpaid: string;
-    available: string;
-    frozen: string;
-    net_asset: string;
-    net_assetBTC: string;
-    total_asset: string;
-  };
-  quote: {
-    currency: string;
-    borrow_enabled: boolean;
-    borrowed: string;
-    borrow_unpaid: string;
-    interest_unpaid: string;
-    available: string;
-    frozen: string;
-    net_asset: string;
-    net_assetBTC: string;
-    total_asset: string;
-  };
+  base: MarginV1BaseQuote;
+  quote: MarginV1BaseQuote;
 }
 
 export interface BasicFeeRateV1 {
@@ -310,8 +301,8 @@ export interface SpotAccountTradeV4 {
   clientOrderId: string;
   symbol: string;
   side: OrderSide;
-  orderMode: 'spot' | 'margin'; // Assuming 'margin' could be another possible value
-  type: 'limit' | 'market'; // Add more types as needed
+  orderMode: 'spot' | 'iso_margin'; // Assuming 'margin' could be another possible value
+  type: 'limit' | 'market' | 'limit_maker' | 'ioc'; // Add more types as needed
   price: string;
   size: string;
   notional: string;
@@ -372,57 +363,46 @@ export interface GetMarginRepayRecordV1Result {
   }[];
 }
 
+export interface MarginBorrow {
+  currency: string;
+  daily_interest: string;
+  hourly_interest: string;
+  max_borrow_amount: string;
+  min_borrow_amount: string;
+  borrowable_amount: string;
+}
+
 // Interface for getMarginBorrowingRatesV1 response
 export interface GetMarginBorrowingRatesV1Result {
   symbols: {
     symbol: string;
     max_leverage: string;
     symbol_enabled: boolean;
-    base: {
-      currency: string;
-      daily_interest: string;
-      hourly_interest: string;
-      max_borrow_amount: string;
-      min_borrow_amount: string;
-      borrowable_amount: string;
-    };
-    quote: {
-      currency: string;
-      daily_interest: string;
-      hourly_interest: string;
-      max_borrow_amount: string;
-      min_borrow_amount: string;
-      borrowable_amount: string;
-    };
+    base: MarginBorrow;
+    quote: MarginBorrow;
   }[];
+}
+
+export interface SubHistoryList {
+  fromAccount: string;
+  fromWalletType: 'spot';
+  toAccount: string;
+  toWalletType: 'spot';
+  currency: string;
+  amount: string;
+  submissionTime: number;
 }
 
 // Interface for getSubTransfersV1 response
 export interface GetSubTransfersV1Result {
   total: number;
-  historyList: {
-    fromAccount: string;
-    fromWalletType: 'spot';
-    toAccount: string;
-    toWalletType: 'spot';
-    currency: string;
-    amount: string;
-    submissionTime: number;
-  }[];
+  historyList: SubHistoryList[];
 }
 
 // Interface for getAccountSubTransfersV1 response
 export interface GetAccountSubTransfersV1Result {
   total: number;
-  historyList: {
-    fromAccount: string;
-    fromWalletType: 'spot';
-    toAccount: string;
-    toWalletType: 'spot';
-    currency: string;
-    amount: string;
-    submissionTime: number;
-  }[];
+  historyList: SubHistoryList[];
 }
 
 // Interface for getSubSpotWalletBalancesV1 response
@@ -442,6 +422,12 @@ export interface GetSubAccountsV1Result {
     status: number;
   }[];
 }
+
+/************************************************************************************************
+ *
+ * Broker rebates
+ *
+ **/
 
 export interface SpotBrokerRebateRow {
   currency: string;

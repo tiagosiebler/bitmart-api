@@ -215,11 +215,6 @@ export interface GetMarginRepayRecordV1Params {
   N?: number;
 }
 
-// Interface for parameters of the getMarginBorrowingRatesV1 function
-export interface GetMarginBorrowingRatesV1Params {
-  symbol?: string;
-}
-
 // Interface for submitMainTransferSubToMainV1 parameters
 export interface SubmitMainTransferSubToMainV1Params {
   requestNo: string;

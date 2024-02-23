@@ -1,3 +1,9 @@
+export type FuturesOpenType = 'cross' | 'isolated';
+export interface BaseResult {
+  timestamp: number;
+  symbol: string;
+}
+
 // Define the response data type
 export interface GetFuturesContractDetailsResult {
   symbols: {
@@ -28,25 +34,19 @@ export interface GetFuturesContractDetailsResult {
 }
 
 // Define the response data type
-export interface GetFuturesContractDepthResult {
+export interface GetFuturesContractDepthResult extends BaseResult {
   asks: [string, string, string][];
   bids: [string, string, string][];
-  timestamp: number;
-  symbol: string;
 }
 
 // Define the response data type
-export interface GetFuturesOpenInterestResult {
-  timestamp: number;
-  symbol: string;
+export interface GetFuturesOpenInterestResult extends BaseResult {
   open_interest: string;
   open_interest_value: string;
 }
 
 // Define the response data type
-export interface GetFuturesFundingRateResult {
-  timestamp: number;
-  symbol: string;
+export interface GetFuturesFundingRateResult extends BaseResult {
   rate_value: string;
   expected_rate: string;
 }
@@ -62,15 +62,16 @@ export interface GetFuturesKlinesResult {
 }
 
 // Define the response data type
-export type GetFuturesAssetsResult = {
+export interface GetFuturesAssetsResult {
   currency: string;
   position_deposit: string;
   frozen_balance: string;
   available_balance: string;
   equity: string;
   unrealized: string;
-}[];
+}
 
+/* 
 // Define the response data type
 export interface GetFuturesOrderResult {
   order_id: string;
@@ -82,7 +83,7 @@ export interface GetFuturesOrderResult {
   side: 1 | 2 | 3 | 4; // Union type for order side
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl'; // Union type for order type
   leverage: string;
-  open_type: 'cross' | 'isolated'; // Union type for open type
+  open_type: FuturesOpenType; // Union type for open type
   deal_avg_price: string;
   deal_size: string;
   create_time: number;
@@ -105,11 +106,11 @@ export interface GetFuturesOrderHistoryResult {
   price: string;
   size: string;
   symbol: string;
-  state: 2 | 4; // Adjusted to positive numbers as per instructions
-  side: 1 | 2 | 3 | 4; // Adjusted to positive numbers as per instructions
+  state: 2 | 4;
+  side: 1 | 2 | 3 | 4;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing';
   leverage: string;
-  open_type: 'cross' | 'isolated';
+  open_type: FuturesOpenType;
   deal_avg_price: string;
   deal_size: string;
   create_time: number;
@@ -117,22 +118,22 @@ export interface GetFuturesOrderHistoryResult {
   // Optional fields based on the provided documentation
   activation_price?: string;
   callback_rate?: string;
-  activation_price_type?: 1 | 2; // Adjusted to positive numbers as per instructions
+  activation_price_type?: 1 | 2;
   executive_order_id?: string;
 }
 
 // Define the response data type
-export type GetFuturesOpenOrdersResult = {
+export interface GetFuturesOpenOrdersResult {
   order_id: string;
   client_order_id: string;
   price: string;
   size: string;
   symbol: string;
-  state: 2 | 4; // Adjusted to positive numbers as per instructions
-  side: 1 | 2 | 3 | 4; // Adjusted to positive numbers as per instructions
+  state: 2 | 4;
+  side: 1 | 2 | 3 | 4;
   type: 'limit' | 'market' | 'trailing';
   leverage: string;
-  open_type: 'cross' | 'isolated';
+  open_type: FuturesOpenType;
   deal_avg_price: string;
   deal_size: string;
   create_time: number;
@@ -140,10 +141,10 @@ export type GetFuturesOpenOrdersResult = {
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2; // Adjusted to positive numbers as per instructions
-}[];
+}
 
 // Define the response data type
-export type GetFuturesPlanOrdersResult = {
+export interface GetFuturesPlanOrdersResult {
   order_id: string;
   client_order_id: string;
   executive_price: string;
@@ -158,15 +159,69 @@ export type GetFuturesPlanOrdersResult = {
   plan_category: 1 | 2;
   type: 'plan' | 'take_profit' | 'stop_loss';
   leverage: string;
-  open_type: 'cross' | 'isolated';
+  open_type: FuturesOpenType;
   create_time: number;
   update_time: number;
-}[];
+} */
 
-export type GetFuturesPositionsResult = {
+// Base interface for common order fields
+export interface FuturesOrderBase {
+  order_id: string;
+  client_order_id: string;
+  price: string;
+  size: string;
   symbol: string;
+  state: 1 | 2 | 4; // Union type for order status, adjust as needed for specific interfaces
+  side: 1 | 2 | 3 | 4; // Union type for order side
   leverage: string;
-  timestamp: number;
+  open_type: FuturesOpenType; // Union type for open type
+  deal_avg_price: string;
+  deal_size: string;
+  create_time: number;
+  update_time: number;
+  // Optional fields based on the provided documentation
+  activation_price?: string;
+  callback_rate?: string;
+  activation_price_type?: 1 | 2; // Union type for activation price type
+  executive_order_id?: string;
+}
+
+// Define the response data type by extending FuturesOrderBase
+export interface GetFuturesOrderResult extends FuturesOrderBase {
+  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl'; // Specific to this interface
+  preset_take_profit_price_type?: 1 | 2; // Union type for pre-set TP price type
+  preset_stop_loss_price_type?: 1 | 2; // Union type for pre-set SL price type
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+
+// Define the response data type by extending FuturesOrderBase
+export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
+  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing'; // Specific to this interface
+}
+
+// Define the response data type by extending FuturesOrderBase
+export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
+  type: 'limit' | 'market' | 'trailing'; // Specific to this interface
+}
+
+// Define the response data type by extending FuturesOrderBase
+export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
+  executive_price: string;
+  trigger_price: string;
+  mode: number;
+  price_way: number;
+  price_type: number;
+  plan_category: 1 | 2;
+  type: 'plan' | 'take_profit' | 'stop_loss'; // Specific to this interface
+  preset_take_profit_price_type?: 1 | 2; // Union type for pre-set TP price type
+  preset_stop_loss_price_type?: 1 | 2; // Union type for pre-set SL price type
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+
+export interface GetFuturesPositionsResult extends BaseResult {
+  leverage: string;
   current_fee: string;
   open_timestamp: number;
   current_value: string;
@@ -182,9 +237,9 @@ export type GetFuturesPositionsResult = {
   unrealized_value: string;
   realized_value: string;
   position_type: 1 | 2;
-}[];
+}
 
-export type GetFuturesTradesResult = {
+export interface GetFuturesTradesResult {
   order_id: string;
   trade_id: string;
   symbol: string;
@@ -200,7 +255,7 @@ export type GetFuturesTradesResult = {
   realised_profit: string;
   paid_fees: string;
   create_time: number;
-}[];
+}
 
 export interface GetFuturesTransfersResult {
   records: {
@@ -218,10 +273,6 @@ export interface SubmitFuturesOrderResult {
   price: string; // Note: "market price" for market type orders
 }
 
-export interface SubmitFuturesPlanOrderResult {
-  order_id: number;
-}
-
 export interface SubmitFuturesTransferResult {
   currency: string;
   amount: string;
@@ -230,7 +281,7 @@ export interface SubmitFuturesTransferResult {
 export interface SetFuturesLeverageResult {
   symbol: string;
   leverage: string;
-  open_type: 'cross' | 'isolated';
+  open_type: FuturesOpenType;
   max_value: string; // Maximum leverage
 }
 
@@ -243,7 +294,7 @@ export interface GetFuturesSubWalletResult {
   }[];
 }
 
-export type GetFuturesSubTransfersResult = {
+export interface GetFuturesSubTransfersResult {
   fromAccount: string;
   toAccount: string;
   toWalletType: 'future';
@@ -251,4 +302,4 @@ export type GetFuturesSubTransfersResult = {
   currency: string;
   amount: string;
   submissionTime: number;
-}[];
+}
