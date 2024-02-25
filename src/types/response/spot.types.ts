@@ -277,59 +277,41 @@ export type SubmittedSpotBatchOrderResponseV2 =
   | SubmittedSpotBatchOrderSuccessResponseV2
   | SubmittedSpotBatchOrderFailureResponseV2;
 
-export interface SpotOrderV4 {
+// Base interface for common fields
+export interface SpotTradeBase {
   orderId: string;
   clientOrderId: string;
   symbol: string;
-  side: OrderSide;
-  orderMode: string;
-  type: string;
-  state: string;
+  side: OrderSide; // Assuming OrderSide is already defined somewhere
+  orderMode: string; // Consider using a union type if the possible values are known
+  type: string; // Consider using a union type if the possible values are known
   price: string;
-  priceAvg: string;
   size: string;
-  filledSize: string;
   notional: string;
-  filledNotional: string;
   createTime: number;
   updateTime: number;
 }
 
-export interface SpotAccountTradeV4 {
+// Specific interface for SpotOrderV4
+export interface SpotOrderV4 extends SpotTradeBase {
+  state: string;
+  priceAvg: string;
+  filledSize: string;
+  filledNotional: string;
+}
+
+// Specific interface for SpotAccountTradeV4
+export interface SpotAccountTradeV4 extends SpotTradeBase {
   tradeId: string;
-  orderId: string;
-  clientOrderId: string;
-  symbol: string;
-  side: OrderSide;
-  orderMode: 'spot' | 'iso_margin'; // Assuming 'margin' could be another possible value
-  type: 'limit' | 'market' | 'limit_maker' | 'ioc'; // Add more types as needed
-  price: string;
-  size: string;
-  notional: string;
   fee: string;
   feeCoinName: string;
   tradeRole: 'taker' | 'maker'; // Assuming 'maker' could be another possible value
-  createTime: number;
-  updateTime: number;
-}
-
-export interface SpotAccountOrderTradeV4 {
-  tradeId: string;
-  orderId: string;
-  clientOrderId: string;
-  symbol: string;
-  side: OrderSide;
   orderMode: 'spot' | 'iso_margin';
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
-  price: string;
-  size: string;
-  notional: string;
-  fee: string;
-  feeCoinName: string;
-  tradeRole: 'taker' | 'maker';
-  createTime: number;
-  updateTime: number;
 }
+
+export type SpotAccountOrderTradeV4 = SpotAccountTradeV4;
+
 /**
  *
  * Margin Loan Endpoints (History versions)

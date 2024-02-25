@@ -10,37 +10,26 @@ import { APIResponse, OrderSide } from './types/response/shared.types.js';
 
 import {
   CancelOrdersV3Params,
-  GetAccountBalancesV1Params,
-  GetAccountDepositAddressV1Params,
   GetAccountSubTransfersV1Params,
   GetDepositWithdrawHistoryV2Params,
   GetMarginBorrowRecordV1Params,
   GetMarginRepayRecordV1Params,
-  GetSpotHistoryKlineV3Params,
+  GetSpotKlineParams,
   GetSpotKlinesV1Params,
-  GetSpotLatestKlineV3Params,
-  GetSpotOpenOrdersV4Params,
+  GetSpotOrder,
   GetSpotOrderBookDepthV1Params,
-  GetSpotOrderBookDepthV3Params,
   GetSpotOrderByClientOrderIdV4Params,
   GetSpotOrderByIdV4Params,
-  GetSpotOrderHistoryV4Params,
-  GetSpotRecentTradesParams,
-  GetSpotTickerV1Params,
-  GetSpotTickerV3Params,
-  GetSpotTradeHistoryV4Params,
+  GetSpotOrderTradeHistoryV4Params,
   GetSubSpotWalletBalancesV1Params,
   GetSubTransfersV1Params,
-  MarginBorrowV1Params,
-  MarginRepayV1Params,
+  MarginBorrowRepayV1Params,
   SpotBrokerRebateRequest,
-  SubmitBatchOrdersV2Params,
+  SpotSubmitOrder,
   SubmitMainTransferMainToSubV1Params,
   SubmitMainTransferSubToMainV1Params,
   SubmitMainTransferSubToSubV1Params,
-  SubmitMarginOrderV1Params,
   SubmitMarginTransferV1Params,
-  SubmitSpotOrderV2Params,
   SubmitSubTransferSubToMainV1Params,
   SubmitSubTransferSubToSubV1Params,
   SubmitWithdrawalV1Params,
@@ -176,33 +165,35 @@ export class RestClient extends BaseRestClient {
     return this.get('spot/quotation/v3/tickers');
   }
 
-  getSpotTickerV3(
-    params?: GetSpotTickerV3Params,
-  ): Promise<APIResponse<SpotTickerV3>> {
+  getSpotTickerV3(params?: {
+    symbol: string;
+  }): Promise<APIResponse<SpotTickerV3>> {
     return this.get('spot/quotation/v3/ticker', params);
   }
 
   getSpotLatestKlineV3(
-    params: GetSpotLatestKlineV3Params,
+    params: GetSpotKlineParams,
   ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/lite-klines', params);
   }
 
   getSpotHistoryKlineV3(
-    params: GetSpotHistoryKlineV3Params,
+    params: GetSpotKlineParams,
   ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/history-klines', params);
   }
 
-  getSpotOrderBookDepthV3(
-    params: GetSpotOrderBookDepthV3Params,
-  ): Promise<APIResponse<GetSpotOrderBookDepthResultV3>> {
+  getSpotOrderBookDepthV3(params: {
+    symbol: string;
+    limit?: number;
+  }): Promise<APIResponse<GetSpotOrderBookDepthResultV3>> {
     return this.get('spot/quotation/v3/books', params);
   }
 
-  getSpotRecentTrades(
-    params: GetSpotRecentTradesParams,
-  ): Promise<APIResponse<ArrayFormSpotRecentTrade[]>> {
+  getSpotRecentTrades(params: {
+    symbol: string;
+    limit?: number;
+  }): Promise<APIResponse<ArrayFormSpotRecentTrade[]>> {
     return this.get('spot/quotation/v3/trades', params);
   }
 
@@ -216,9 +207,9 @@ export class RestClient extends BaseRestClient {
     return this.get('spot/v2/ticker');
   }
 
-  getSpotTickerV1(
-    params: GetSpotTickerV1Params,
-  ): Promise<APIResponse<SpotTickerV1>> {
+  getSpotTickerV1(params: {
+    symbol: string;
+  }): Promise<APIResponse<SpotTickerV1>> {
     return this.get('spot/v1/ticker_detail', params);
   }
 
@@ -244,9 +235,9 @@ export class RestClient extends BaseRestClient {
    *
    **/
 
-  getAccountBalancesV1(
-    params?: GetAccountBalancesV1Params,
-  ): Promise<APIResponse<{ wallet: AccountCurrencyBalanceV1[] }>> {
+  getAccountBalancesV1(params?: {
+    currency?: string;
+  }): Promise<APIResponse<{ wallet: AccountCurrencyBalanceV1[] }>> {
     return this.getPrivate('account/v1/wallet', params);
   }
 
@@ -262,15 +253,15 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('spot/v1/wallet');
   }
 
-  getAccountDepositAddressV1(
-    params: GetAccountDepositAddressV1Params,
-  ): Promise<APIResponse<AccountDepositAddressV1>> {
+  getAccountDepositAddressV1(params: {
+    currency: string;
+  }): Promise<APIResponse<AccountDepositAddressV1>> {
     return this.getPrivate('account/v1/deposit/address', params);
   }
 
-  getAccountWithdrawQuotaV1(
-    params: GetAccountDepositAddressV1Params,
-  ): Promise<APIResponse<AccountWithdrawQuotaV1>> {
+  getAccountWithdrawQuotaV1(params: {
+    currency: string;
+  }): Promise<APIResponse<AccountWithdrawQuotaV1>> {
     return this.getPrivate('account/v1/withdraw/charge', params);
   }
 
@@ -321,20 +312,20 @@ export class RestClient extends BaseRestClient {
    **/
 
   submitSpotOrderV2(
-    params: SubmitSpotOrderV2Params,
+    params: SpotSubmitOrder,
   ): Promise<APIResponse<{ order_id: string }>> {
     return this.postPrivate('spot/v2/submit_order', params);
   }
 
   submitMarginOrderV1(
-    params: SubmitMarginOrderV1Params,
+    params: SpotSubmitOrder,
   ): Promise<APIResponse<{ order_id: number }>> {
     return this.postPrivate('spot/v1/margin/submit_order', params);
   }
 
-  submitSpotBatchOrdersV2(
-    params: SubmitBatchOrdersV2Params,
-  ): Promise<APIResponse<{ responses: SubmittedSpotBatchOrderResponseV2[] }>> {
+  submitSpotBatchOrdersV2(params: {
+    order_params: SpotSubmitOrder[];
+  }): Promise<APIResponse<{ responses: SubmittedSpotBatchOrderResponseV2[] }>> {
     return this.postPrivate('spot/v2/batch_orders', params);
   }
 
@@ -371,13 +362,13 @@ export class RestClient extends BaseRestClient {
   }
 
   getSpotOpenOrdersV4(
-    params?: GetSpotOpenOrdersV4Params,
+    params?: GetSpotOrder,
   ): Promise<APIResponse<SpotOrderV4[]>> {
     return this.postPrivate('spot/v4/query/open-orders', params);
   }
 
   getSpotHistoricOrdersV4(
-    params?: GetSpotOrderHistoryV4Params,
+    params?: GetSpotOrderTradeHistoryV4Params,
   ): Promise<APIResponse<SpotOrderV4[]>> {
     return this.postPrivate('spot/v4/query/history-orders', params);
   }
@@ -386,7 +377,7 @@ export class RestClient extends BaseRestClient {
    * Account Trade List(v4)
    */
   getSpotAccountTradesV4(
-    params?: GetSpotTradeHistoryV4Params,
+    params?: GetSpotOrderTradeHistoryV4Params,
   ): Promise<APIResponse<SpotAccountTradeV4[]>> {
     return this.postPrivate('spot/v4/query/trades', params);
   }
@@ -408,13 +399,13 @@ export class RestClient extends BaseRestClient {
    **/
 
   marginBorrowV1(
-    params: MarginBorrowV1Params,
+    params: MarginBorrowRepayV1Params,
   ): Promise<APIResponse<{ borrow_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/borrow', params);
   }
 
   marginRepayV1(
-    params: MarginRepayV1Params,
+    params: MarginBorrowRepayV1Params,
   ): Promise<APIResponse<{ repay_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/repay', params);
   }

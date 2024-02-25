@@ -71,97 +71,72 @@ export interface GetFuturesAssetsResult {
   unrealized: string;
 }
 
-// Define the response data type
-export interface GetFuturesOrderResult {
+export interface FuturesOrderBase {
   order_id: string;
   client_order_id: string;
-  price: string;
   size: string;
   symbol: string;
-  state: 1 | 2 | 4; // Union type for order status
-  side: 1 | 2 | 3 | 4; // Union type for order side
-  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl'; // Union type for order type
+  state: 1 | 2 | 4; // Adjusted to accommodate all uses
+  side: 1 | 2 | 3 | 4;
   leverage: string;
-  open_type: FuturesOpenType; // Union type for open type
-  deal_avg_price: string;
-  deal_size: string;
+  open_type: FuturesOpenType;
   create_time: number;
   update_time: number;
-  // Optional fields based on the provided documentation
+}
+
+// Extend for GetFuturesOrderResult
+export interface GetFuturesOrderResult extends FuturesOrderBase {
+  price: string;
+  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl';
+  deal_avg_price: string;
+  deal_size: string;
+  // Optional fields
   activation_price?: string;
   callback_rate?: string;
-  activation_price_type?: 1 | 2; // Union type for activation price type
+  activation_price_type?: 1 | 2;
   executive_order_id?: string;
-  preset_take_profit_price_type?: 1 | 2; // Union type for pre-set TP price type
-  preset_stop_loss_price_type?: 1 | 2; // Union type for pre-set SL price type
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
   preset_take_profit_price?: string;
   preset_stop_loss_price?: string;
 }
 
-// Define the response data type
-export interface GetFuturesOrderHistoryResult {
-  order_id: string;
-  client_order_id: string;
+// Extend for GetFuturesOrderHistoryResult (similar to GetFuturesOrderResult, adjust as needed)
+export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
   price: string;
-  size: string;
-  symbol: string;
-  state: 2 | 4;
-  side: 1 | 2 | 3 | 4;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing';
-  leverage: string;
-  open_type: FuturesOpenType;
   deal_avg_price: string;
   deal_size: string;
-  create_time: number;
-  update_time: number;
-  // Optional fields based on the provided documentation
+  // Optional fields similar to GetFuturesOrderResult
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2;
   executive_order_id?: string;
 }
 
-// Define the response data type
-export interface GetFuturesOpenOrdersResult {
-  order_id: string;
-  client_order_id: string;
+// Extend for GetFuturesOpenOrdersResult (similar structure, adjust as needed)
+export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
   price: string;
-  size: string;
-  symbol: string;
-  state: 2 | 4;
-  side: 1 | 2 | 3 | 4;
   type: 'limit' | 'market' | 'trailing';
-  leverage: string;
-  open_type: FuturesOpenType;
   deal_avg_price: string;
   deal_size: string;
-  create_time: number;
-  update_time: number;
+  // Optional fields similar to GetFuturesOrderResult
   activation_price?: string;
   callback_rate?: string;
-  activation_price_type?: 1 | 2; // Adjusted to positive numbers as per instructions
+  activation_price_type?: 1 | 2;
 }
 
-// Define the response data type
-export interface GetFuturesPlanOrdersResult {
-  order_id: string;
-  client_order_id: string;
+// Extend for GetFuturesPlanOrdersResult with unique fields
+export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
   executive_price: string;
   trigger_price: string;
-  size: string;
-  symbol: string;
-  state: number;
-  side: 1 | 2 | 3 | 4;
   mode: number;
   price_way: number;
   price_type: number;
   plan_category: 1 | 2;
   type: 'plan' | 'take_profit' | 'stop_loss';
-  leverage: string;
-  open_type: FuturesOpenType;
-  create_time: number;
-  update_time: number;
 }
+
 
 export interface GetFuturesPositionsResult extends BaseResult {
   leverage: string;

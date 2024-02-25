@@ -102,7 +102,7 @@ export interface SetFuturesLeverageParams {
 export interface TransferFuturesAssetsParams {
   requestNo: string; // UUID, unique identifier, max length 64
   amount: string; // Transfer amount
-  currency: string; // Currently only USDT is supported
+  currency: 'USDT'; // Currently only USDT is supported
   subAccount: string; // Sub-Account username
 }
 
