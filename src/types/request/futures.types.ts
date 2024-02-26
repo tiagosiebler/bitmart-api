@@ -1,24 +1,24 @@
-export interface GetFuturesKlinesParams {
-  symbol: string; // Required as per API docs
-  start_time: number; // Required as per API docs
-  end_time: number; // Required as per API docs
-  step?: number; // Optional as per API docs
+export interface GetFuturesKlinesRequest {
+  symbol: string;
+  start_time: number;
+  end_time: number;
+  step?: number;
 }
 
-export interface FuturesOrderParams {
-  symbol: string; // Required as per API docs
-  order_id: string; // Required as per API docs
+export interface FuturesOrderRequest {
+  symbol: string;
+  order_id: string;
 }
 
 // Define the request parameters type
-export interface GetFuturesOrderHistoryParams {
-  symbol: string; // Required as per API docs
+export interface GetFuturesOrderHistoryRequest {
+  symbol: string;
   start_time?: number; // Now optional
   end_time?: number; // Now optional
 }
 
 // Define the request parameters type
-export interface GetFuturesOpenOrdersParams {
+export interface GetFuturesOpenOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market' | 'trailing';
   order_state?: 'all' | 'partially_filled';
@@ -26,19 +26,19 @@ export interface GetFuturesOpenOrdersParams {
 }
 
 // Define the request parameters type
-export interface GetFuturesPlanOrdersParams {
+export interface GetFuturesPlanOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market';
   limit?: number;
 }
 
-export interface GetFuturesTradesParams {
-  symbol: string; // Required as per API docs
+export interface GetFuturesTradesRequest {
+  symbol: string;
   start_time?: number; // Optional
   end_time?: number; // Optional
 }
 
-export interface GetFuturesTransfersParams {
+export interface GetFuturesTransfersRequest {
   currency?: string;
   time_start?: number;
   time_end?: number;
@@ -47,7 +47,7 @@ export interface GetFuturesTransfersParams {
   recvWindow?: number;
 }
 
-export interface SubmitFuturesOrderParams {
+export interface SubmitFuturesOrderRequest {
   symbol: string; // Required
   client_order_id?: string;
   side: 1 | 2 | 3 | 4; // Union type for order side
@@ -66,7 +66,7 @@ export interface SubmitFuturesOrderParams {
   preset_stop_loss_price?: string;
 }
 
-export interface SubmitFuturesPlanOrderParams {
+export interface SubmitFuturesPlanOrderRequest {
   symbol: string;
   type?: 'limit' | 'market' | 'take_profit' | 'stop_loss';
   side: 1 | 2 | 3 | 4;
@@ -85,44 +85,44 @@ export interface SubmitFuturesPlanOrderParams {
   preset_stop_loss_price?: string;
 }
 
-export interface SubmitFuturesTransferParams {
+export interface SubmitFuturesTransferRequest {
   currency: string; // Only USDT is supported
   amount: string; // Transfer amount, allowed range[0.01,10000000000]
   type: 'spot_to_contract' | 'contract_to_spot';
   recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
 }
 
-export interface SetFuturesLeverageParams {
+export interface SetFuturesLeverageRequest {
   symbol: string; // Symbol of the contract(like BTCUSDT)
   leverage?: string; // Order leverage
   open_type: 'cross' | 'isolated'; // Open type, required at close position
 }
 
 // Define the request parameters type common for both transfers
-export interface TransferFuturesAssetsParams {
+export interface TransferFuturesAssetsRequest {
   requestNo: string; // UUID, unique identifier, max length 64
   amount: string; // Transfer amount
   currency: 'USDT'; // Currently only USDT is supported
   subAccount: string; // Sub-Account username
 }
 
-export interface SubmitFuturesSubToMainSubFromSubParams {
+export interface SubmitFuturesSubToMainSubFromSubRequest {
   requestNo: string; // UUID, unique identifier, max length 64
   amount: string; // Transfer amount
   currency: 'USDT'; // Currently only USDT is supported
 }
 
-export interface GetFuturesSubWalletParams {
+export interface GetFuturesSubWalletRequest {
   subAccount: string; // Sub-Account username
   currency?: string; // Currency is optional
 }
 
-export interface GetFuturesSubTransfersParams {
+export interface GetFuturesSubTransfersRequest {
   subAccount: string;
   limit: number; // Range [1,100]
 }
 
-export interface GetFuturesAffiliateRebatesParams {
+export interface GetFuturesAffiliateRebatesRequest {
   user_id: number; // Required
   page: number; // Required
   size: number; // Required
@@ -130,7 +130,7 @@ export interface GetFuturesAffiliateRebatesParams {
   end_time?: number; // Optional
 }
 
-export interface GetFuturesAffiliateTradesParams
-  extends GetFuturesAffiliateRebatesParams {
+export interface GetFuturesAffiliateTradesRequest
+  extends GetFuturesAffiliateRebatesRequest {
   type: 1 | 2; // Required, with positive numbers for U-based and Coin-based
 }

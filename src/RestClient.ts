@@ -9,30 +9,30 @@ import { RestClientOptions } from './lib/requestUtils.js';
 import { APIResponse, OrderSide } from './types/response/shared.types.js';
 
 import {
-  CancelOrdersV3Params,
-  GetAccountSubTransfersV1Params,
-  GetDepositWithdrawHistoryV2Params,
-  GetMarginBorrowRecordV1Params,
-  GetMarginRepayRecordV1Params,
-  GetSpotKlineParams,
-  GetSpotKlinesV1Params,
+  CancelOrdersV3Request,
+  GetAccountSubTransfersV1Request,
+  GetDepositWithdrawHistoryV2Request,
+  GetMarginBorrowRecordV1Request,
+  GetMarginRepayRecordV1Request,
+  GetSpotKlineRequest,
+  GetSpotKlinesV1Request,
   GetSpotOrder,
-  GetSpotOrderBookDepthV1Params,
-  GetSpotOrderByClientOrderIdV4Params,
-  GetSpotOrderByIdV4Params,
-  GetSpotOrderTradeHistoryV4Params,
-  GetSubSpotWalletBalancesV1Params,
-  GetSubTransfersV1Params,
-  MarginBorrowRepayV1Params,
+  GetSpotOrderBookDepthV1Request,
+  GetSpotOrderByClientOrderIdV4Request,
+  GetSpotOrderByIdV4Request,
+  GetSpotOrderTradeHistoryV4Request,
+  GetSubSpotWalletBalancesV1Request,
+  GetSubTransfersV1Request,
+  MarginBorrowRepayV1Request,
   SpotBrokerRebateRequest,
   SpotSubmitOrder,
-  SubmitMainTransferMainToSubV1Params,
-  SubmitMainTransferSubToMainV1Params,
-  SubmitMainTransferSubToSubV1Params,
-  SubmitMarginTransferV1Params,
-  SubmitSubTransferSubToMainV1Params,
-  SubmitSubTransferSubToSubV1Params,
-  SubmitWithdrawalV1Params,
+  SubmitMainTransferMainToSubV1Request,
+  SubmitMainTransferSubToMainV1Request,
+  SubmitMainTransferSubToSubV1Request,
+  SubmitMarginTransferV1Request,
+  SubmitSubTransferSubToMainV1Request,
+  SubmitSubTransferSubToSubV1Request,
+  SubmitWithdrawalV1Request,
 } from './types/request/spot.types.js';
 import {
   GetAccountSubTransfersV1Result,
@@ -70,25 +70,6 @@ import {
   GetSubTransfersV1Result,
 } from './types/response/spot.types.js';
 import {
-  GetFuturesOrderHistoryParams,
-  GetFuturesOpenOrdersParams,
-  GetFuturesPlanOrdersParams,
-  GetFuturesTradesParams,
-  GetFuturesTransfersParams,
-  SubmitFuturesOrderParams,
-  SetFuturesLeverageParams,
-  SubmitFuturesPlanOrderParams,
-  SubmitFuturesTransferParams,
-  GetFuturesSubTransfersParams,
-  GetFuturesSubWalletParams,
-  SubmitFuturesSubToMainSubFromSubParams,
-  TransferFuturesAssetsParams,
-  GetFuturesAffiliateRebatesParams,
-  GetFuturesAffiliateTradesParams,
-  GetFuturesKlinesParams,
-  FuturesOrderParams,
-} from 'types/request/futures.types.js';
-import {
   GetFuturesContractDetailsResult,
   GetFuturesContractDepthResult,
   GetFuturesOpenInterestResult,
@@ -108,6 +89,25 @@ import {
   GetFuturesSubWalletResult,
   GetFuturesKlinesResult,
 } from 'types/response/futures.types.js';
+import {
+  GetFuturesKlinesRequest,
+  FuturesOrderRequest,
+  GetFuturesOrderHistoryRequest,
+  GetFuturesOpenOrdersRequest,
+  GetFuturesPlanOrdersRequest,
+  GetFuturesTradesRequest,
+  GetFuturesTransfersRequest,
+  SubmitFuturesOrderRequest,
+  SubmitFuturesTransferRequest,
+  SetFuturesLeverageRequest,
+  TransferFuturesAssetsRequest,
+  SubmitFuturesSubToMainSubFromSubRequest,
+  GetFuturesSubWalletRequest,
+  GetFuturesSubTransfersRequest,
+  GetFuturesAffiliateRebatesRequest,
+  SubmitFuturesPlanOrderRequest,
+  GetFuturesAffiliateTradesRequest,
+} from './types/request/futures.types.js';
 
 /**
  * Unified REST API client for all of Bitmart's REST APIs
@@ -172,13 +172,13 @@ export class RestClient extends BaseRestClient {
   }
 
   getSpotLatestKlineV3(
-    params: GetSpotKlineParams,
+    params: GetSpotKlineRequest,
   ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/lite-klines', params);
   }
 
   getSpotHistoryKlineV3(
-    params: GetSpotKlineParams,
+    params: GetSpotKlineRequest,
   ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
     return this.get('spot/quotation/v3/history-klines', params);
   }
@@ -218,13 +218,13 @@ export class RestClient extends BaseRestClient {
   }
 
   getSpotKlinesV1(
-    params: GetSpotKlinesV1Params,
+    params: GetSpotKlinesV1Request,
   ): Promise<APIResponse<{ klines: SpotKlineV1[] }>> {
     return this.get('spot/v1/symbols/kline', params);
   }
 
   getSpotOrderBookDepthV1(
-    params: GetSpotOrderBookDepthV1Params,
+    params: GetSpotOrderBookDepthV1Request,
   ): Promise<APIResponse<SpotOrderBookDepthResultV1>> {
     return this.get('spot/v1/symbols/book', params);
   }
@@ -266,13 +266,13 @@ export class RestClient extends BaseRestClient {
   }
 
   submitWithdrawalV1(
-    params: SubmitWithdrawalV1Params,
+    params: SubmitWithdrawalV1Request,
   ): Promise<APIResponse<{ withdrawal_id: string }>> {
     return this.postPrivate('account/v1/withdraw/apply', params);
   }
 
   getDepositWithdrawHistoryV2(
-    params?: GetDepositWithdrawHistoryV2Params,
+    params?: GetDepositWithdrawHistoryV2Request,
   ): Promise<APIResponse<{ records: AccountDepositWithdrawHistoryV2[] }>> {
     return this.getPrivate('account/v2/deposit-withdraw/history', params);
   }
@@ -290,7 +290,7 @@ export class RestClient extends BaseRestClient {
   }
 
   submitMarginAssetTransferV1(
-    params: SubmitMarginTransferV1Params,
+    params: SubmitMarginTransferV1Request,
   ): Promise<APIResponse<{ transfer_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/transfer', params);
   }
@@ -330,7 +330,7 @@ export class RestClient extends BaseRestClient {
   }
 
   cancelOrderV3(
-    params: CancelOrdersV3Params,
+    params: CancelOrdersV3Request,
   ): Promise<APIResponse<{ result: boolean }>> {
     return this.postPrivate('spot/v3/cancel_order', params);
   }
@@ -347,7 +347,7 @@ export class RestClient extends BaseRestClient {
    * Query a spot order by order ID
    */
   getSpotOrderByIdV4(
-    params: GetSpotOrderByIdV4Params,
+    params: GetSpotOrderByIdV4Request,
   ): Promise<APIResponse<SpotOrderV4>> {
     return this.postPrivate('spot/v4/query/order', params);
   }
@@ -356,7 +356,7 @@ export class RestClient extends BaseRestClient {
    * Query a spot order by client order ID
    */
   getSpotOrderByClientOrderIdV4(
-    params: GetSpotOrderByClientOrderIdV4Params,
+    params: GetSpotOrderByClientOrderIdV4Request,
   ): Promise<APIResponse<SpotOrderV4>> {
     return this.postPrivate('spot/v4/query/client-order', params);
   }
@@ -368,7 +368,7 @@ export class RestClient extends BaseRestClient {
   }
 
   getSpotHistoricOrdersV4(
-    params?: GetSpotOrderTradeHistoryV4Params,
+    params?: GetSpotOrderTradeHistoryV4Request,
   ): Promise<APIResponse<SpotOrderV4[]>> {
     return this.postPrivate('spot/v4/query/history-orders', params);
   }
@@ -377,7 +377,7 @@ export class RestClient extends BaseRestClient {
    * Account Trade List(v4)
    */
   getSpotAccountTradesV4(
-    params?: GetSpotOrderTradeHistoryV4Params,
+    params?: GetSpotOrderTradeHistoryV4Request,
   ): Promise<APIResponse<SpotAccountTradeV4[]>> {
     return this.postPrivate('spot/v4/query/trades', params);
   }
@@ -399,25 +399,25 @@ export class RestClient extends BaseRestClient {
    **/
 
   marginBorrowV1(
-    params: MarginBorrowRepayV1Params,
+    params: MarginBorrowRepayV1Request,
   ): Promise<APIResponse<{ borrow_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/borrow', params);
   }
 
   marginRepayV1(
-    params: MarginBorrowRepayV1Params,
+    params: MarginBorrowRepayV1Request,
   ): Promise<APIResponse<{ repay_id: string }>> {
     return this.postPrivate('spot/v1/margin/isolated/repay', params);
   }
 
   getMarginBorrowRecordV1(
-    params: GetMarginBorrowRecordV1Params,
+    params: GetMarginBorrowRecordV1Request,
   ): Promise<APIResponse<GetMarginBorrowRecordV1Result>> {
     return this.getPrivate('spot/v1/margin/isolated/borrow_record', params);
   }
 
   getMarginRepayRecordV1(
-    params: GetMarginRepayRecordV1Params,
+    params: GetMarginRepayRecordV1Request,
   ): Promise<APIResponse<GetMarginRepayRecordV1Result>> {
     return this.getPrivate('spot/v1/margin/isolated/repay_record', params);
   }
@@ -441,7 +441,7 @@ export class RestClient extends BaseRestClient {
    * Sub-Account to Main-Account (For Main Account)
    */
   submitMainTransferSubToMainV1(
-    params: SubmitMainTransferSubToMainV1Params,
+    params: SubmitMainTransferSubToMainV1Request,
   ): Promise<APIResponse<{}>> {
     return this.postPrivate('account/sub-account/main/v1/sub-to-main', params);
   }
@@ -450,43 +450,46 @@ export class RestClient extends BaseRestClient {
    * Sub-Account to Main-Account (For Sub-Account)
    */
   submitSubTransferSubToMainV1(
-    params: SubmitSubTransferSubToMainV1Params,
+    params: SubmitSubTransferSubToMainV1Request,
   ): Promise<APIResponse<{}>> {
     return this.postPrivate('account/sub-account/sub/v1/sub-to-main', params);
   }
 
   submitMainTransferMainToSubV1(
-    params: SubmitMainTransferMainToSubV1Params,
+    params: SubmitMainTransferMainToSubV1Request,
   ): Promise<APIResponse<{}>> {
     return this.postPrivate('account/sub-account/main/v1/main-to-sub', params);
   }
 
   submitMainTransferSubToSubV1(
-    params: SubmitMainTransferSubToSubV1Params,
+    params: SubmitMainTransferSubToSubV1Request,
   ): Promise<APIResponse<{}>> {
     return this.postPrivate('account/sub-account/main/v1/sub-to-sub', params);
   }
 
   submitSubTransferSubToSubV1(
-    params: SubmitSubTransferSubToSubV1Params,
+    params: SubmitSubTransferSubToSubV1Request,
   ): Promise<APIResponse<{}>> {
     return this.postPrivate('account/sub-account/sub/v1/sub-to-sub', params);
   }
 
   getSubTransfersV1(
-    params: GetSubTransfersV1Params,
+    params: GetSubTransfersV1Request,
   ): Promise<APIResponse<GetSubTransfersV1Result>> {
-    return this.getPrivate('account/sub-account/main/v1/transfer-list', params);
+    return this.getPrivate(
+      'account/sub-account/main/v1/transfer-list',
+      Request,
+    );
   }
 
   getAccountSubTransfersV1(
-    params: GetAccountSubTransfersV1Params,
+    params: GetAccountSubTransfersV1Request,
   ): Promise<APIResponse<GetAccountSubTransfersV1Result>> {
     return this.getPrivate('account/sub-account/v1/transfer-history', params);
   }
 
   getSubSpotWalletBalancesV1(
-    params: GetSubSpotWalletBalancesV1Params,
+    params: GetSubSpotWalletBalancesV1Request,
   ): Promise<APIResponse<GetSubSpotWalletBalancesV1Result>> {
     return this.getPrivate('account/sub-account/main/v1/wallet', params);
   }
@@ -510,31 +513,31 @@ export class RestClient extends BaseRestClient {
    */
 
   getFuturesContractDetails(params?: {
-    symbol?: string; // Optional as per API docs
+    symbol?: string;
   }): Promise<APIResponse<GetFuturesContractDetailsResult>> {
     return this.get('contract/public/details', params);
   }
 
   getFuturesContractDepth(params: {
-    symbol: string; // Optional as per API docs
+    symbol: string;
   }): Promise<APIResponse<GetFuturesContractDepthResult>> {
     return this.get('contract/public/depth', params);
   }
 
   getFuturesOpenInterest(params: {
-    symbol: string; // Optional as per API docs
+    symbol: string;
   }): Promise<APIResponse<GetFuturesOpenInterestResult>> {
     return this.get('contract/public/open-interest', params);
   }
 
   getFuturesFundingRate(params: {
-    symbol: string; // Optional as per API docs
+    symbol: string;
   }): Promise<APIResponse<GetFuturesFundingRateResult>> {
     return this.get('contract/public/funding-rate', params);
   }
 
   getFuturesKlines(
-    params: GetFuturesKlinesParams,
+    params: GetFuturesKlinesRequest,
   ): Promise<APIResponse<GetFuturesKlinesResult>> {
     return this.get('contract/public/kline', params);
   }
@@ -556,64 +559,64 @@ export class RestClient extends BaseRestClient {
    */
 
   getFuturesOrder(
-    params: FuturesOrderParams,
+    params: FuturesOrderRequest,
   ): Promise<APIResponse<GetFuturesOrderResult>> {
     return this.getPrivate('contract/private/order', params);
   }
 
   getFuturesOrderHistory(
-    params: GetFuturesOrderHistoryParams,
+    params: GetFuturesOrderHistoryRequest,
   ): Promise<APIResponse<GetFuturesOrderHistoryResult>> {
     return this.getPrivate('contract/private/order-history', params);
   }
 
   getFuturesOpenOrders(
-    params?: GetFuturesOpenOrdersParams,
+    params?: GetFuturesOpenOrdersRequest,
   ): Promise<APIResponse<GetFuturesOpenOrdersResult[]>> {
     return this.getPrivate('contract/private/get-open-orders', params);
   }
 
   getFuturesPlanOrders(
-    params?: GetFuturesPlanOrdersParams,
+    params?: GetFuturesPlanOrdersRequest,
   ): Promise<APIResponse<GetFuturesPlanOrdersResult[]>> {
     return this.getPrivate('contract/private/current-plan-order', params);
   }
 
   getFuturesPositions(params?: {
-    symbol?: string; // Optional as per API docs
+    symbol?: string;
   }): Promise<APIResponse<GetFuturesPositionsResult[]>> {
     return this.getPrivate('contract/private/position', params);
   }
 
   getFuturesTrades(
-    params: GetFuturesTradesParams,
+    params: GetFuturesTradesRequest,
   ): Promise<APIResponse<GetFuturesTradesResult[]>> {
     return this.getPrivate('contract/private/trades', params);
   }
 
   getFuturesTransfers(
-    params: GetFuturesTransfersParams,
+    params: GetFuturesTransfersRequest,
   ): Promise<APIResponse<GetFuturesTransfersResult>> {
     return this.getPrivate('account/v1/transfer-contract-list', params);
   }
 
   submitFuturesOrder(
-    params: SubmitFuturesOrderParams,
+    params: SubmitFuturesOrderRequest,
   ): Promise<APIResponse<SubmitFuturesOrderResult>> {
     return this.postPrivate('contract/private/submit-order', params);
   }
 
-  cancelFuturesOrder(params: FuturesOrderParams): Promise<APIResponse<any>> {
+  cancelFuturesOrder(params: FuturesOrderRequest): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-order', params);
   }
 
   cancelAllFuturesOrders(params: {
-    symbol: string; // Optional as per API docs
+    symbol: string;
   }): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-orders', params);
   }
 
-  submitFuturesPlanOrder(params: SubmitFuturesPlanOrderParams): Promise<
+  submitFuturesPlanOrder(params: SubmitFuturesPlanOrderRequest): Promise<
     APIResponse<{
       order_id: number;
     }>
@@ -622,19 +625,19 @@ export class RestClient extends BaseRestClient {
   }
 
   cancelFuturesPlanOrder(
-    params: FuturesOrderParams,
+    params: FuturesOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-plan-order', params);
   }
 
   submitFuturesTransfer(
-    params: SubmitFuturesTransferParams,
+    params: SubmitFuturesTransferRequest,
   ): Promise<APIResponse<SubmitFuturesTransferResult>> {
     return this.postPrivate('account/v1/transfer-contract', params);
   }
 
   setFuturesLeverage(
-    params: SetFuturesLeverageParams,
+    params: SetFuturesLeverageRequest,
   ): Promise<APIResponse<SetFuturesLeverageResult>> {
     return this.postPrivate('contract/private/submit-leverage', params);
   }
@@ -646,47 +649,47 @@ export class RestClient extends BaseRestClient {
    */
 
   submitFuturesSubToMainTransferFromMain(
-    params: TransferFuturesAssetsParams,
+    params: TransferFuturesAssetsRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate(
       'account/contract/sub-account/main/v1/sub-to-main',
-      params,
+      Request,
     );
   }
 
   submitFuturesMainToSubTransferFromMain(
-    params: TransferFuturesAssetsParams,
+    params: TransferFuturesAssetsRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate(
       'account/contract/sub-account/main/v1/main-to-sub',
-      params,
+      Request,
     );
   }
 
   submitFuturesSubToMainSubFromSub(
-    params: SubmitFuturesSubToMainSubFromSubParams,
+    params: SubmitFuturesSubToMainSubFromSubRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate(
       'account/contract/sub-account/sub/v1/sub-to-main',
-      params,
+      Request,
     );
   }
 
   getFuturesSubWallet(
-    params?: GetFuturesSubWalletParams,
+    params?: GetFuturesSubWalletRequest,
   ): Promise<APIResponse<GetFuturesSubWalletResult>> {
     return this.getPrivate(
       'account/contract/sub-account/main/v1/wallet',
-      params,
+      Request,
     );
   }
 
   getFuturesSubTransfers(
-    params: GetFuturesSubTransfersParams,
+    params: GetFuturesSubTransfersRequest,
   ): Promise<APIResponse<GetFuturesSubTransfersResult[]>> {
     return this.getPrivate(
       'account/contract/sub-account/main/v1/transfer-list',
-      params,
+      Request,
     );
   }
 
@@ -695,7 +698,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<GetFuturesSubTransfersResult[]>> {
     return this.getPrivate(
       'account/contract/sub-account/v1/transfer-history',
-      params,
+      Request,
     );
   }
 
@@ -706,13 +709,13 @@ export class RestClient extends BaseRestClient {
    */
 
   getFuturesAffiliateRebates(
-    params: GetFuturesAffiliateRebatesParams,
+    params: GetFuturesAffiliateRebatesRequest,
   ): Promise<APIResponse<any>> {
     return this.getPrivate('contract/private/affiliate/rebate-list', params);
   }
 
   getFuturesAffiliateTrades(
-    params: GetFuturesAffiliateTradesParams,
+    params: GetFuturesAffiliateTradesRequest,
   ): Promise<APIResponse<any>> {
     return this.getPrivate('contract/private/affiliate/trade-list', params);
   }

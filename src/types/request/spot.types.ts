@@ -1,4 +1,4 @@
-export interface GetSpotKlineParams {
+export interface GetSpotKlineRequest {
   symbol: string;
   before?: number;
   after?: number;
@@ -7,7 +7,7 @@ export interface GetSpotKlineParams {
 }
 
 // Interface for getSpotKlinesV1 parameters
-export interface GetSpotKlinesV1Params {
+export interface GetSpotKlinesV1Request {
   symbol: string;
   from: number;
   to: number;
@@ -15,14 +15,14 @@ export interface GetSpotKlinesV1Params {
 }
 
 // Interface for getSpotOrderBookDepthV1 parameters
-export interface GetSpotOrderBookDepthV1Params {
+export interface GetSpotOrderBookDepthV1Request {
   symbol: string;
   precision?: string;
   size?: number;
 }
 
 // Interface for submitWithdrawalV1 parameters
-export interface SubmitWithdrawalV1Params {
+export interface SubmitWithdrawalV1Request {
   currency: string;
   amount: string;
   destination: 'To Digital Address';
@@ -31,14 +31,14 @@ export interface SubmitWithdrawalV1Params {
 }
 
 // Interface for getDepositWithdrawHistoryV2 parameters
-export interface GetDepositWithdrawHistoryV2Params {
+export interface GetDepositWithdrawHistoryV2Request {
   currency?: string;
   operation_type: 'deposit' | 'withdraw';
   N: number;
 }
 
 // Interface for submitMarginTransferV1 parameters
-export interface SubmitMarginTransferV1Params {
+export interface SubmitMarginTransferV1Request {
   symbol: string;
   currency: string;
   amount: string;
@@ -56,14 +56,14 @@ export interface SpotSubmitOrder {
 }
 
 // Interface for cancelOrderV3 parameters
-export type CancelOrdersV3Params = {
+export type CancelOrdersV3Request = {
   symbol: string;
   order_id?: string;
   client_order_id?: string;
 } & ({ order_id: string } | { client_order_id: string });
 
 // Interface for cancelOrdersForSideV1 parameters
-export interface CancelOrdersForSideV1Params {
+export interface CancelOrdersForSideV1Request {
   symbol?: string;
   side?: 'buy' | 'sell';
 }
@@ -73,11 +73,11 @@ export interface SpotOrderIDBase {
   recvwindow?: number;
 }
 
-export interface GetSpotOrderByIdV4Params extends SpotOrderIDBase {
+export interface GetSpotOrderByIdV4Request extends SpotOrderIDBase {
   orderId: string;
 }
 
-export interface GetSpotOrderByClientOrderIdV4Params extends SpotOrderIDBase {
+export interface GetSpotOrderByClientOrderIdV4Request extends SpotOrderIDBase {
   clientOrderId: string;
 }
 
@@ -89,12 +89,12 @@ export interface GetSpotOrder {
   recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
 }
 
-export interface GetSpotOrderTradeHistoryV4Params extends GetSpotOrder {
+export interface GetSpotOrderTradeHistoryV4Request extends GetSpotOrder {
   symbol?: string; // Trading pair, e.g., BTC_USDT
 }
 
 // Interface for parameters of the marginBorrowV1 function
-export interface MarginBorrowRepayV1Params {
+export interface MarginBorrowRepayV1Request {
   symbol: string;
   currency: string;
   amount: string;
@@ -108,12 +108,12 @@ export interface SpotMarginBase {
 }
 
 // Interface for parameters of the getMarginBorrowRecordV1 function
-export interface GetMarginBorrowRecordV1Params extends SpotMarginBase {
+export interface GetMarginBorrowRecordV1Request extends SpotMarginBase {
   borrow_id?: string;
 }
 
 // Interface for parameters of the getMarginRepayRecordV1 function
-export interface GetMarginRepayRecordV1Params extends SpotMarginBase {
+export interface GetMarginRepayRecordV1Request extends SpotMarginBase {
   repay_id?: string;
   currency?: string;
 }
@@ -125,44 +125,44 @@ export interface SubTransfersBase {
 }
 
 // Interface for submitMainTransferSubToMainV1 parameters
-export interface SubmitMainTransferSubToMainV1Params extends SubTransfersBase {
+export interface SubmitMainTransferSubToMainV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
 // Interface for submitSubTransferSubToMainV1 parameters
-export interface SubmitSubTransferSubToMainV1Params extends SubTransfersBase {}
+export interface SubmitSubTransferSubToMainV1Request extends SubTransfersBase {}
 
 // Interface for submitMainTransferMainToSubV1 parameters
-export interface SubmitMainTransferMainToSubV1Params extends SubTransfersBase {
+export interface SubmitMainTransferMainToSubV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
 // Interface for submitMainTransferSubToSubV1 parameters
-export interface SubmitMainTransferSubToSubV1Params extends SubTransfersBase {
+export interface SubmitMainTransferSubToSubV1Request extends SubTransfersBase {
   fromAccount: string;
   toAccount: string;
 }
 
 // Interface for submitSubTransferSubToSubV1 parameters
-export interface SubmitSubTransferSubToSubV1Params extends SubTransfersBase {
+export interface SubmitSubTransferSubToSubV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
 // Interface for getSubTransfersV1 parameters
-export interface GetSubTransfersV1Params {
+export interface GetSubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
   accountName?: string;
 }
 
 // Interface for getAccountSubTransfersV1 parameters
-export interface GetAccountSubTransfersV1Params {
+export interface GetAccountSubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
 }
 
 // Interface for getSubSpotWalletBalancesV1 parameters
-export interface GetSubSpotWalletBalancesV1Params {
+export interface GetSubSpotWalletBalancesV1Request {
   subAccount: string;
   currency?: string;
 }
