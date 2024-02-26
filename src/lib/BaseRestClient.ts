@@ -193,12 +193,13 @@ export abstract class BaseRestClient {
     return axios(options)
       .then((response) => {
         if (response.status == 200) {
-          // if (
-          //   typeof response.data?.code === 'string' &&
-          //   response.data?.code !== '00000'
-          // ) {
-          //   throw { response };
-          // }
+          // Throw API rejections by parsing the response code from the body
+          if (
+            typeof response.data?.code === 'number' &&
+            response.data?.code !== 1000
+          ) {
+            throw { response };
+          }
           return response.data;
         }
         throw { response };
