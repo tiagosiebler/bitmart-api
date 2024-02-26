@@ -1,58 +1,57 @@
-export type FuturesOpenType = 'cross' | 'isolated';
-export interface BaseResult {
-  timestamp: number;
+export type FuturesMarginType = 'cross' | 'isolated';
+
+export interface FuturesContractDetails {
   symbol: string;
-}
-
-// Define the response data type
-export interface GetFuturesContractDetailsResult {
-  symbols: {
-    symbol: string;
-    product_type: number;
-    open_timestamp: number;
-    expire_timestamp: number;
-    settle_timestamp: number;
-    base_currency: string;
-    quote_currency: string;
-    last_price: string;
-    volume_24h: string;
-    turnover_24h: string;
-    index_price: string;
-    index_name: string;
-    contract_size: string;
-    min_leverage: string;
-    max_leverage: string;
-    price_precision: string;
-    vol_precision: string;
-    max_volume: string;
-    min_volume: string;
-    funding_rate: string;
-    expected_funding_rate: string;
-    open_interest: string;
-    open_interest_value: string;
-  }[];
-}
-
-// Define the response data type
-export interface GetFuturesContractDepthResult extends BaseResult {
-  asks: [string, string, string][];
-  bids: [string, string, string][];
-}
-
-// Define the response data type
-export interface GetFuturesOpenInterestResult extends BaseResult {
+  product_type: number;
+  open_timestamp: number;
+  expire_timestamp: number;
+  settle_timestamp: number;
+  base_currency: string;
+  quote_currency: string;
+  last_price: string;
+  volume_24h: string;
+  turnover_24h: string;
+  index_price: string;
+  index_name: string;
+  contract_size: string;
+  min_leverage: string;
+  max_leverage: string;
+  price_precision: string;
+  vol_precision: string;
+  max_volume: string;
+  min_volume: string;
+  funding_rate: string;
+  expected_funding_rate: string;
   open_interest: string;
   open_interest_value: string;
 }
 
 // Define the response data type
-export interface GetFuturesFundingRateResult extends BaseResult {
+export interface GetFuturesContractDepthResult {
+  timestamp: number;
+  symbol: string;
+  asks: [string, string, string][];
+  bids: [string, string, string][];
+}
+
+// Define the response data type
+export interface GetFuturesOpenInterestResult {
+  timestamp: number;
+  symbol: string;
+  open_interest: string;
+  open_interest_value: string;
+}
+
+// Define the response data type
+export interface GetFuturesFundingRateResult {
+  timestamp: number;
+  symbol: string;
   rate_value: string;
   expected_rate: string;
 }
 
 // Define the response data type
-export interface GetFuturesKlinesResult {
+export interface FuturesKline {
   timestamp: number;
   open_price: string;
   close_price: string;
@@ -62,7 +61,7 @@ export interface GetFuturesKlinesResult {
 }
 
 // Define the response data type
-export interface GetFuturesAssetsResult {
+export interface FuturesAsset {
   currency: string;
   position_deposit: string;
   frozen_balance: string;
@@ -79,7 +78,7 @@ export interface FuturesOrderBase {
   state: 1 | 2 | 4; // Adjusted to accommodate all uses
   side: 1 | 2 | 3 | 4;
   leverage: string;
-  open_type: FuturesOpenType;
+  open_type: FuturesMarginType;
   create_time: number;
   update_time: number;
 }
@@ -137,8 +136,9 @@ export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
   type: 'plan' | 'take_profit' | 'stop_loss';
 }
 
-
-export interface GetFuturesPositionsResult extends BaseResult {
+export interface GetFuturesPositionsResult {
+  timestamp: number;
+  symbol: string;
   leverage: string;
   current_fee: string;
   open_timestamp: number;
@@ -195,7 +195,7 @@ export interface SubmitFuturesTransferResult {
 export interface SetFuturesLeverageResult {
   symbol: string;
   leverage: string;
-  open_type: FuturesOpenType;
+  open_type: FuturesMarginType;
   max_value: string; // Maximum leverage
 }
 

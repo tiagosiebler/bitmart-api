@@ -13,8 +13,8 @@ export interface FuturesOrderRequest {
 // Define the request parameters type
 export interface GetFuturesOrderHistoryRequest {
   symbol: string;
-  start_time?: number; // Now optional
-  end_time?: number; // Now optional
+  start_time?: number;
+  end_time?: number;
 }
 
 // Define the request parameters type
@@ -34,28 +34,28 @@ export interface GetFuturesPlanOrdersRequest {
 
 export interface GetFuturesTradesRequest {
   symbol: string;
-  start_time?: number; // Optional
-  end_time?: number; // Optional
+  start_time?: number;
+  end_time?: number;
 }
 
 export interface GetFuturesTransfersRequest {
   currency?: string;
   time_start?: number;
   time_end?: number;
-  page: number; // Required
-  limit: number; // Required
+  page: number;
+  limit: number;
   recvWindow?: number;
 }
 
 export interface SubmitFuturesOrderRequest {
-  symbol: string; // Required
+  symbol: string;
   client_order_id?: string;
   side: 1 | 2 | 3 | 4; // Union type for order side
   mode?: 1 | 2 | 3 | 4; // Union type for order mode
   type?: 'limit' | 'market' | 'trailing';
-  leverage: string; // Required
-  open_type: 'cross' | 'isolated'; // Required
-  size: number; // Required
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  size: number;
   price?: string;
   activation_price?: string;
   callback_rate?: string;
@@ -123,14 +123,14 @@ export interface GetFuturesSubTransfersRequest {
 }
 
 export interface GetFuturesAffiliateRebatesRequest {
-  user_id: number; // Required
-  page: number; // Required
-  size: number; // Required
-  start_time?: number; // Optional
-  end_time?: number; // Optional
+  user_id: number;
+  page: number;
+  size: number;
+  start_time?: number;
+  end_time?: number;
 }
 
 export interface GetFuturesAffiliateTradesRequest
   extends GetFuturesAffiliateRebatesRequest {
-  type: 1 | 2; // Required, with positive numbers for U-based and Coin-based
+  type: 1 | 2;
 }

@@ -70,11 +70,10 @@ import {
   GetSubTransfersV1Result,
 } from './types/response/spot.types.js';
 import {
-  GetFuturesContractDetailsResult,
   GetFuturesContractDepthResult,
   GetFuturesOpenInterestResult,
   GetFuturesFundingRateResult,
-  GetFuturesAssetsResult,
+  FuturesAsset,
   GetFuturesOrderResult,
   GetFuturesOrderHistoryResult,
   GetFuturesOpenOrdersResult,
@@ -87,7 +86,8 @@ import {
   SubmitFuturesTransferResult,
   GetFuturesSubTransfersResult,
   GetFuturesSubWalletResult,
-  GetFuturesKlinesResult,
+  FuturesKline,
+  FuturesContractDetails,
 } from 'types/response/futures.types.js';
 import {
   GetFuturesKlinesRequest,
@@ -514,7 +514,7 @@ export class RestClient extends BaseRestClient {
 
   getFuturesContractDetails(params?: {
     symbol?: string;
-  }): Promise<APIResponse<GetFuturesContractDetailsResult>> {
+  }): Promise<APIResponse<{ symbols: FuturesContractDetails[] }>> {
     return this.get('contract/public/details', params);
   }
 
@@ -538,7 +538,7 @@ export class RestClient extends BaseRestClient {
 
   getFuturesKlines(
     params: GetFuturesKlinesRequest,
-  ): Promise<APIResponse<GetFuturesKlinesResult>> {
+  ): Promise<APIResponse<FuturesKline>> {
     return this.get('contract/public/kline', params);
   }
 
@@ -548,7 +548,7 @@ export class RestClient extends BaseRestClient {
    *
    */
 
-  getFuturesAssets(): Promise<APIResponse<GetFuturesAssetsResult[]>> {
+  getFuturesAssets(): Promise<APIResponse<FuturesAsset[]>> {
     return this.getPrivate('contract/private/assets-detail');
   }
 
