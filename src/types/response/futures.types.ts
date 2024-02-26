@@ -26,31 +26,27 @@ export interface FuturesContractDetails {
   open_interest_value: string;
 }
 
-// Define the response data type
-export interface GetFuturesContractDepthResult {
+export interface FuturesContractDepth {
   timestamp: number;
   symbol: string;
   asks: [string, string, string][];
   bids: [string, string, string][];
 }
 
-// Define the response data type
-export interface GetFuturesOpenInterestResult {
+export interface FuturesOpenInterest {
   timestamp: number;
   symbol: string;
   open_interest: string;
   open_interest_value: string;
 }
 
-// Define the response data type
-export interface GetFuturesFundingRateResult {
+export interface FuturesFundingRates {
   timestamp: number;
   symbol: string;
   rate_value: string;
   expected_rate: string;
 }
 
-// Define the response data type
 export interface FuturesKline {
   timestamp: number;
   open_price: string;
@@ -60,7 +56,6 @@ export interface FuturesKline {
   volume: string;
 }
 
-// Define the response data type
 export interface FuturesAsset {
   currency: string;
   position_deposit: string;
@@ -75,7 +70,7 @@ export interface FuturesOrderBase {
   client_order_id: string;
   size: string;
   symbol: string;
-  state: 1 | 2 | 4; // Adjusted to accommodate all uses
+  state: 1 | 2 | 4;
   side: 1 | 2 | 3 | 4;
   leverage: string;
   open_type: FuturesMarginType;
@@ -83,13 +78,11 @@ export interface FuturesOrderBase {
   update_time: number;
 }
 
-// Extend for GetFuturesOrderResult
 export interface GetFuturesOrderResult extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl';
   deal_avg_price: string;
   deal_size: string;
-  // Optional fields
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2;
@@ -100,32 +93,27 @@ export interface GetFuturesOrderResult extends FuturesOrderBase {
   preset_stop_loss_price?: string;
 }
 
-// Extend for GetFuturesOrderHistoryResult (similar to GetFuturesOrderResult, adjust as needed)
 export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing';
   deal_avg_price: string;
   deal_size: string;
-  // Optional fields similar to GetFuturesOrderResult
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2;
   executive_order_id?: string;
 }
 
-// Extend for GetFuturesOpenOrdersResult (similar structure, adjust as needed)
 export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'trailing';
   deal_avg_price: string;
   deal_size: string;
-  // Optional fields similar to GetFuturesOrderResult
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2;
 }
 
-// Extend for GetFuturesPlanOrdersResult with unique fields
 export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
   executive_price: string;
   trigger_price: string;
@@ -171,44 +159,40 @@ export interface GetFuturesTradesResult {
   create_time: number;
 }
 
-export interface GetFuturesTransfersResult {
-  records: {
-    transfer_id: string;
-    currency: string;
-    amount: string;
-    type: 'spot_to_contract' | 'contract_to_spot';
-    state: 'PROCESSING' | 'FINISHED' | 'FAILED';
-    timestamp: number;
-  }[];
+export interface FuturesTransfer {
+  transfer_id: string;
+  currency: string;
+  amount: string;
+  type: 'spot_to_contract' | 'contract_to_spot';
+  state: 'PROCESSING' | 'FINISHED' | 'FAILED';
+  timestamp: number;
 }
 
-export interface SubmitFuturesOrderResult {
+export interface SubmitFuturesOrder {
   order_id: number;
-  price: string; // Note: "market price" for market type orders
+  price: string;
 }
 
-export interface SubmitFuturesTransferResult {
+export interface SubmitFuturesTransfer {
   currency: string;
   amount: string;
 }
 
-export interface SetFuturesLeverageResult {
+export interface SetFuturesLeverage {
   symbol: string;
   leverage: string;
   open_type: FuturesMarginType;
   max_value: string; // Maximum leverage
 }
 
-export interface GetFuturesSubWalletResult {
-  wallet: {
-    currency: string; // Token symbol, e.g., 'BTC'
-    name: string; // Token name, e.g., 'Bitcoin'
-    available: string; // Available Balance
-    frozen: string; // Frozen Balance
-  }[];
+export interface FuturesSubaccountInfo {
+  currency: string; // Token symbol, e.g., 'BTC'
+  name: string; // Token name, e.g., 'Bitcoin'
+  available: string; // Available Balance
+  frozen: string; // Frozen Balance
 }
 
-export interface GetFuturesSubTransfersResult {
+export interface FuturesSubTransfers {
   fromAccount: string;
   toAccount: string;
   toWalletType: 'future';

@@ -6,7 +6,6 @@ export interface GetSpotKlineRequest {
   limit?: number;
 }
 
-// Interface for getSpotKlinesV1 parameters
 export interface GetSpotKlinesV1Request {
   symbol: string;
   from: number;
@@ -14,14 +13,12 @@ export interface GetSpotKlinesV1Request {
   step?: number;
 }
 
-// Interface for getSpotOrderBookDepthV1 parameters
 export interface GetSpotOrderBookDepthV1Request {
   symbol: string;
   precision?: string;
   size?: number;
 }
 
-// Interface for submitWithdrawalV1 parameters
 export interface SubmitWithdrawalV1Request {
   currency: string;
   amount: string;
@@ -30,14 +27,12 @@ export interface SubmitWithdrawalV1Request {
   address_memo?: string;
 }
 
-// Interface for getDepositWithdrawHistoryV2 parameters
 export interface GetDepositWithdrawHistoryV2Request {
   currency?: string;
   operation_type: 'deposit' | 'withdraw';
   N: number;
 }
 
-// Interface for submitMarginTransferV1 parameters
 export interface SubmitMarginTransferV1Request {
   symbol: string;
   currency: string;
@@ -55,14 +50,12 @@ export interface SpotSubmitOrder {
   notional?: string;
 }
 
-// Interface for cancelOrderV3 parameters
 export type CancelOrdersV3Request = {
   symbol: string;
   order_id?: string;
   client_order_id?: string;
 } & ({ order_id: string } | { client_order_id: string });
 
-// Interface for cancelOrdersForSideV1 parameters
 export interface CancelOrdersForSideV1Request {
   symbol?: string;
   side?: 'buy' | 'sell';
@@ -93,7 +86,6 @@ export interface GetSpotOrderTradeHistoryV4Request extends GetSpotOrder {
   symbol?: string; // Trading pair, e.g., BTC_USDT
 }
 
-// Interface for parameters of the marginBorrowV1 function
 export interface MarginBorrowRepayV1Request {
   symbol: string;
   currency: string;
@@ -107,12 +99,10 @@ export interface SpotMarginBase {
   N?: number;
 }
 
-// Interface for parameters of the getMarginBorrowRecordV1 function
 export interface GetMarginBorrowRecordV1Request extends SpotMarginBase {
   borrow_id?: string;
 }
 
-// Interface for parameters of the getMarginRepayRecordV1 function
 export interface GetMarginRepayRecordV1Request extends SpotMarginBase {
   repay_id?: string;
   currency?: string;
@@ -124,44 +114,36 @@ export interface SubTransfersBase {
   currency: string;
 }
 
-// Interface for submitMainTransferSubToMainV1 parameters
 export interface SubmitMainTransferSubToMainV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
-// Interface for submitSubTransferSubToMainV1 parameters
 export interface SubmitSubTransferSubToMainV1Request extends SubTransfersBase {}
 
-// Interface for submitMainTransferMainToSubV1 parameters
 export interface SubmitMainTransferMainToSubV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
-// Interface for submitMainTransferSubToSubV1 parameters
 export interface SubmitMainTransferSubToSubV1Request extends SubTransfersBase {
   fromAccount: string;
   toAccount: string;
 }
 
-// Interface for submitSubTransferSubToSubV1 parameters
 export interface SubmitSubTransferSubToSubV1Request extends SubTransfersBase {
   subAccount: string;
 }
 
-// Interface for getSubTransfersV1 parameters
 export interface GetSubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
   accountName?: string;
 }
 
-// Interface for getAccountSubTransfersV1 parameters
 export interface GetAccountSubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
 }
 
-// Interface for getSubSpotWalletBalancesV1 parameters
 export interface GetSubSpotWalletBalancesV1Request {
   subAccount: string;
   currency?: string;

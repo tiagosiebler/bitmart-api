@@ -91,7 +91,6 @@ export type BookPriceLevel = [
   string, // amount
 ];
 
-// Interface for getSpotOrderBookDepthV3 response
 export interface GetSpotOrderBookDepthResultV3 {
   ts: string;
   symbol: string;
@@ -146,7 +145,6 @@ export interface SpotBookLevelV1 {
   count: string;
 }
 
-// Interface for getSpotOrderBookDepthV1 response
 export interface SpotOrderBookDepthResultV1 {
   timestamp: number;
   buys: SpotBookLevelV1[];
@@ -242,7 +240,6 @@ export interface BasicFeeRateV1 {
   maker_fee_rate_C: string;
 }
 
-// Interface for getActualFeeRateV1 response
 export interface GetActualFeeRateV1Result {
   symbol: string;
   buy_taker_fee_rate: string;
@@ -282,9 +279,9 @@ export interface SpotTradeBase {
   orderId: string;
   clientOrderId: string;
   symbol: string;
-  side: OrderSide; // Assuming OrderSide is already defined somewhere
-  orderMode: string; // Consider using a union type if the possible values are known
-  type: string; // Consider using a union type if the possible values are known
+  side: OrderSide;
+  orderMode: string;
+  type: string;
   price: string;
   size: string;
   notional: string;
@@ -292,7 +289,6 @@ export interface SpotTradeBase {
   updateTime: number;
 }
 
-// Specific interface for SpotOrderV4
 export interface SpotOrderV4 extends SpotTradeBase {
   state: string;
   priceAvg: string;
@@ -300,12 +296,11 @@ export interface SpotOrderV4 extends SpotTradeBase {
   filledNotional: string;
 }
 
-// Specific interface for SpotAccountTradeV4
 export interface SpotAccountTradeV4 extends SpotTradeBase {
   tradeId: string;
   fee: string;
   feeCoinName: string;
-  tradeRole: 'taker' | 'maker'; // Assuming 'maker' could be another possible value
+  tradeRole: 'taker' | 'maker';
   orderMode: 'spot' | 'iso_margin';
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
 }
@@ -318,7 +313,6 @@ export type SpotAccountOrderTradeV4 = SpotAccountTradeV4;
  *
  **/
 
-// Interface for getMarginBorrowRecordV1 response
 export interface GetMarginBorrowRecordV1Result {
   records: {
     borrow_id: string;
@@ -332,7 +326,6 @@ export interface GetMarginBorrowRecordV1Result {
   }[];
 }
 
-// Interface for getMarginRepayRecordV1 response
 export interface GetMarginRepayRecordV1Result {
   records: {
     repay_id: string;
@@ -345,7 +338,7 @@ export interface GetMarginRepayRecordV1Result {
   }[];
 }
 
-export interface MarginBorrow {
+export interface MarginBaseQuoteRow {
   currency: string;
   daily_interest: string;
   hourly_interest: string;
@@ -354,18 +347,17 @@ export interface MarginBorrow {
   borrowable_amount: string;
 }
 
-// Interface for getMarginBorrowingRatesV1 response
 export interface GetMarginBorrowingRatesV1Result {
   symbols: {
     symbol: string;
     max_leverage: string;
     symbol_enabled: boolean;
-    base: MarginBorrow;
-    quote: MarginBorrow;
+    base: MarginBaseQuoteRow;
+    quote: MarginBaseQuoteRow;
   }[];
 }
 
-export interface SubHistoryList {
+export interface SubTransferRow {
   fromAccount: string;
   fromWalletType: 'spot';
   toAccount: string;
@@ -375,19 +367,16 @@ export interface SubHistoryList {
   submissionTime: number;
 }
 
-// Interface for getSubTransfersV1 response
 export interface GetSubTransfersV1Result {
   total: number;
-  historyList: SubHistoryList[];
+  historyList: SubTransferRow[];
 }
 
-// Interface for getAccountSubTransfersV1 response
 export interface GetAccountSubTransfersV1Result {
   total: number;
-  historyList: SubHistoryList[];
+  historyList: SubTransferRow[];
 }
 
-// Interface for getSubSpotWalletBalancesV1 response
 export interface GetSubSpotWalletBalancesV1Result {
   wallet: {
     currency: string;
@@ -397,7 +386,6 @@ export interface GetSubSpotWalletBalancesV1Result {
   }[];
 }
 
-// Interface for getSubAccountsV1 response
 export interface GetSubAccountsV1Result {
   subAccountList: {
     accountName: string;

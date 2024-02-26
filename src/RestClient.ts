@@ -70,9 +70,6 @@ import {
   GetSubTransfersV1Result,
 } from './types/response/spot.types.js';
 import {
-  GetFuturesContractDepthResult,
-  GetFuturesOpenInterestResult,
-  GetFuturesFundingRateResult,
   FuturesAsset,
   GetFuturesOrderResult,
   GetFuturesOrderHistoryResult,
@@ -80,14 +77,17 @@ import {
   GetFuturesPlanOrdersResult,
   GetFuturesPositionsResult,
   GetFuturesTradesResult,
-  GetFuturesTransfersResult,
-  SubmitFuturesOrderResult,
-  SetFuturesLeverageResult,
-  SubmitFuturesTransferResult,
-  GetFuturesSubTransfersResult,
-  GetFuturesSubWalletResult,
   FuturesKline,
   FuturesContractDetails,
+  FuturesTransfer,
+  FuturesContractDepth,
+  FuturesFundingRates,
+  FuturesOpenInterest,
+  FuturesSubTransfers,
+  SetFuturesLeverage,
+  SubmitFuturesOrder,
+  SubmitFuturesTransfer,
+  FuturesSubaccountInfo,
 } from 'types/response/futures.types.js';
 import {
   GetFuturesKlinesRequest,
@@ -520,19 +520,19 @@ export class RestClient extends BaseRestClient {
 
   getFuturesContractDepth(params: {
     symbol: string;
-  }): Promise<APIResponse<GetFuturesContractDepthResult>> {
+  }): Promise<APIResponse<FuturesContractDepth>> {
     return this.get('contract/public/depth', params);
   }
 
   getFuturesOpenInterest(params: {
     symbol: string;
-  }): Promise<APIResponse<GetFuturesOpenInterestResult>> {
+  }): Promise<APIResponse<FuturesOpenInterest>> {
     return this.get('contract/public/open-interest', params);
   }
 
   getFuturesFundingRate(params: {
     symbol: string;
-  }): Promise<APIResponse<GetFuturesFundingRateResult>> {
+  }): Promise<APIResponse<FuturesFundingRates>> {
     return this.get('contract/public/funding-rate', params);
   }
 
@@ -594,15 +594,17 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('contract/private/trades', params);
   }
 
-  getFuturesTransfers(
-    params: GetFuturesTransfersRequest,
-  ): Promise<APIResponse<GetFuturesTransfersResult>> {
+  getFuturesTransfers(params: GetFuturesTransfersRequest): Promise<
+    APIResponse<{
+      records: FuturesTransfer[];
+    }>
+  > {
     return this.getPrivate('account/v1/transfer-contract-list', params);
   }
 
   submitFuturesOrder(
     params: SubmitFuturesOrderRequest,
-  ): Promise<APIResponse<SubmitFuturesOrderResult>> {
+  ): Promise<APIResponse<SubmitFuturesOrder>> {
     return this.postPrivate('contract/private/submit-order', params);
   }
 
@@ -632,13 +634,13 @@ export class RestClient extends BaseRestClient {
 
   submitFuturesTransfer(
     params: SubmitFuturesTransferRequest,
-  ): Promise<APIResponse<SubmitFuturesTransferResult>> {
+  ): Promise<APIResponse<SubmitFuturesTransfer>> {
     return this.postPrivate('account/v1/transfer-contract', params);
   }
 
   setFuturesLeverage(
     params: SetFuturesLeverageRequest,
-  ): Promise<APIResponse<SetFuturesLeverageResult>> {
+  ): Promise<APIResponse<SetFuturesLeverage>> {
     return this.postPrivate('contract/private/submit-leverage', params);
   }
 
@@ -675,9 +677,11 @@ export class RestClient extends BaseRestClient {
     );
   }
 
-  getFuturesSubWallet(
-    params?: GetFuturesSubWalletRequest,
-  ): Promise<APIResponse<GetFuturesSubWalletResult>> {
+  getFuturesSubWallet(params?: GetFuturesSubWalletRequest): Promise<
+    APIResponse<{
+      wallet: FuturesSubaccountInfo[];
+    }>
+  > {
     return this.getPrivate(
       'account/contract/sub-account/main/v1/wallet',
       Request,
@@ -686,7 +690,7 @@ export class RestClient extends BaseRestClient {
 
   getFuturesSubTransfers(
     params: GetFuturesSubTransfersRequest,
-  ): Promise<APIResponse<GetFuturesSubTransfersResult[]>> {
+  ): Promise<APIResponse<FuturesSubTransfers[]>> {
     return this.getPrivate(
       'account/contract/sub-account/main/v1/transfer-list',
       Request,
@@ -695,7 +699,7 @@ export class RestClient extends BaseRestClient {
 
   getFuturesSubTransferHistory(params: {
     limit: number; // Range [1,100]
-  }): Promise<APIResponse<GetFuturesSubTransfersResult[]>> {
+  }): Promise<APIResponse<FuturesSubTransfers[]>> {
     return this.getPrivate(
       'account/contract/sub-account/v1/transfer-history',
       Request,

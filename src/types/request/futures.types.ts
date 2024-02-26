@@ -10,14 +10,12 @@ export interface FuturesOrderRequest {
   order_id: string;
 }
 
-// Define the request parameters type
 export interface GetFuturesOrderHistoryRequest {
   symbol: string;
   start_time?: number;
   end_time?: number;
 }
 
-// Define the request parameters type
 export interface GetFuturesOpenOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market' | 'trailing';
@@ -25,7 +23,6 @@ export interface GetFuturesOpenOrdersRequest {
   limit?: number;
 }
 
-// Define the request parameters type
 export interface GetFuturesPlanOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market';
@@ -50,8 +47,8 @@ export interface GetFuturesTransfersRequest {
 export interface SubmitFuturesOrderRequest {
   symbol: string;
   client_order_id?: string;
-  side: 1 | 2 | 3 | 4; // Union type for order side
-  mode?: 1 | 2 | 3 | 4; // Union type for order mode
+  side: 1 | 2 | 3 | 4; 
+  mode?: 1 | 2 | 3 | 4; 
   type?: 'limit' | 'market' | 'trailing';
   leverage: string;
   open_type: 'cross' | 'isolated';
@@ -98,7 +95,6 @@ export interface SetFuturesLeverageRequest {
   open_type: 'cross' | 'isolated'; // Open type, required at close position
 }
 
-// Define the request parameters type common for both transfers
 export interface TransferFuturesAssetsRequest {
   requestNo: string; // UUID, unique identifier, max length 64
   amount: string; // Transfer amount
