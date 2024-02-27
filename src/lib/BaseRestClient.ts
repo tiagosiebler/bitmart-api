@@ -204,13 +204,13 @@ export abstract class BaseRestClient {
         }
         throw { response };
       })
-      .catch((e) => this.parseException(e));
+      .catch((e) => this.parseException(e, options));
   }
 
   /**
    * @private generic handler to parse request exceptions
    */
-  parseException(e: any): unknown {
+  parseException(e: any, _options: AxiosRequestConfig<any>): unknown {
     if (this.options.parseExceptions === false) {
       throw e;
     }
@@ -238,9 +238,11 @@ export abstract class BaseRestClient {
       requestOptions: {
         ...this.options,
         // Prevent credentials from leaking into error messages
-        apiPass: 'omittedFromError',
+        apiKey: 'omittedFromError',
+        apiMemo: 'omittedFromError',
         apiSecret: 'omittedFromError',
       },
+      // fullRequest: _options,
     };
   }
 
@@ -375,7 +377,6 @@ export abstract class BaseRestClient {
       'X-BM-KEY': this.apiKey,
       'X-BM-SIGN': signResult.sign,
       'X-BM-TIMESTAMP': signResult.timestamp,
-      'ACCESS-SIGN': signResult.sign,
     };
 
     if (method === 'GET') {
@@ -395,7 +396,7 @@ export abstract class BaseRestClient {
         ...authHeaders,
         ...options.headers,
       },
-      data: params,
+      data: signResult.originalParams,
     };
   }
 }

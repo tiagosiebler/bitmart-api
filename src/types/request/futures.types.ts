@@ -47,8 +47,8 @@ export interface GetFuturesTransfersRequest {
 export interface SubmitFuturesOrderRequest {
   symbol: string;
   client_order_id?: string;
-  side: 1 | 2 | 3 | 4; 
-  mode?: 1 | 2 | 3 | 4; 
+  side: 1 | 2 | 3 | 4;
+  mode?: 1 | 2 | 3 | 4;
   type?: 'limit' | 'market' | 'trailing';
   leverage: string;
   open_type: 'cross' | 'isolated';
