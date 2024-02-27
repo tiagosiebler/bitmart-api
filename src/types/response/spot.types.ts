@@ -146,13 +146,6 @@ export interface SpotOrderBookDepthResultV1 {
   sells: SpotBookLevelV1[];
 }
 
-export interface AccountCurrencyBalanceV1 {
-  currency: string;
-  name: string;
-  available: string;
-  frozen: string;
-}
-
 export interface AccountCurrencyV1 {
   currency: string;
   name: string;

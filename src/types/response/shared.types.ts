@@ -6,3 +6,13 @@ export interface APIResponse<TData = {}, TCode = number> {
 }
 
 export type OrderSide = 'buy' | 'sell';
+
+/**
+ * Spot & Futures uses this
+ */
+export interface AccountCurrencyBalanceV1 {
+  currency: string;
+  name: string;
+  available: string;
+  frozen: string;
+}

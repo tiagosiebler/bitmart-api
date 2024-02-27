@@ -40,7 +40,7 @@ export interface FuturesOpenInterest {
   open_interest_value: string;
 }
 
-export interface FuturesFundingRates {
+export interface FuturesFundingRate {
   timestamp: number;
   symbol: string;
   rate_value: string;
@@ -56,7 +56,7 @@ export interface FuturesKline {
   volume: string;
 }
 
-export interface FuturesAsset {
+export interface FuturesAccountAsset {
   currency: string;
   position_deposit: string;
   frozen_balance: string;
@@ -78,7 +78,7 @@ export interface FuturesOrderBase {
   update_time: number;
 }
 
-export interface GetFuturesOrderResult extends FuturesOrderBase {
+export interface FuturesAccountOrder extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl';
   deal_avg_price: string;
@@ -93,7 +93,7 @@ export interface GetFuturesOrderResult extends FuturesOrderBase {
   preset_stop_loss_price?: string;
 }
 
-export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
+export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing';
   deal_avg_price: string;
@@ -104,7 +104,7 @@ export interface GetFuturesOrderHistoryResult extends FuturesOrderBase {
   executive_order_id?: string;
 }
 
-export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
+export interface FuturesAccountOpenOrder extends FuturesOrderBase {
   price: string;
   type: 'limit' | 'market' | 'trailing';
   deal_avg_price: string;
@@ -114,7 +114,7 @@ export interface GetFuturesOpenOrdersResult extends FuturesOrderBase {
   activation_price_type?: 1 | 2;
 }
 
-export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
+export interface FuturesAccountPlanOrders extends FuturesOrderBase {
   executive_price: string;
   trigger_price: string;
   mode: number;
@@ -124,7 +124,7 @@ export interface GetFuturesPlanOrdersResult extends FuturesOrderBase {
   type: 'plan' | 'take_profit' | 'stop_loss';
 }
 
-export interface GetFuturesPositionsResult {
+export interface FuturesAccountPosition {
   timestamp: number;
   symbol: string;
   leverage: string;
@@ -145,7 +145,7 @@ export interface GetFuturesPositionsResult {
   position_type: 1 | 2;
 }
 
-export interface GetFuturesTradesResult {
+export interface FuturesAccountTrade {
   order_id: string;
   trade_id: string;
   symbol: string;
@@ -159,7 +159,7 @@ export interface GetFuturesTradesResult {
   create_time: number;
 }
 
-export interface FuturesTransfer {
+export interface FuturesAccountTransfer {
   transfer_id: string;
   currency: string;
   amount: string;
@@ -168,31 +168,24 @@ export interface FuturesTransfer {
   timestamp: number;
 }
 
-export interface SubmitFuturesOrder {
+export interface FuturesOrderSubmitResult {
   order_id: number;
   price: string;
 }
 
-export interface SubmitFuturesTransfer {
+export interface FuturesTransferSubmitResult {
   currency: string;
   amount: string;
 }
 
-export interface SetFuturesLeverage {
+export interface FuturesAccountSetLeverageResult {
   symbol: string;
   leverage: string;
   open_type: FuturesMarginType;
   max_value: string; // Maximum leverage
 }
 
-export interface FuturesSubaccountInfo {
-  currency: string; // Token symbol, e.g., 'BTC'
-  name: string; // Token name, e.g., 'Bitcoin'
-  available: string; // Available Balance
-  frozen: string; // Frozen Balance
-}
-
-export interface FuturesSubTransfers {
+export interface FuturesAccountSubTransfer {
   fromAccount: string;
   toAccount: string;
   toWalletType: 'future';
