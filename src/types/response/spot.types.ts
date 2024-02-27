@@ -228,7 +228,7 @@ export interface BasicFeeRateV1 {
   maker_fee_rate_C: string;
 }
 
-export interface ActualSpotFeeRateV1 {
+export interface ActualFeeRateV1 {
   symbol: string;
   buy_taker_fee_rate: string;
   sell_taker_fee_rate: string;

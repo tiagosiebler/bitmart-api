@@ -37,7 +37,7 @@ import {
   SpotOpenOrdersV4Request,
 } from './types/request/spot.types.js';
 import {
-  ActualSpotFeeRateV1,
+  ActualFeeRateV1,
   BasicFeeRateV1,
   SpotOrderBookDepthResultV1,
   GetSpotOrderBookDepthResultV3,
@@ -291,13 +291,13 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('spot/v1/margin/isolated/transfer', params);
   }
 
-  getBasicFeeRateV1(): Promise<APIResponse<BasicFeeRateV1>> {
+  getBasicSpotFeeRateV1(): Promise<APIResponse<BasicFeeRateV1>> {
     return this.getPrivate('spot/v1/user_fee');
   }
 
   getActualSpotTradeFeeRateV1(params: {
     symbol: string;
-  }): Promise<APIResponse<ActualSpotFeeRateV1>> {
+  }): Promise<APIResponse<ActualFeeRateV1>> {
     return this.getPrivate('spot/v1/trade_fee', params);
   }
 
@@ -325,7 +325,7 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('spot/v2/batch_orders', params);
   }
 
-  cancelOrderV3(
+  cancelSpotOrderV3(
     params: CancelOrdersV3Request,
   ): Promise<APIResponse<{ result: boolean }>> {
     return this.postPrivate('spot/v3/cancel_order', params);
