@@ -39,6 +39,11 @@ interface UnsignedRequest<T extends object | undefined = {}> {
 
 type SignMethod = 'bitmart';
 
+/**
+ * Enables:
+ * - Detailed request/response logging
+ * - Full request dump in any exceptions thrown from API responses
+ */
 const ENABLE_HTTP_TRACE =
   typeof process === 'object' &&
   typeof process.env === 'object' &&
@@ -210,7 +215,7 @@ export abstract class BaseRestClient {
   /**
    * @private generic handler to parse request exceptions
    */
-  parseException(e: any, _options: AxiosRequestConfig<any>): unknown {
+  parseException(e: any, request: AxiosRequestConfig<any>): unknown {
     if (this.options.parseExceptions === false) {
       throw e;
     }
@@ -230,6 +235,8 @@ export abstract class BaseRestClient {
     const response: AxiosResponse = e.response;
     // console.error('err: ', response?.data);
 
+    const debugData = ENABLE_HTTP_TRACE ? { fullRequest: request } : {};
+
     throw {
       code: response.status,
       message: response.statusText,
@@ -242,7 +249,7 @@ export abstract class BaseRestClient {
         apiMemo: 'omittedFromError',
         apiSecret: 'omittedFromError',
       },
-      // fullRequest: _options,
+      ...debugData,
     };
   }
 

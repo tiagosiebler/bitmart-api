@@ -347,11 +347,6 @@ export interface SubTransferRow {
   submissionTime: number;
 }
 
-export interface SubTransfersV1Result {
-  total: number;
-  historyList: SubTransferRow[];
-}
-
 export interface SubAccountV1 {
   accountName: string;
   status: number;

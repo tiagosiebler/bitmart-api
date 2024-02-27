@@ -91,7 +91,7 @@ export interface MarginBorrowRepayV1Request {
   amount: string;
 }
 
-export interface GetMarginBorrowRecordV1Request {
+export interface MarginBorrowRecordsV1Request {
   symbol: string;
   start_time?: number;
   end_time?: number;
@@ -99,7 +99,7 @@ export interface GetMarginBorrowRecordV1Request {
   borrow_id?: string;
 }
 
-export interface GetMarginRepayRecordV1Request {
+export interface MarginRepayRecordsV1Request {
   symbol: string;
   start_time?: number;
   end_time?: number;
@@ -108,43 +108,39 @@ export interface GetMarginRepayRecordV1Request {
   currency?: string;
 }
 
-export interface SubTransfersBase {
+export interface SubmitSubTransferSubToMainV1Request {
   requestNo: string;
   amount: string;
   currency: string;
 }
 
-export interface SubmitMainTransferSubToMainV1Request extends SubTransfersBase {
+export interface SubmitSubTransferV1Request {
+  requestNo: string;
+  amount: string;
+  currency: string;
   subAccount: string;
 }
 
-export interface SubmitSubTransferSubToMainV1Request extends SubTransfersBase {}
-
-export interface SubmitMainTransferMainToSubV1Request extends SubTransfersBase {
-  subAccount: string;
-}
-
-export interface SubmitMainTransferSubToSubV1Request extends SubTransfersBase {
+export interface SubmitMainTransferSubToSubV1Request {
+  requestNo: string;
+  amount: string;
+  currency: string;
   fromAccount: string;
   toAccount: string;
 }
 
-export interface SubmitSubTransferSubToSubV1Request extends SubTransfersBase {
-  subAccount: string;
-}
-
-export interface GetSubTransfersV1Request {
+export interface SubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
   accountName?: string;
 }
 
-export interface GetAccountSubTransfersV1Request {
+export interface AccountSubTransfersV1Request {
   moveType: 'spot to spot';
   N: number;
 }
 
-export interface GetSubSpotWalletBalancesV1Request {
+export interface SubSpotWalletBalancesV1Request {
   subAccount: string;
   currency?: string;
 }
