@@ -86,7 +86,7 @@ export type BookPriceLevel = [
   string, // amount
 ];
 
-export interface GetSpotOrderBookDepthResultV3 {
+export interface SpotOrderBookDepthResultV3 {
   ts: string;
   symbol: string;
   asks: BookPriceLevel[];
