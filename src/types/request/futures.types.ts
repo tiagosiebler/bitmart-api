@@ -1,41 +1,41 @@
-export interface GetFuturesKlinesRequest {
+export interface FuturesKlinesRequest {
   symbol: string;
   start_time: number;
   end_time: number;
   step?: number;
 }
 
-export interface FuturesOrderRequest {
+export interface FuturesAccountOrderRequest {
   symbol: string;
   order_id: string;
 }
 
-export interface GetFuturesOrderHistoryRequest {
+export interface FuturesAccountHistoricOrderRequest {
   symbol: string;
   start_time?: number;
   end_time?: number;
 }
 
-export interface GetFuturesOpenOrdersRequest {
+export interface FuturesAccountOpenOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market' | 'trailing';
   order_state?: 'all' | 'partially_filled';
   limit?: number;
 }
 
-export interface GetFuturesPlanOrdersRequest {
+export interface FuturesAccountPlanOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market';
   limit?: number;
 }
 
-export interface GetFuturesTradesRequest {
+export interface FuturesAccountTradesRequest {
   symbol: string;
   start_time?: number;
   end_time?: number;
 }
 
-export interface GetFuturesTransfersRequest {
+export interface FuturesAccountTransfersRequest {
   currency?: string;
   time_start?: number;
   time_end?: number;
@@ -108,17 +108,17 @@ export interface SubmitFuturesSubToMainSubFromSubRequest {
   currency: 'USDT'; // Currently only USDT is supported
 }
 
-export interface GetFuturesSubWalletRequest {
+export interface FuturesSubWalletRequest {
   subAccount: string; // Sub-Account username
   currency?: string; // Currency is optional
 }
 
-export interface GetFuturesSubTransfersRequest {
+export interface FuturesSubTransfersRequest {
   subAccount: string;
   limit: number; // Range [1,100]
 }
 
-export interface GetFuturesAffiliateRebatesRequest {
+export interface FuturesAffiliateRebatesRequest {
   user_id: number;
   page: number;
   size: number;
@@ -126,7 +126,7 @@ export interface GetFuturesAffiliateRebatesRequest {
   end_time?: number;
 }
 
-export interface GetFuturesAffiliateTradesRequest
-  extends GetFuturesAffiliateRebatesRequest {
+export interface FuturesAffiliateTradesRequest
+  extends FuturesAffiliateRebatesRequest {
   type: 1 | 2;
 }
