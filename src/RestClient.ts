@@ -35,25 +35,17 @@ import {
   SubmitWithdrawalV1Request,
 } from './types/request/spot.types.js';
 import {
-  GetAccountSubTransfersV1Result,
-  GetActualFeeRateV1Result,
+  ActualSpotFeeRateV1,
   BasicFeeRateV1,
-  GetMarginBorrowRecordV1Result,
-  GetMarginBorrowingRatesV1Result,
-  GetMarginRepayRecordV1Result,
   SpotOrderBookDepthResultV1,
   GetSpotOrderBookDepthResultV3,
   SpotOrderV4,
-  SpotTickerV1,
-  GetSubAccountsV1Result,
-  GetSubSpotWalletBalancesV1Result,
-  ServiceStatusRow,
+  ServiceStatus,
   SpotBrokerRebateResult,
   SpotCurrencyV1,
   SpotTickerV3,
   ArrayFormSpotTickerV3,
   SpotTradingPairDetailsV1,
-  SystemTimeResult,
   ArrayFormSpotKlineV3,
   ArrayFormSpotRecentTrade,
   SpotKlineV1,
@@ -66,8 +58,12 @@ import {
   SymbolMarginAccountDetailsV1,
   SubmittedSpotBatchOrderResponseV2,
   SpotAccountTradeV4,
-  SpotAccountOrderTradeV4,
-  GetSubTransfersV1Result,
+  SubTransfersV1Result,
+  MarginBorrowRecordV1,
+  MarginRepayRecordV1,
+  MarginBorrowingRateV1,
+  SubAccountV1,
+  SpotTickerV1,
 } from './types/response/spot.types.js';
 import {
   FuturesAsset,
@@ -88,7 +84,7 @@ import {
   SubmitFuturesOrder,
   SubmitFuturesTransfer,
   FuturesSubaccountInfo,
-} from 'types/response/futures.types.js';
+} from './types/response/futures.types.js';
 import {
   GetFuturesKlinesRequest,
   FuturesOrderRequest,
@@ -131,11 +127,11 @@ export class RestClient extends BaseRestClient {
    *
    **/
 
-  getSystemTime(): Promise<APIResponse<SystemTimeResult>> {
+  getSystemTime(): Promise<APIResponse<{ server_time: number }>> {
     return this.get('system/time');
   }
 
-  getSystemStatus(): Promise<APIResponse<{ service: ServiceStatusRow[] }>> {
+  getSystemStatus(): Promise<APIResponse<{ service: ServiceStatus[] }>> {
     return this.get('system/service');
   }
 
@@ -301,7 +297,7 @@ export class RestClient extends BaseRestClient {
 
   getActualSpotTradeFeeRateV1(params: {
     symbol: string;
-  }): Promise<APIResponse<GetActualFeeRateV1Result>> {
+  }): Promise<APIResponse<ActualSpotFeeRateV1>> {
     return this.getPrivate('spot/v1/trade_fee', params);
   }
 
@@ -388,7 +384,7 @@ export class RestClient extends BaseRestClient {
   getSpotAccountOrderTradesV4(params: {
     orderId: string;
     recvWindow?: number;
-  }): Promise<APIResponse<SpotAccountOrderTradeV4[]>> {
+  }): Promise<APIResponse<SpotAccountTradeV4[]>> {
     return this.postPrivate('spot/v4/query/order-trades', params);
   }
 
@@ -412,13 +408,13 @@ export class RestClient extends BaseRestClient {
 
   getMarginBorrowRecordV1(
     params: GetMarginBorrowRecordV1Request,
-  ): Promise<APIResponse<GetMarginBorrowRecordV1Result>> {
+  ): Promise<APIResponse<{ records: MarginBorrowRecordV1[] }>> {
     return this.getPrivate('spot/v1/margin/isolated/borrow_record', params);
   }
 
   getMarginRepayRecordV1(
     params: GetMarginRepayRecordV1Request,
-  ): Promise<APIResponse<GetMarginRepayRecordV1Result>> {
+  ): Promise<APIResponse<{ records: MarginRepayRecordV1[] }>> {
     return this.getPrivate('spot/v1/margin/isolated/repay_record', params);
   }
 
@@ -427,7 +423,7 @@ export class RestClient extends BaseRestClient {
    */
   getMarginBorrowingRatesV1(params?: {
     symbol?: string;
-  }): Promise<APIResponse<GetMarginBorrowingRatesV1Result>> {
+  }): Promise<APIResponse<{ symbols: MarginBorrowingRateV1[] }>> {
     return this.getPrivate('spot/v1/margin/isolated/pairs', params);
   }
 
@@ -475,26 +471,23 @@ export class RestClient extends BaseRestClient {
 
   getSubTransfersV1(
     params: GetSubTransfersV1Request,
-  ): Promise<APIResponse<GetSubTransfersV1Result>> {
-    return this.getPrivate(
-      'account/sub-account/main/v1/transfer-list',
-      Request,
-    );
+  ): Promise<APIResponse<SubTransfersV1Result>> {
+    return this.getPrivate('account/sub-account/main/v1/transfer-list', params);
   }
 
   getAccountSubTransfersV1(
     params: GetAccountSubTransfersV1Request,
-  ): Promise<APIResponse<GetAccountSubTransfersV1Result>> {
+  ): Promise<APIResponse<SubTransfersV1Result>> {
     return this.getPrivate('account/sub-account/v1/transfer-history', params);
   }
 
   getSubSpotWalletBalancesV1(
     params: GetSubSpotWalletBalancesV1Request,
-  ): Promise<APIResponse<GetSubSpotWalletBalancesV1Result>> {
+  ): Promise<APIResponse<{ wallet: AccountCurrencyBalanceV1[] }>> {
     return this.getPrivate('account/sub-account/main/v1/wallet', params);
   }
 
-  getSubAccountsV1(): Promise<APIResponse<GetSubAccountsV1Result>> {
+  getSubAccountsV1(): Promise<APIResponse<{ subAccountList: SubAccountV1[] }>> {
     return this.getPrivate('account/sub-account/main/v1/subaccount-list');
   }
 

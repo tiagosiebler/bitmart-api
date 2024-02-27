@@ -1,11 +1,6 @@
 import { OrderSide } from './shared.types';
 
-// Interface for getSystemTime response
-export interface SystemTimeResult {
-  server_time: number;
-}
-
-export interface ServiceStatusRow {
+export interface ServiceStatus {
   title: string;
   service_type: string;
   status: number;
@@ -240,7 +235,7 @@ export interface BasicFeeRateV1 {
   maker_fee_rate_C: string;
 }
 
-export interface GetActualFeeRateV1Result {
+export interface ActualSpotFeeRateV1 {
   symbol: string;
   buy_taker_fee_rate: string;
   sell_taker_fee_rate: string;
@@ -305,37 +300,31 @@ export interface SpotAccountTradeV4 extends SpotTradeBase {
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
 }
 
-export type SpotAccountOrderTradeV4 = SpotAccountTradeV4;
-
 /**
  *
  * Margin Loan Endpoints (History versions)
  *
  **/
 
-export interface GetMarginBorrowRecordV1Result {
-  records: {
-    borrow_id: string;
-    symbol: string;
-    currency: string;
-    borrow_amount: string;
-    daily_interest: string;
-    hourly_interest: string;
-    interest_amount: string;
-    create_time: number;
-  }[];
+export interface MarginBorrowRecordV1 {
+  borrow_id: string;
+  symbol: string;
+  currency: string;
+  borrow_amount: string;
+  daily_interest: string;
+  hourly_interest: string;
+  interest_amount: string;
+  create_time: number;
 }
 
-export interface GetMarginRepayRecordV1Result {
-  records: {
-    repay_id: string;
-    repay_time: number;
-    symbol: string;
-    currency: string;
-    repaid_amount: string;
-    repaid_principal: string;
-    repaid_interest: string;
-  }[];
+export interface MarginRepayRecordV1 {
+  repay_id: string;
+  repay_time: number;
+  symbol: string;
+  currency: string;
+  repaid_amount: string;
+  repaid_principal: string;
+  repaid_interest: string;
 }
 
 export interface MarginBaseQuoteRow {
@@ -347,14 +336,12 @@ export interface MarginBaseQuoteRow {
   borrowable_amount: string;
 }
 
-export interface GetMarginBorrowingRatesV1Result {
-  symbols: {
-    symbol: string;
-    max_leverage: string;
-    symbol_enabled: boolean;
-    base: MarginBaseQuoteRow;
-    quote: MarginBaseQuoteRow;
-  }[];
+export interface MarginBorrowingRateV1 {
+  symbol: string;
+  max_leverage: string;
+  symbol_enabled: boolean;
+  base: MarginBaseQuoteRow;
+  quote: MarginBaseQuoteRow;
 }
 
 export interface SubTransferRow {
@@ -367,30 +354,14 @@ export interface SubTransferRow {
   submissionTime: number;
 }
 
-export interface GetSubTransfersV1Result {
+export interface SubTransfersV1Result {
   total: number;
   historyList: SubTransferRow[];
 }
 
-export interface GetAccountSubTransfersV1Result {
-  total: number;
-  historyList: SubTransferRow[];
-}
-
-export interface GetSubSpotWalletBalancesV1Result {
-  wallet: {
-    currency: string;
-    name: string;
-    available: string;
-    frozen: string;
-  }[];
-}
-
-export interface GetSubAccountsV1Result {
-  subAccountList: {
-    accountName: string;
-    status: number;
-  }[];
+export interface SubAccountV1 {
+  accountName: string;
+  status: number;
 }
 
 /**
