@@ -16,9 +16,9 @@ async function start() {
   });
 
   try {
-    const usdValue = 6;
-    const price = 52000;
-    const qty = usdValue / price;
+    // const usdValue = 6;
+    // const price = 52000;
+    // const qty = usdValue / price;
 
     // const limitBuyOrder = {
     //   symbol: 'BTC_USDT',
