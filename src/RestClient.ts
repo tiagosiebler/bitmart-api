@@ -504,6 +504,9 @@ export class RestClient extends BaseRestClient {
    *
    */
 
+  /**
+   * Get a list of all symbols, including most recent price, rules (min/max precision/volume/etc) and other metrics (funding rate, open interest, contract expiry, etc).
+   */
   getFuturesContractDetails(params?: {
     symbol?: string;
   }): Promise<APIResponse<{ symbols: FuturesContractDetails[] }>> {

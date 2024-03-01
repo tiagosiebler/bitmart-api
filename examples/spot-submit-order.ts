@@ -1,30 +1,48 @@
 import { RestClient } from '../src';
 
-const WriteAPI = {
-  key: 'api key here',
-  secret: 'api secret here',
-  memo: 'api memo here',
+const account = {
+  key: process.env.API_KEY || 'apiKeyHere',
+  secret: process.env.API_SECRET || 'apiSecretHere',
+  memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
-const client = new RestClient({
-  apiKey: WriteAPI.key,
-  apiSecret: WriteAPI.secret,
-  apiMemo: WriteAPI.memo,
-});
+async function start() {
+  const client = new RestClient({
+    apiKey: account.key,
+    apiSecret: account.secret,
+    apiMemo: account.memo,
+  });
 
-async function SubmitSpotOrder() {
   try {
-    const order = await client.submitSpotOrderV2({
-      symbol: 'BTC_USDT',
-      side: 'buy',
-      size: '0.1',
-      type: 'market',
-    });
+    // const usdValue = 6;
+    // const price = 52000;
+    // const qty = usdValue / price;
 
-    console.log('Order: ', JSON.stringify(order, null, 2));
+    // const limitBuyOrder = {
+    //   symbol: 'BTC_USDT',
+    //   side: 'buy',
+    //   type: 'limit',
+    //   size: String(qty),
+    //   price: String(price),
+    // };
+
+    // const res = await client.submitSpotOrder({
+    //   symbol: 'BTC_USDT',
+    //   side: 'buy',
+    //   type: 'market',
+    //   size: String(qty),
+    // });
+
+    const res = await client.submitSpotOrderV2({
+      symbol: 'BTC_USDT',
+      side: 'sell',
+      type: 'market',
+      size: String(0.00011),
+    });
+    console.log('res ', JSON.stringify(res, null, 2));
   } catch (e) {
     console.error(`Req error: `, e);
   }
 }
 
-SubmitSpotOrder();
+start();

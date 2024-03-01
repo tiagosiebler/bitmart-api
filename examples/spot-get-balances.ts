@@ -1,15 +1,15 @@
 import { RestClient } from '../src';
 
-const WriteAPI = {
-  key: 'api key here',
-  secret: 'api secret here',
-  memo: 'api memo here',
+const account = {
+  key: process.env.API_KEY || 'apiKeyHere',
+  secret: process.env.API_SECRET || 'apiSecretHere',
+  memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
 const client = new RestClient({
-  apiKey: WriteAPI.key,
-  apiSecret: WriteAPI.secret,
-  apiMemo: WriteAPI.memo,
+  apiKey: account.key,
+  apiSecret: account.secret,
+  apiMemo: account.memo,
 });
 
 async function getSpotBalances() {
