@@ -40,14 +40,14 @@ Check out my related projects:
 - Check out my examples:
   - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
 
-## Configuration & Documentation
+## Usage
 
 Most methods pass values as-is into HTTP requests. These can be populated using parameters specified by Bitmart's API documentation, or check the type definition in each class within this repository.
 
 - [Bitmart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
 - [Bitmart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
 
-## Usage
+### REST APIs
 
 - Create API credentials within your account on Bitmart's website, if you haven't done so already.
 - Import/require the module
