@@ -8,7 +8,7 @@
 
 [1]: https://www.npmjs.com/package/bitmart-api
 
-Complete & performant JavaScript & Node.js SDK for Bitmart REST APIs & WebSockets:
+Complete JavaScript & Node.js SDK for Bitmart REST APIs & WebSockets:
 
 - Complete integration with all Bitmart APIs.
 - TypeScript support (with type declarations for most API requests & responses)
