@@ -1,13 +1,13 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 
 import { neverGuard } from './misc-util.js';
-import { signMessage } from './node-support.js';
 import {
   APIID,
   getRestBaseUrl,
   RestClientOptions,
   serializeParams,
 } from './requestUtils.js';
+import { signMessage } from './webCryptoAPI.js';
 
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Memo are ALL required to use the authenticated REST client';
@@ -297,7 +297,15 @@ export abstract class BaseRestClient {
 
       const paramsStr = `${timestamp}#${this.apiMemo}#${signRequestParams}`;
 
-      res.sign = await signMessage(paramsStr, this.apiSecret, 'hex');
+      if (typeof this.options.customSignMessageFn === 'function') {
+        res.sign = await this.options.customSignMessageFn(
+          paramsStr,
+          this.apiSecret,
+        );
+      } else {
+        res.sign = await signMessage(paramsStr, this.apiSecret, 'hex');
+      }
+
       res.queryParamsWithSign = signRequestParams;
       return res;
     }

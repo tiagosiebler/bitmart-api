@@ -25,6 +25,13 @@ export interface RestClientOptions {
 
   /** Default: true. whether to try and post-process request exceptions (and throw them). */
   parseExceptions?: boolean;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
 }
 
 export function serializeParams<T extends Record<string, any> | undefined = {}>(
