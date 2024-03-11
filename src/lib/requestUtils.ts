@@ -86,14 +86,6 @@ export function getRestBaseUrl(
 
 export const APIID = 'bitmartapinode1';
 
-export function isWsPong(msg: any): boolean {
-  // bitmart
-  if (msg?.data === 'pong') {
-    return true;
-  }
-  return false;
-}
-
 export interface MessageEventLike {
   target: WebSocket;
   type: 'message';

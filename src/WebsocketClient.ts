@@ -96,6 +96,53 @@ export class WebsocketClient extends BaseWebsocketClient<
    *
    */
 
+  protected sendPingEvent(wsKey: WsKey) {
+    switch (wsKey) {
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPrivateV1: {
+        this.tryWsSend(wsKey, 'ping');
+        break;
+      }
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPrivateV1: {
+        this.tryWsSend(wsKey, '{"action":"ping"}');
+        break;
+      }
+      default: {
+        throw neverGuard(wsKey, `Unhandled ping format: "${wsKey}"`);
+      }
+    }
+    if (
+      wsKey === WS_KEY_MAP.spotPrivateV1 ||
+      wsKey === WS_KEY_MAP.spotPublicV1
+    ) {
+      this.tryWsSend(wsKey, 'ping');
+      return;
+    }
+  }
+
+  protected isWsPong(msg: any): boolean {
+    // bitmart spot
+    if (msg?.data === 'pong') {
+      return true;
+    }
+
+    // bitmart futures
+    // if (typeof event?.data === 'string') {
+    //   return true;
+    // }
+    if (
+      typeof msg?.event?.data === 'string' &&
+      msg.event.data.startsWith('pong')
+    ) {
+      return true;
+    }
+
+    // this.logger.info(`Not a pong: `, msg);
+
+    return false;
+  }
+
   protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
     const results: EmittableEvent[] = [];
 
@@ -103,9 +150,11 @@ export class WebsocketClient extends BaseWebsocketClient<
       const parsed = JSON.parse(event.data);
 
       const responseEvents = ['subscribe', 'unsubscribe'];
-      if (typeof parsed.event === 'string') {
+
+      const eventAction = parsed.event || parsed.action;
+      if (typeof eventAction === 'string') {
         // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-        if (responseEvents.includes(parsed.event)) {
+        if (responseEvents.includes(eventAction)) {
           results.push({
             eventType: 'response',
             event: parsed,
@@ -114,7 +163,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         }
 
         this.logger.error(
-          `!! Unhandled string event type "${parsed.event}. Defaulting to "update" channel...`,
+          `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
           parsed,
         );
       }

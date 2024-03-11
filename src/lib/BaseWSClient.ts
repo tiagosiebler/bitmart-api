@@ -7,7 +7,7 @@ import {
 } from '../types/websockets/client.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
-import { isMessageEvent, isWsPong, MessageEventLike } from './requestUtils.js';
+import { isMessageEvent, MessageEventLike } from './requestUtils.js';
 import { WsStore } from './websocket/WsStore.js';
 import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
 
@@ -90,6 +90,9 @@ export abstract class BaseWebsocketClient<
     market: TWSMarket,
     isPrivate?: boolean,
   ): TWSKey;
+
+  protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+  protected abstract isWsPong(data: any): boolean;
 
   protected abstract getWsAuthSignature(): Promise<{
     expiresAt: number;
@@ -448,7 +451,7 @@ export abstract class BaseWebsocketClient<
     this.clearPongTimer(wsKey);
 
     this.logger.silly('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
-    this.tryWsSend(wsKey, 'ping');
+    this.sendPingEvent(wsKey, this.wsStore.get(wsKey, true).ws);
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(() => {
       this.logger.info('Pong timeout - closing socket to reconnect', {
@@ -651,7 +654,7 @@ export abstract class BaseWebsocketClient<
       // any message can clear the pong timer - wouldn't get a message if the ws wasn't working
       this.clearPongTimer(wsKey);
 
-      if (isWsPong(event)) {
+      if (this.isWsPong(event)) {
         this.logger.silly('Received pong', { ...WS_LOGGER_CATEGORY, wsKey });
         return;
       }
@@ -679,6 +682,15 @@ export abstract class BaseWebsocketClient<
         }
 
         for (const emittable of emittableEvents) {
+          if (this.isWsPong(emittable)) {
+            this.logger.silly('Received pong', {
+              ...WS_LOGGER_CATEGORY,
+              wsKey,
+              data,
+            });
+            continue;
+          }
+
           this.emit(emittable.eventType, { ...emittable.event, wsKey });
         }
 

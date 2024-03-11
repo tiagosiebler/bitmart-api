@@ -1,13 +1,7 @@
 import {
-  DefaultLogger,
-  LogParams,
   WebsocketClient,
   // WsSpotOperation,
 } from '../src';
-
-DefaultLogger.silly = (...params: LogParams): void => {
-  console.log('silly', ...params);
-};
 
 async function start() {
   const client = new WebsocketClient();
@@ -60,6 +54,12 @@ async function start() {
   });
 
   try {
+    /**
+     * Use the client subscribe(topic, market) pattern to subscribe to any websocket topic.
+     *
+     * You can subscribe to topics one at a time:
+     */
+
     // Ticker Channel
     // client.subscribe('spot/ticker:BTC_USDT', 'spot');
 
@@ -75,7 +75,9 @@ async function start() {
     // Trade Channel
     // client.subscribe('spot/trade:BTC_USDT', 'spot');
 
-    // Or have multiple topics in one array:
+    /**
+     * Or have multiple topics in one array, in a single request:
+     */
     client.subscribe(
       [
         'spot/ticker:BTC_USDT',
