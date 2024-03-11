@@ -417,7 +417,7 @@ export abstract class BaseWebsocketClient<
           },
         ],
       };
-      // console.log('ws auth req', request);
+      console.log('ws auth req', request);
 
       return this.tryWsSend(wsKey, JSON.stringify(request));
     } catch (e) {
@@ -666,7 +666,7 @@ export abstract class BaseWebsocketClient<
         const emittableEvents = this.resolveEmittableEvents(event);
 
         if (!emittableEvents.length) {
-          console.log(`raw event: `, { data, dataType, emittableEvents });
+          // console.log(`raw event: `, { data, dataType, emittableEvents });
           this.logger.error(
             'Unhandled/unrecognised ws event message - returned no emittable data',
             {
