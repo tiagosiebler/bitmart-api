@@ -7,8 +7,8 @@ import {
 } from '../types/websockets/client.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
-import { isWsPong } from './requestUtils.js';
-import WsStore from './websocket/WsStore.js';
+import { isMessageEvent, isWsPong, MessageEventLike } from './requestUtils.js';
+import { WsStore } from './websocket/WsStore.js';
 import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
 
 interface WSClientEventMap<WsKey extends string> {
@@ -28,6 +28,11 @@ interface WSClientEventMap<WsKey extends string> {
   exception: (response: any & { wsKey: WsKey }) => void;
   /** Confirmation that a connection successfully authenticated */
   authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+
+export interface EmittableEvent<TEvent = any> {
+  eventType: 'response' | 'update' | 'exception' | 'authenticated';
+  event: TEvent;
 }
 
 // Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
@@ -64,7 +69,7 @@ export abstract class BaseWebsocketClient<
   protected options: WebsocketClientOptions;
 
   constructor(
-    options: WSClientConfigurableOptions,
+    options?: WSClientConfigurableOptions,
     logger?: typeof DefaultLogger,
   ) {
     super();
@@ -116,6 +121,13 @@ export abstract class BaseWebsocketClient<
     topics: TWSTopic[],
     wsKey: TWSKey,
   ): string[];
+
+  /**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+  protected abstract resolveEmittableEvents(
+    event: MessageEventLike,
+  ): EmittableEvent[];
 
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
@@ -304,6 +316,13 @@ export abstract class BaseWebsocketClient<
     });
   }
 
+  public isConnected(wsKey: TWSKey): boolean {
+    return this.wsStore.isConnectionState(
+      wsKey,
+      WsConnectionStateEnum.CONNECTED,
+    );
+  }
+
   /**
    * Request connection to a specific websocket, instead of waiting for automatic connection.
    */
@@ -481,16 +500,16 @@ export abstract class BaseWebsocketClient<
     const subscribeWsMessages = this.getSubscribeEventsForTopics(topics, wsKey);
 
     this.logger.silly(
-      `Subscribing to ${topics.length}" "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
+      `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
     );
 
-    for (const wsMessage in subscribeWsMessages) {
+    for (const wsMessage of subscribeWsMessages) {
       this.logger.silly(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
     this.logger.silly(
-      `Finished subscribing to ${topics.length}" "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
+      `Finished subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
   }
 
@@ -510,16 +529,16 @@ export abstract class BaseWebsocketClient<
     );
 
     this.logger.silly(
-      `Subscribing to ${topics.length}" "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
+      `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
     );
 
-    for (const wsMessage in subscribeWsMessages) {
+    for (const wsMessage of subscribeWsMessages) {
       this.logger.silly(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
     this.logger.silly(
-      `Finished subscribing to ${topics.length}" "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
+      `Finished subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
   }
 
@@ -637,57 +656,44 @@ export abstract class BaseWebsocketClient<
         return;
       }
 
-      // TODO: abstract?
-      const msg = JSON.parse((event && event['data']) || event);
-      const emittableEvent = { ...msg, wsKey };
+      if (isMessageEvent(event)) {
+        const data = event.data;
+        const dataType = event.type;
 
-      if (typeof msg === 'object') {
-        if (typeof msg['code'] === 'number') {
-          if (msg.event === 'login' && msg.code === 0) {
-            this.logger.info(`Successfully authenticated WS client`, {
-              ...WS_LOGGER_CATEGORY,
-              wsKey,
-            });
-            this.emit('response', emittableEvent);
-            this.emit('authenticated', emittableEvent);
-            this.onWsAuthenticated(wsKey);
-            return;
-          }
-        }
+        const emittableEvents = this.resolveEmittableEvents(event);
 
-        if (msg['event']) {
-          if (msg.event === 'error') {
-            this.logger.error(`WS Error received`, {
+        if (!emittableEvents.length) {
+          console.log(`raw event: `, { data, dataType, emittableEvents });
+          this.logger.error(
+            'Unhandled/unrecognised ws event message - returned no emittable data',
+            {
               ...WS_LOGGER_CATEGORY,
-              wsKey,
-              message: msg || 'no message',
-              // messageType: typeof msg,
-              // messageString: JSON.stringify(msg),
+              message: data || 'no message',
+              dataType,
               event,
-            });
-            this.emit('exception', emittableEvent);
-            this.emit('response', emittableEvent);
-            return;
-          }
-          return this.emit('response', emittableEvent);
+              wsKey,
+            },
+          );
+
+          return this.emit('update', { ...event, wsKey });
         }
 
-        if (msg['arg']) {
-          return this.emit('update', emittableEvent);
+        for (const emittable of emittableEvents) {
+          this.emit(emittable.eventType, { ...emittable.event, wsKey });
         }
+
+        return;
       }
 
-      this.logger.warning('Unhandled/unrecognised ws event message', {
-        ...WS_LOGGER_CATEGORY,
-        message: msg || 'no message',
-        // messageType: typeof msg,
-        // messageString: JSON.stringify(msg),
-        event,
-        wsKey,
-      });
-
-      // fallback emit anyway
-      return this.emit('update', emittableEvent);
+      this.logger.error(
+        'Unhandled/unrecognised ws event message - unexpected message format',
+        {
+          ...WS_LOGGER_CATEGORY,
+          message: event || 'no message',
+          event,
+          wsKey,
+        },
+      );
     } catch (e) {
       this.logger.error('Failed to parse ws event message', {
         ...WS_LOGGER_CATEGORY,

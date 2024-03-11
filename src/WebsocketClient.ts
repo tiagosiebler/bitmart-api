@@ -1,7 +1,8 @@
 import WebSocket from 'isomorphic-ws';
 
-import { BaseWebsocketClient } from './lib/BaseWSClient.js';
+import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
+import { MessageEventLike } from './lib/requestUtils.js';
 import { signMessage } from './lib/webCryptoAPI.js';
 import {
   WS_BASE_URL_MAP,
@@ -14,7 +15,7 @@ import {
   WsOperation,
   WsRequestOperation,
   WsSpotOperation,
-} from './types/websockets/events.js';
+} from './types/websockets/requests.js';
 
 export const WS_LOGGER_CATEGORY = { category: 'bitmart-ws' };
 
@@ -40,6 +41,110 @@ export class WebsocketClient extends BaseWebsocketClient<
   WsKey,
   WsTopic
 > {
+  /**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+  public connectAll(): Promise<WebSocket | undefined>[] {
+    return [
+      this.connect(WS_KEY_MAP.spotPublicV1),
+      this.connect(WS_KEY_MAP.spotPrivateV1),
+      this.connect(WS_KEY_MAP.futuresPublicV1),
+      this.connect(WS_KEY_MAP.futuresPrivateV1),
+    ];
+  }
+
+  /**
+   * Request subscription to one or more topics.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribeTopics(topics)` to remove topics
+   */
+  public subscribeTopics(topics: WsTopic[]) {
+    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
+
+    for (const untypedWsKey in topicsByWsKey) {
+      const typedWsKey = untypedWsKey as WsKey;
+      const topics = topicsByWsKey[typedWsKey];
+
+      this.subscribeTopicsForWsKey(topics, typedWsKey);
+    }
+  }
+
+  /**
+   * Unsubscribe from one or more topics.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+  public unsubscribeTopics(topics: WsTopic[]) {
+    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
+
+    for (const untypedWsKey in topicsByWsKey) {
+      const typedWsKey = untypedWsKey as WsKey;
+      const topics = topicsByWsKey[typedWsKey];
+
+      this.subscribeTopicsForWsKey(topics, typedWsKey);
+    }
+  }
+
+  /**
+   *
+   * Internal methods
+   *
+   */
+
+  protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
+    const results: EmittableEvent[] = [];
+
+    try {
+      const parsed = JSON.parse(event.data);
+
+      const responseEvents = ['subscribe', 'unsubscribe'];
+      if (typeof parsed.event === 'string') {
+        // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+        if (responseEvents.includes(parsed.event)) {
+          results.push({
+            eventType: 'response',
+            event: parsed,
+          });
+          return results;
+        }
+
+        this.logger.error(
+          `!! Unhandled string event type "${parsed.event}. Defaulting to "update" channel...`,
+          parsed,
+        );
+      }
+
+      results.push({
+        eventType: 'update',
+        event: parsed,
+      });
+    } catch (e) {
+      results.push({
+        event: {
+          message: 'Failed to parse event data due to exception',
+          exception: e,
+          eventData: event.data,
+        },
+        eventType: 'exception',
+      });
+
+      this.logger.error(`Failed to parse event data due to exception: `, {
+        exception: e,
+        eventData: event.data,
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Prepare a signature for auth
+   */
   protected async getWsAuthSignature(): Promise<{
     expiresAt: number;
     signature: string;
@@ -84,6 +189,9 @@ export class WebsocketClient extends BaseWebsocketClient<
     };
   }
 
+  /**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
   protected isPrivateChannel(topic: WsTopic): boolean {
     const splitTopic = topic.toLowerCase().split('/');
     if (!splitTopic.length) {
@@ -91,6 +199,11 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     const topicName = splitTopic[1];
+
+    if (!topicName) {
+      // console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
+      return false;
+    }
 
     if (
       /** Spot */
@@ -172,18 +285,6 @@ export class WebsocketClient extends BaseWebsocketClient<
         throw neverGuard(wsKey, `getWsUrl(): Unhandled wsKey`);
       }
     }
-  }
-
-  /**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-  public connectAll(): Promise<WebSocket | undefined>[] {
-    return [
-      this.connect(WS_KEY_MAP.spotPublicV1),
-      this.connect(WS_KEY_MAP.spotPrivateV1),
-      this.connect(WS_KEY_MAP.futuresPublicV1),
-      this.connect(WS_KEY_MAP.futuresPrivateV1),
-    ];
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
@@ -323,6 +424,9 @@ export class WebsocketClient extends BaseWebsocketClient<
     throw new Error(`Could not resolve "market" for topic: "${topic}"`);
   }
 
+  /**
+   * Used to split sub/unsub logic by websocket connection
+   */
   private arrangeTopicsIntoWsKeyGroups(
     topics: WsTopic[],
   ): Record<WsKey, WsTopic[]> {
@@ -343,42 +447,5 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     return topicsByWsKey;
-  }
-
-  /**
-   * Request subscription to one or more topics.
-   *
-   * - Subscriptions are automatically routed to the correct websocket connection.
-   * - Authentication/connection is automatic.
-   * - Resubscribe after network issues is automatic.
-   *
-   * Call `unsubscribeTopics(topics)` to remove topics
-   */
-  public subscribeTopics(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
-
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
-    }
-  }
-
-  /**
-   * Unsubscribe from one or more topics.
-   *
-   * - Requests are automatically routed to the correct websocket connection.
-   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
-   */
-  public unsubscribeTopics(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
-
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
-    }
   }
 }

@@ -26,7 +26,7 @@ function isDeepObjectMatch(object1: unknown, object2: unknown) {
   return true;
 }
 
-export default class WsStore<
+export class WsStore<
   WsKey extends string,
   TWSTopicSubscribeEventArgs extends string | object,
 > {
