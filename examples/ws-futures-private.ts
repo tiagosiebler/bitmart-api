@@ -6,7 +6,7 @@ const account = {
   memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
-DefaultLogger.silly = (...params: LogParams): void => {
+DefaultLogger.trace = (...params: LogParams): void => {
   console.log('silly', ...params);
 };
 

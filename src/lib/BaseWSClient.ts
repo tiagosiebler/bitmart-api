@@ -405,7 +405,7 @@ export abstract class BaseWebsocketClient<
 
       return this.tryWsSend(wsKey, JSON.stringify(request));
     } catch (e) {
-      this.logger.silly(e, { ...WS_LOGGER_CATEGORY, wsKey });
+      this.logger.trace(e, { ...WS_LOGGER_CATEGORY, wsKey });
     }
   }
 
@@ -434,7 +434,7 @@ export abstract class BaseWebsocketClient<
 
     this.clearPongTimer(wsKey);
 
-    this.logger.silly('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
+    this.logger.trace('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
     this.sendPingEvent(wsKey, this.wsStore.get(wsKey, true).ws);
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(() => {
@@ -489,16 +489,16 @@ export abstract class BaseWebsocketClient<
       wsKey,
     );
 
-    this.logger.silly(
+    this.logger.trace(
       `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
     );
 
     for (const wsMessage of subscribeWsMessages) {
-      this.logger.silly(`Sending batch via message: "${wsMessage}"`);
+      this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
-    this.logger.silly(
+    this.logger.trace(
       `Finished subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
   }
@@ -518,16 +518,16 @@ export abstract class BaseWebsocketClient<
       wsKey,
     );
 
-    this.logger.silly(
+    this.logger.trace(
       `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
     );
 
     for (const wsMessage of subscribeWsMessages) {
-      this.logger.silly(`Sending batch via message: "${wsMessage}"`);
+      this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
-    this.logger.silly(
+    this.logger.trace(
       `Finished subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
   }
@@ -537,7 +537,7 @@ export abstract class BaseWebsocketClient<
    */
   public tryWsSend(wsKey: TWSKey, wsMessage: string) {
     try {
-      this.logger.silly(`Sending upstream ws message: `, {
+      this.logger.trace(`Sending upstream ws message: `, {
         ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
@@ -565,7 +565,7 @@ export abstract class BaseWebsocketClient<
   }
 
   private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
-    this.logger.silly(`Opening WS connection to URL: ${url}`, {
+    this.logger.trace(`Opening WS connection to URL: ${url}`, {
       ...WS_LOGGER_CATEGORY,
       wsKey,
     });
@@ -615,7 +615,7 @@ export abstract class BaseWebsocketClient<
     );
     this.requestSubscribeTopics(wsKey, publicTopics);
 
-    this.logger.silly(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
+    this.logger.trace(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
     this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
       () => this.ping(wsKey),
       this.options.pingInterval,
@@ -643,7 +643,7 @@ export abstract class BaseWebsocketClient<
       this.clearPongTimer(wsKey);
 
       if (this.isWsPong(event)) {
-        this.logger.silly('Received pong', { ...WS_LOGGER_CATEGORY, wsKey });
+        this.logger.trace('Received pong', { ...WS_LOGGER_CATEGORY, wsKey });
         return;
       }
 
@@ -671,7 +671,7 @@ export abstract class BaseWebsocketClient<
 
         for (const emittable of emittableEvents) {
           if (this.isWsPong(emittable)) {
-            this.logger.silly('Received pong', {
+            this.logger.trace('Received pong', {
               ...WS_LOGGER_CATEGORY,
               wsKey,
               data,
@@ -680,7 +680,7 @@ export abstract class BaseWebsocketClient<
           }
 
           if (emittable.eventType === 'authenticated') {
-            this.logger.silly(`Successfully authenticated`, {
+            this.logger.trace(`Successfully authenticated`, {
               ...WS_LOGGER_CATEGORY,
               wsKey,
             });
