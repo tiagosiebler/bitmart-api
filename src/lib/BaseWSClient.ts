@@ -94,10 +94,7 @@ export abstract class BaseWebsocketClient<
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
   protected abstract isWsPong(data: any): boolean;
 
-  protected abstract getWsAuthSignature(): Promise<{
-    expiresAt: number;
-    signature: string;
-  }>;
+  protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
 
   protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
 
@@ -112,7 +109,7 @@ export abstract class BaseWebsocketClient<
   /**
    * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
    */
-  protected abstract getSubscribeEventsForTopics(
+  protected abstract getWsSubscribeEventsForTopics(
     topics: TWSTopic[],
     wsKey: TWSKey,
   ): string[];
@@ -120,7 +117,7 @@ export abstract class BaseWebsocketClient<
   /**
    * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
    */
-  protected abstract getUnsubscribeEventsForTopics(
+  protected abstract getWsUnsubscribeEventsForTopics(
     topics: TWSTopic[],
     wsKey: TWSKey,
   ): string[];
@@ -224,16 +221,17 @@ export abstract class BaseWebsocketClient<
   /**
    * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
    * @param wsTopics topic or list of topics
-   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
    */
   public subscribe(
     wsTopics: TWSTopic[] | TWSTopic,
     market: TWSMarket,
-    isPrivateTopic?: boolean,
+    isPrivate?: boolean,
   ) {
     const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
 
     topics.forEach((topic) => {
+      const isPrivateTopic = isPrivate || this.isPrivateChannel(topic);
       const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
 
       // Persist this topic to the expected topics list
@@ -245,13 +243,10 @@ export abstract class BaseWebsocketClient<
       ) {
         // if not authenticated, dont sub to private topics yet.
         // This'll happen automatically once authenticated
-        const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
-        if (!isAuthenticated) {
-          return this.requestSubscribeTopics(
-            wsKey,
-            topics.filter((topic) => !this.isPrivateChannel(topic)),
-          );
+        if (isPrivateTopic && !this.wsStore.get(wsKey)?.isAuthenticated) {
+          return;
         }
+
         return this.requestSubscribeTopics(wsKey, topics);
       }
 
@@ -399,25 +394,14 @@ export abstract class BaseWebsocketClient<
   /** Get a signature, build the auth request and send it */
   private async sendAuthRequest(wsKey: TWSKey): Promise<void> {
     try {
-      const { signature, expiresAt } = await this.getWsAuthSignature();
-
       this.logger.info(`Sending auth request...`, {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
 
-      const request = {
-        op: 'login',
-        args: [
-          {
-            apiKey: this.options.apiKey,
-            passphrase: this.options.apiMemo,
-            timestamp: expiresAt,
-            sign: signature,
-          },
-        ],
-      };
-      console.log('ws auth req', request);
+      const request = await this.getWsAuthRequestEvent(wsKey);
+
+      // console.log('ws auth req', request);
 
       return this.tryWsSend(wsKey, JSON.stringify(request));
     } catch (e) {
@@ -500,7 +484,10 @@ export abstract class BaseWebsocketClient<
       return;
     }
 
-    const subscribeWsMessages = this.getSubscribeEventsForTopics(topics, wsKey);
+    const subscribeWsMessages = this.getWsSubscribeEventsForTopics(
+      topics,
+      wsKey,
+    );
 
     this.logger.silly(
       `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
@@ -526,7 +513,7 @@ export abstract class BaseWebsocketClient<
       return;
     }
 
-    const subscribeWsMessages = this.getUnsubscribeEventsForTopics(
+    const subscribeWsMessages = this.getWsUnsubscribeEventsForTopics(
       topics,
       wsKey,
     );
@@ -628,6 +615,7 @@ export abstract class BaseWebsocketClient<
     );
     this.requestSubscribeTopics(wsKey, publicTopics);
 
+    this.logger.silly(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
     this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
       () => this.ping(wsKey),
       this.options.pingInterval,
@@ -688,6 +676,16 @@ export abstract class BaseWebsocketClient<
               wsKey,
               data,
             });
+            continue;
+          }
+
+          if (emittable.eventType === 'authenticated') {
+            this.logger.silly(`Successfully authenticated`, {
+              ...WS_LOGGER_CATEGORY,
+              wsKey,
+            });
+            this.emit(emittable.eventType, { ...emittable.event, wsKey });
+            this.onWsAuthenticated(wsKey);
             continue;
           }
 

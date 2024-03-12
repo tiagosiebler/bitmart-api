@@ -1,7 +1,21 @@
-import { WebsocketClient } from '../src';
+import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+
+const account = {
+  key: process.env.API_KEY || 'apiKeyHere',
+  secret: process.env.API_SECRET || 'apiSecretHere',
+  memo: process.env.API_MEMO || 'apiMemoHere',
+};
+
+DefaultLogger.silly = (...params: LogParams): void => {
+  console.log('silly', ...params);
+};
 
 async function start() {
-  const client = new WebsocketClient();
+  const client = new WebsocketClient({
+    apiKey: account.key,
+    apiSecret: account.secret,
+    apiMemo: account.memo,
+  });
 
   client.on('open', (data) => {
     console.log('connected ', data?.wsKey);
@@ -36,30 +50,16 @@ async function start() {
     console.error('exception: ', data);
   });
 
+  client.on('authenticated', (data) => {
+    console.error('authenticated: ', data);
+  });
+
   try {
-    // Ticker Channel
-    // client.subscribe('futures/ticker', 'futures');
+    // order progress
+    client.subscribe('spot/user/order:BTC_USDT', 'spot');
 
-    // Depth Channel
-    // client.subscribe('futures/depth20:BTCUSDT', 'futures');
-
-    // Trade Channel
-    // client.subscribe('futures/trade:BTCUSDT', 'futures');
-
-    // KlineBin Channel
-    // client.subscribe('futures/klineBin1m:BTCUSDT', 'futures');
-
-    // Or have multiple topics in one array:
-    client.subscribe(
-      [
-        'futures/klineBin1m:BTCUSDT',
-        'futures/klineBin1m:ETHUSDT',
-        'futures/klineBin1m:XRPUSDT',
-        'futures/klineBin1m:BMXUSDT',
-        'futures/klineBin1m:SOLUSDT',
-      ],
-      'futures',
-    );
+    // balance updates
+    // client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
   } catch (e) {
     console.error(`Req error: `, e);
   }

@@ -100,24 +100,15 @@ export class WebsocketClient extends BaseWebsocketClient<
     switch (wsKey) {
       case WS_KEY_MAP.spotPublicV1:
       case WS_KEY_MAP.spotPrivateV1: {
-        this.tryWsSend(wsKey, 'ping');
-        break;
+        return this.tryWsSend(wsKey, 'ping');
       }
       case WS_KEY_MAP.futuresPublicV1:
       case WS_KEY_MAP.futuresPrivateV1: {
-        this.tryWsSend(wsKey, '{"action":"ping"}');
-        break;
+        return this.tryWsSend(wsKey, '{"action":"ping"}');
       }
       default: {
         throw neverGuard(wsKey, `Unhandled ping format: "${wsKey}"`);
       }
-    }
-    if (
-      wsKey === WS_KEY_MAP.spotPrivateV1 ||
-      wsKey === WS_KEY_MAP.spotPublicV1
-    ) {
-      this.tryWsSend(wsKey, 'ping');
-      return;
     }
   }
 
@@ -150,13 +141,31 @@ export class WebsocketClient extends BaseWebsocketClient<
       const parsed = JSON.parse(event.data);
 
       const responseEvents = ['subscribe', 'unsubscribe'];
+      const authenticatedEvents = ['login', 'access'];
 
       const eventAction = parsed.event || parsed.action;
       if (typeof eventAction === 'string') {
+        if (parsed.success === false) {
+          results.push({
+            eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
         // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
         if (responseEvents.includes(eventAction)) {
           results.push({
             eventType: 'response',
+            event: parsed,
+          });
+          return results;
+        }
+
+        // Request/reply pattern for authentication success
+        if (authenticatedEvents.includes(eventAction)) {
+          results.push({
+            eventType: 'authenticated',
             event: parsed,
           });
           return results;
@@ -189,53 +198,6 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     return results;
-  }
-
-  /**
-   * Prepare a signature for auth
-   */
-  protected async getWsAuthSignature(): Promise<{
-    expiresAt: number;
-    signature: string;
-  }> {
-    if (
-      !this.options.apiKey ||
-      !this.options.apiSecret ||
-      !this.options.apiMemo
-    ) {
-      throw new Error(
-        `Cannot auth - missing api key, secret or passcode in config`,
-      );
-    }
-    const signatureExpiresAt = (
-      (Date.now() + this.options.recvWindow) /
-      1000
-    ).toFixed(0);
-
-    const signMessageInput = signatureExpiresAt + 'GET' + '/user/verify';
-
-    if (typeof this.options.customSignMessageFn === 'function') {
-      const signature = await this.options.customSignMessageFn(
-        signMessageInput,
-        this.options.apiSecret,
-      );
-
-      return {
-        expiresAt: Number(signatureExpiresAt),
-        signature,
-      };
-    }
-
-    const signature = await signMessage(
-      signMessageInput,
-      this.options.apiSecret,
-      'base64',
-    );
-
-    return {
-      expiresAt: Number(signatureExpiresAt),
-      signature,
-    };
   }
 
   /**
@@ -355,7 +317,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
    */
-  protected getSubscribeEventsForTopics(
+  protected getWsSubscribeEventsForTopics(
     topics: WsTopic[],
     wsKey: WsKey,
   ): string[] {
@@ -393,7 +355,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Map one or more topics into fully prepared "unsubscribe request" events (already stringified and ready to send)
    */
-  protected getUnsubscribeEventsForTopics(
+  protected getWsUnsubscribeEventsForTopics(
     topics: WsTopic[],
     wsKey: WsKey,
   ): string[] {
@@ -434,13 +396,13 @@ export class WebsocketClient extends BaseWebsocketClient<
   private getWsRequestEvent(
     market: WsMarket,
     operation: WsOperation,
-    topics: WsTopic[],
+    args: WsTopic[],
   ): WsRequestOperation<WsTopic> {
     switch (market) {
       case 'spot': {
         const wsRequestEvent: WsSpotOperation<WsTopic> = {
           op: operation,
-          args: topics,
+          args: args,
         };
 
         return wsRequestEvent;
@@ -448,7 +410,65 @@ export class WebsocketClient extends BaseWebsocketClient<
       case 'futures': {
         const wsRequestEvent: WsFuturesOperation<WsTopic> = {
           action: operation,
-          args: topics,
+          args: args,
+        };
+        return wsRequestEvent;
+      }
+      default: {
+        throw neverGuard(market, `Unhandled market "${market}"`);
+      }
+    }
+  }
+
+  protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
+    const market = this.getWsMarketForWsKey(wsKey);
+    if (
+      !this.options.apiKey ||
+      !this.options.apiSecret ||
+      !this.options.apiMemo
+    ) {
+      throw new Error(
+        `Cannot auth - missing api key, secret or memo in config`,
+      );
+    }
+
+    const signTimestamp = Date.now() + this.options.recvWindow;
+
+    const signMessageInput =
+      signTimestamp + '#' + this.options.apiMemo + '#' + 'bitmart.WebSocket';
+
+    let signature: string;
+    if (typeof this.options.customSignMessageFn === 'function') {
+      signature = await this.options.customSignMessageFn(
+        signMessageInput,
+        this.options.apiSecret,
+      );
+    } else {
+      signature = await signMessage(
+        signMessageInput,
+        this.options.apiSecret,
+        'hex',
+      );
+    }
+
+    const authArgs = [this.options.apiKey, `${signTimestamp}`, signature];
+    if (market === 'futures') {
+      authArgs.push('web');
+    }
+
+    switch (market) {
+      case 'spot': {
+        const wsRequestEvent: WsSpotOperation<string> = {
+          op: 'login',
+          args: authArgs,
+        };
+
+        return wsRequestEvent;
+      }
+      case 'futures': {
+        const wsRequestEvent: WsFuturesOperation<string> = {
+          action: 'access',
+          args: authArgs,
         };
         return wsRequestEvent;
       }

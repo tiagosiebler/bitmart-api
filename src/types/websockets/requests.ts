@@ -1,4 +1,9 @@
-export type WsOperation = 'subscribe' | 'unsubscribe' | 'login' | 'request';
+export type WsOperation =
+  | 'subscribe'
+  | 'unsubscribe'
+  | 'login'
+  | 'access'
+  | 'request';
 
 export interface WsSpotOperation<TWSTopic extends string = string> {
   op: WsOperation;
