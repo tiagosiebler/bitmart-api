@@ -1,4 +1,4 @@
-# Node.js & Typescript Bitmart API SDK
+# Node.js & Typescript BitMart API SDK
 
 [![Build & Test](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etests.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etests.yml) [![npm version](https://img.shields.io/npm/v/bitmart-api)][1] [![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/bitmart-api)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/bitmart-api)][1]
@@ -8,9 +8,9 @@
 
 [1]: https://www.npmjs.com/package/bitmart-api
 
-Complete JavaScript & Node.js SDK for Bitmart REST APIs & WebSockets:
+Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 
-- Complete integration with all Bitmart APIs.
+- Complete integration with all BitMart APIs.
 - TypeScript support (with type declarations for most API requests & responses)
 - Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
 - Browser-friendly HMAC signature mechanism.
@@ -55,14 +55,14 @@ Note: The build will output both ESM and CJS, although node should automatically
 
 ## Usage
 
-Most methods pass values as-is into HTTP requests. These can be populated using parameters specified by Bitmart's API documentation, or check the type definition in each class within this repository.
+Most methods pass values as-is into HTTP requests. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
 
-- [Bitmart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
-- [Bitmart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
+- [BitMart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
+- [BitMart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
 
 ### REST APIs
 
-- Create API credentials within your account on Bitmart's website, if you haven't done so already.
+- Create API credentials within your account on BitMart's website, if you haven't done so already.
 - Import/require the module
 - Create an instance of the REST client
 - Call the function corresponding to the API call and handle the returned promise.
