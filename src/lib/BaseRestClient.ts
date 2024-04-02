@@ -258,7 +258,7 @@ export abstract class BaseRestClient {
    */
   private async signRequest<T extends object | undefined = {}>(
     data: T,
-    endpoint: string,
+    _endpoint: string,
     method: Method,
     signMethod: SignMethod,
   ): Promise<SignedRequest<T>> {
