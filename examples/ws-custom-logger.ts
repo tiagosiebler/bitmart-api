@@ -1,21 +1,12 @@
-import { LogParams, WebsocketClient } from '../src';
+import { DefaultLogger, LogParams, WebsocketClient } from '../src';
 
 /** Optional, implement a custom logger */
-const customLogger = {
-  silly: (...params: LogParams): void => {
+const customLogger: typeof DefaultLogger = {
+  trace: (...params: LogParams): void => {
     console.log('silly', ...params);
-  },
-  debug: (...params: LogParams): void => {
-    console.log(params);
-  },
-  notice: (...params: LogParams): void => {
-    console.log(params);
   },
   info: (...params: LogParams): void => {
     console.info(params);
-  },
-  warning: (...params: LogParams): void => {
-    console.error(params);
   },
   error: (...params: LogParams): void => {
     console.error(params);

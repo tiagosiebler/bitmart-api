@@ -14,9 +14,6 @@ const customLogger = {
   info: (...params: LogParams): void => {
     console.log('info', ...params);
   },
-  warning: (...params: LogParams): void => {
-    console.warn('warning', ...params);
-  },
   error: (...params: LogParams): void => {
     console.error('error', ...params);
   },

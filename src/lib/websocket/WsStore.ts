@@ -66,7 +66,7 @@ export class WsStore<
 
   create(key: WsKey): WsStoredState<TWSTopicSubscribeEventArgs> | undefined {
     if (this.hasExistingActiveConnection(key)) {
-      this.logger.warning(
+      this.logger.info(
         'WsStore setConnection() overwriting existing open connection: ',
         this.getWs(key),
       );
@@ -82,7 +82,7 @@ export class WsStore<
     // TODO: should we allow this at all? Perhaps block this from happening...
     if (this.hasExistingActiveConnection(key)) {
       const ws = this.getWs(key);
-      this.logger.warning(
+      this.logger.info(
         'WsStore deleting state for connection still open: ',
         ws,
       );
@@ -103,7 +103,7 @@ export class WsStore<
 
   setWs(key: WsKey, wsConnection: WebSocket): WebSocket {
     if (this.isWsOpen(key)) {
-      this.logger.warning(
+      this.logger.info(
         'WsStore setConnection() overwriting existing open connection: ',
         this.getWs(key),
       );
