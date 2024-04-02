@@ -97,3 +97,21 @@ This can be set two levels:
 Authentication involves HMAC signing on the request, using API credentials. Internally, this SDK uses the Web Crypto API. The REST client also supports injecting a custom sign function, should you wish to use an alternative (such as node's native & faster createHmac).
 
 Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a demonstration.
+
+---
+
+## Contributions & Thanks
+
+### Donations
+
+#### tiagosiebler
+
+If you found this project interesting or useful, do consider [sponsoring me](https://github.com/sponsors/tiagosiebler) on github. Thank you!
+
+### Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bitmart-api,tiagosiebler/bybit-api,tiagosiebler/binance,tiagosiebler/orderbooks,tiagosiebler/okx-api,tiagosiebler/awesome-crypto-examples,tiagosiebler/accountstate&type=Date)](https://star-history.com/#tiagosiebler/bitmart-api&tiagosiebler/bybit-api&tiagosiebler/binance&tiagosiebler/orderbooks&tiagosiebler/okx-api&tiagosiebler/awesome-crypto-examples&tiagosiebler/accountstate&Date)
