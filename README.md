@@ -14,6 +14,7 @@ Complete JavaScript & Node.js SDK for Bitmart REST APIs & WebSockets:
 - TypeScript support (with type declarations for most API requests & responses)
 - Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
 - Browser-friendly HMAC signature mechanism.
+- Automatically supports both ESM and CJS projects.
 
 ## Installation
 
