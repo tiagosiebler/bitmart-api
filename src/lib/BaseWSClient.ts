@@ -435,7 +435,15 @@ export abstract class BaseWebsocketClient<
     this.clearPongTimer(wsKey);
 
     this.logger.trace('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
-    this.sendPingEvent(wsKey, this.wsStore.get(wsKey, true).ws);
+    const ws = this.wsStore.get(wsKey, true).ws;
+
+    if (!ws) {
+      this.logger.error(
+        `Unable to send ping for wsKey "${wsKey}" - no connection found`,
+      );
+      return;
+    }
+    this.sendPingEvent(wsKey, ws);
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(() => {
       this.logger.info('Pong timeout - closing socket to reconnect', {
@@ -570,8 +578,8 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
-    const agent = this.options.requestOptions?.agent;
-    const ws = new WebSocket(url, undefined, agent ? { agent } : undefined);
+    const ws = new WebSocket(url, undefined);
+
     ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
     ws.onmessage = (event: any) => this.onWsMessage(event, wsKey);
     ws.onerror = (event: any) =>

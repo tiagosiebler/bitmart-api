@@ -33,10 +33,7 @@ export interface WSClientConfigurableOptions {
   /** Delay in milliseconds before respawning the connection */
   reconnectTimeout?: number;
 
-  requestOptions?: {
-    /** override the user agent when opening the websocket connection (some proxies use this) */
-    agent?: string;
-  };
+  requestOptions?: {};
 
   wsUrl?: string;
 
