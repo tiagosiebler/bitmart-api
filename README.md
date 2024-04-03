@@ -25,34 +25,6 @@ Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/bitmart-api/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 
-## Related projects
-
-Check out my related projects:
-
-- Try my connectors:
-  - [binance](https://www.npmjs.com/package/binance)
-  - [bybit-api](https://www.npmjs.com/package/bybit-api)
-  - [okx-api](https://www.npmjs.com/package/okx-api)
-  - [bitget-api](https://www.npmjs.com/package/bitget-api)
-  - [bitmart-api](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [orderbooks](https://www.npmjs.com/package/orderbooks)
-  - [accountstate](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
-
-## Structure
-
-This connector is fully compatible with both TypeScript and pure JavaScript projects, while the connector is written in TypeScript. A pure JavaScript version can be built using `npm run build`, which is also the version published to [npm](https://www.npmjs.com/package/bitmart-api).
-
-The version on npm is the output from the `build` command and can be used in projects without TypeScript (although TypeScript is definitely recommended).
-
-Note: The build will output both ESM and CJS, although node should automatically import the correct entrypoint for your environment.
-
-- [src](./src) - the whole SDK written in TypeScript
-- [dist](./dist) - ESM & CJS builds of the SDK in JavaScript (this is published to npm)
-- [examples](./examples) - some implementation examples & demonstrations.
-
 ## Usage
 
 Most methods pass values as-is into HTTP requests. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
@@ -97,6 +69,36 @@ This can be set two levels:
 Authentication involves HMAC signing on the request, using API credentials. Internally, this SDK uses the Web Crypto API. The REST client also supports injecting a custom sign function, should you wish to use an alternative (such as node's native & faster createHmac).
 
 Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a demonstration.
+
+---
+
+## Related projects
+
+Check out my related projects:
+
+- Try my connectors:
+  - [binance](https://www.npmjs.com/package/binance)
+  - [bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [okx-api](https://www.npmjs.com/package/okx-api)
+  - [bitget-api](https://www.npmjs.com/package/bitget-api)
+  - [bitmart-api](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [orderbooks](https://www.npmjs.com/package/orderbooks)
+  - [accountstate](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
+
+## Structure
+
+This connector is fully compatible with both TypeScript and pure JavaScript projects, while the connector is written in TypeScript. A pure JavaScript version can be built using `npm run build`, which is also the version published to [npm](https://www.npmjs.com/package/bitmart-api).
+
+The version on npm is the output from the `build` command and can be used in projects without TypeScript (although TypeScript is definitely recommended).
+
+Note: The build will output both ESM and CJS, although node should automatically import the correct entrypoint for your environment.
+
+- [src](./src) - the whole SDK written in TypeScript
+- [dist](./dist) - ESM & CJS builds of the SDK in JavaScript (this is published to npm)
+- [examples](./examples) - some implementation examples & demonstrations.
 
 ---
 
