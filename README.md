@@ -69,14 +69,11 @@ client
 const client = new WebsocketClient();
 
 // If private client, needs API keys
-const client = new WebsocketClient(
-  {
-    apiKey: 'yourAPIKeyHere',
-    apiSecret: 'yourAPISecretHere',
-    apiMemo: 'yourAPIMemoHere',
-  },
-  customLogger,
-);
+const client = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+});
 
 client.on('open', (data) => {
   console.log('connected ', data?.wsKey);
