@@ -43,18 +43,106 @@ Most methods pass values as-is into HTTP requests. These can be populated using 
 const { RestClient } = require('bitmart-api');
 
 const client = new RestClient({
-  apiKey: "yourAPIKeyHere",
-  apiSecret: "yourAPISecretHere",
-  apiMemo: "yourAPIMemoHere
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
 });
 
-client.getAccountBalancesV1()
-.then((result) => {
-  console.log('getAccountBalancesV1 result: ', result);
-})
-.catch((err) => {
-  console.error('getAccountBalancesV1 error: ', err);
+client
+  .getAccountBalancesV1()
+  .then((result) => {
+    console.log('getAccountBalancesV1 result: ', result);
+  })
+  .catch((err) => {
+    console.error('getAccountBalancesV1 error: ', err);
+  });
+```
+
+### WebSocket
+
+- All available WebSockets can be used via a shared WebsocketClient
+- Simple instructions are below, for more examples check [examples](./examples)
+
+```typescript
+// create websocket client
+// If public client, doesn't need API keys
+const client = new WebsocketClient();
+
+// If private client, needs API keys
+const client = new WebsocketClient(
+  {
+    apiKey: 'yourAPIKeyHere',
+    apiSecret: 'yourAPISecretHere',
+    apiMemo: 'yourAPIMemoHere',
+  },
+  customLogger,
+);
+
+client.on('open', (data) => {
+  console.log('connected ', data?.wsKey);
 });
+
+// Data received
+client.on('update', (data) => {
+  console.info('data received: ', JSON.stringify(data));
+});
+
+// Something happened, attempting to reconenct
+client.on('reconnect', (data) => {
+  console.log('reconnect: ', data);
+});
+
+// Reconnect successful
+client.on('reconnected', (data) => {
+  console.log('reconnected: ', data);
+});
+
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+client.on('close', (data) => {
+  console.error('close: ', data);
+});
+
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+client.on('response', (data) => {
+  console.info('response: ', data);
+});
+
+client.on('exception', (data) => {
+  console.error('exception: ', data);
+});
+
+client.on('authenticated', (data) => {
+  console.error('authenticated: ', data);
+});
+
+// subscribing to topics
+
+// Spot User Orders
+client.subscribe('spot/user/order:BTC_USDT', 'spot');
+
+// Ticker Channel
+// client.subscribe('futures/ticker', 'futures');
+
+// Depth Channel
+// client.subscribe('futures/depth20:BTCUSDT', 'futures');
+
+// Trade Channel
+// client.subscribe('futures/trade:BTCUSDT', 'futures');
+
+// KlineBin Channel
+// client.subscribe('futures/klineBin1m:BTCUSDT', 'futures');
+
+// Or have multiple topics in one array:
+client.subscribe(
+  [
+    'futures/klineBin1m:BTCUSDT',
+    'futures/klineBin1m:ETHUSDT',
+    'futures/klineBin1m:XRPUSDT',
+    'futures/klineBin1m:BMXUSDT',
+    'futures/klineBin1m:SOLUSDT',
+  ],
+  'futures',
+);
 ```
 
 ### Recv Window
@@ -77,11 +165,14 @@ Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a dem
 Check out my related projects:
 
 - Try my connectors:
+
   - [binance](https://www.npmjs.com/package/binance)
   - [bybit-api](https://www.npmjs.com/package/bybit-api)
   - [okx-api](https://www.npmjs.com/package/okx-api)
   - [bitget-api](https://www.npmjs.com/package/bitget-api)
   - [bitmart-api](https://www.npmjs.com/package/bitmart-api)
+  - [gateio-api](https://www.npmjs.com/package/gateio-api)
+
 - Try my misc utilities:
   - [orderbooks](https://www.npmjs.com/package/orderbooks)
   - [accountstate](https://www.npmjs.com/package/accountstate)
