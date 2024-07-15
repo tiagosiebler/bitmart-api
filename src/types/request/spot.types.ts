@@ -56,6 +56,26 @@ export type CancelOrdersV3Request = {
   client_order_id?: string;
 } & ({ order_id: string } | { client_order_id: string });
 
+export interface SubmitSpotBatchOrdersV4Request {
+  symbol: string;
+  orderParams: {
+    clientOrderId?: string;
+    size?: string;
+    price?: string;
+    side: 'buy' | 'sell';
+    type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+    notional?: string;
+  }[];
+  recvWindow?: number;
+}
+
+export interface CancelSpotBatchOrdersV4Request {
+  symbol: string;
+  orderIds?: string[];
+  clientOrderIds?: string[];
+  recvWindow?: number;
+}
+
 export interface SpotOrderByIdV4Request {
   orderId: string;
   queryState?: 'open' | 'history';

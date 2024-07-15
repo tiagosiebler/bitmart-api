@@ -24,6 +24,9 @@ export interface FuturesContractDetails {
   expected_funding_rate: string;
   open_interest: string;
   open_interest_value: string;
+  high_24h: string;
+  low_24h: string;
+  change_24h: string;
 }
 
 export interface FuturesContractDepth {
@@ -143,6 +146,21 @@ export interface FuturesAccountPosition {
   unrealized_value: string;
   realized_value: string;
   position_type: 1 | 2;
+}
+
+export interface PositionRisk {
+  symbol: string;
+  position_amt: string;
+  mark_price: string;
+  unrealized_profit: string;
+  liquidation_price: string;
+  leverage: string;
+  max_notional_value: string;
+  margin_type: 'Cross' | 'Isolated';
+  isolated_margin: string;
+  position_side: 'Long' | 'Short';
+  notional: string;
+  update_time: number;
 }
 
 export interface FuturesAccountTrade {
