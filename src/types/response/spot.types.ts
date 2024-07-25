@@ -284,6 +284,14 @@ export interface SpotOrderV4 extends SpotTradeBase {
   filledNotional: string;
 }
 
+export interface CancelSpotBatchOrdersV4Response {
+  successIds: string[];
+  failIds: string[];
+  totalCount: number;
+  successCount: number;
+  failedCount: number;
+}
+
 export interface SpotAccountTradeV4 extends SpotTradeBase {
   tradeId: string;
   fee: string;

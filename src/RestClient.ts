@@ -28,6 +28,7 @@ import {
 import {
   AccountSubTransfersV1Request,
   CancelOrdersV3Request,
+  CancelSpotBatchOrdersV4Request,
   DepositWithdrawHistoryV2Request,
   MarginBorrowRecordsV1Request,
   MarginBorrowRepayV1Request,
@@ -42,6 +43,7 @@ import {
   SpotOrderTradeHistoryV4Request,
   SubmitMainTransferSubToSubV1Request,
   SubmitMarginTransferV1Request,
+  SubmitSpotBatchOrdersV4Request,
   SubmitSpotOrderV2Request,
   SubmitSubTransferSubToMainV1Request,
   SubmitSubTransferV1Request,
@@ -67,6 +69,7 @@ import {
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
   FuturesTransferSubmitResult,
+  PositionRisk,
 } from './types/response/futures.types.js';
 import {
   AccountCurrencyBalanceV1,
@@ -83,6 +86,7 @@ import {
   ArrayFormSpotRecentTrade,
   ArrayFormSpotTickerV3,
   BasicFeeRateV1,
+  CancelSpotBatchOrdersV4Response,
   MarginBorrowingRateV1,
   MarginBorrowRecordV1,
   MarginRepayRecordV1,
@@ -175,7 +179,7 @@ export class RestClient extends BaseRestClient {
   getSpotHistoryKlineV3(
     params: SpotKlineV3Request,
   ): Promise<APIResponse<ArrayFormSpotKlineV3[]>> {
-    return this.get('spot/quotation/v3/history-klines', params);
+    return this.get('spot/quotation/v3/klines', params);
   }
 
   getSpotOrderBookDepthV3(params: {
@@ -198,26 +202,41 @@ export class RestClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   getSpotTickersV2(): Promise<APIResponse<{ tickers: SpotTickerV1[] }>> {
     return this.get('spot/v2/ticker');
   }
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   getSpotTickerV1(params: {
     symbol: string;
   }): Promise<APIResponse<SpotTickerV1>> {
     return this.get('spot/v1/ticker_detail', params);
   }
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   getSpotKLineStepsV1(): Promise<APIResponse<{ steps: number[] }>> {
     return this.get('spot/v1/steps');
   }
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   getSpotKlinesV1(
     params: SpotKlinesV1Request,
   ): Promise<APIResponse<{ klines: SpotKlineV1[] }>> {
     return this.get('spot/v1/symbols/kline', params);
   }
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   getSpotOrderBookDepthV1(
     params: SpotOrderBookDepthV1Request,
   ): Promise<APIResponse<SpotOrderBookDepthResultV1>> {
@@ -318,6 +337,9 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('spot/v1/margin/submit_order', params);
   }
 
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   submitSpotBatchOrdersV2(params: {
     order_params: SubmitSpotOrderV2Request[];
   }): Promise<APIResponse<{ responses: SubmittedSpotBatchOrderResponseV2[] }>> {
@@ -330,7 +352,26 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('spot/v3/cancel_order', params);
   }
 
-  /** Cancel Batch Order (v1) */
+  submitSpotBatchOrdersV4(params: SubmitSpotBatchOrdersV4Request): Promise<
+    APIResponse<{
+      orderIds: string[];
+    }>
+  > {
+    return this.postPrivate('spot/v4/batch_orders', params);
+  }
+
+  /**
+   * Cancel batch orders (v4)
+   */
+  cancelSpotBatchOrdersV4(
+    params: CancelSpotBatchOrdersV4Request,
+  ): Promise<APIResponse<CancelSpotBatchOrdersV4Response>> {
+    return this.postPrivate('spot/v4/cancel_orders', params);
+  }
+
+  /**
+   * @deprecated , use V3 or V4 instead
+   */
   cancelSpotOrdersV1(params?: {
     symbol?: string;
     side?: OrderSide;
@@ -581,6 +622,15 @@ export class RestClient extends BaseRestClient {
     symbol?: string;
   }): Promise<APIResponse<FuturesAccountPosition[]>> {
     return this.getPrivate('contract/private/position', params);
+  }
+
+  /**
+   * Get current position risk details
+   */
+  getPositionRiskDetails(params?: {
+    symbol?: string;
+  }): Promise<APIResponse<PositionRisk[]>> {
+    return this.getPrivate('contract/private/position-risk', params);
   }
 
   getFuturesAccountTrades(
