@@ -69,7 +69,9 @@ export class WebsocketClient extends BaseWebsocketClient<
       const typedWsKey = untypedWsKey as WsKey;
       const topics = topicsByWsKey[typedWsKey];
 
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
+      if (topics.length) {
+        this.subscribeTopicsForWsKey(topics, typedWsKey);
+      }
     }
   }
 
@@ -86,7 +88,9 @@ export class WebsocketClient extends BaseWebsocketClient<
       const typedWsKey = untypedWsKey as WsKey;
       const topics = topicsByWsKey[typedWsKey];
 
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
+      if (topics.length) {
+        this.unsubscribeTopicsForWsKey(topics, typedWsKey);
+      }
     }
   }
 

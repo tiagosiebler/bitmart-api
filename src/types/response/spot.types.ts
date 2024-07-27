@@ -1,4 +1,4 @@
-import { OrderSide } from './shared.types';
+import { OrderSide } from './shared.types.js';
 
 export interface ServiceStatus {
   title: string;
