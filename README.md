@@ -1,8 +1,12 @@
 # Node.js & Typescript BitMart API SDK
 
-[![Build & Test](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml) [![npm version](https://img.shields.io/npm/v/bitmart-api)][1] [![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/bitmart-api)][1]
+[![npm version](https://img.shields.io/npm/v/bitmart-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/bitmart-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml)
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/bitmart-api)][1]
-[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api) [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api)
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
 [![connector logo](https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logo1.png?raw=true)][1]
 
