@@ -111,7 +111,7 @@ import {
 /**
  * Unified REST API client for all of Bitmart's REST APIs
  *
- * Note: for futures V2 APIs, use the `RestClientV2` class instead (which maps to a different base URL)
+ * Note: for futures V2 APIs, use the `FuturesClientV2` class instead (which maps to a different base URL)
  */
 export class RestClient extends BaseRestClient {
   constructor(

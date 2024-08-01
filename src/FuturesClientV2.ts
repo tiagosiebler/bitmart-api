@@ -56,9 +56,9 @@ import {
 } from './types/response/spot.types.js';
 
 /**
- * Unified REST API client for Bitmart's V2 APIs via the "api-cloud-v2.bitmart.com" domain
+ * REST API client for Bitmart's V2 Futures APIs via the "api-cloud-v2.bitmart.com" domain
  */
-export class RestClientV2 extends BaseRestClient {
+export class FuturesClientV2 extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
