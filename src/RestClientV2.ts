@@ -56,7 +56,7 @@ import {
 } from './types/response/spot.types.js';
 
 /**
- * Unified REST API client for all of Bitmart's REST APIs
+ * Unified REST API client for Bitmart's V2 APIs via the "api-cloud-v2.bitmart.com" domain
  */
 export class RestClientV2 extends BaseRestClient {
   constructor(
