@@ -16,7 +16,8 @@ const MISSING_API_KEYS_ERROR =
  * Used to switch how authentication/requests work under the hood
  */
 export const REST_CLIENT_TYPE_ENUM = {
-  main: 'main',
+  mainV1: 'mainV1',
+  mainV2: 'mainV2',
 } as const;
 
 export type RestClientType =
@@ -125,7 +126,12 @@ export abstract class BaseRestClient {
       },
     };
 
-    this.baseUrl = getRestBaseUrl(false, restClientOptions);
+    this.baseUrl = getRestBaseUrl(
+      false,
+      restClientOptions,
+      this.getClientType(),
+    );
+
     this.apiKey = this.options.apiKey;
     this.apiSecret = this.options.apiSecret;
     this.apiMemo = this.options.apiMemo;

@@ -121,7 +121,7 @@ export class RestClient extends BaseRestClient {
   }
 
   getClientType(): RestClientType {
-    return REST_CLIENT_TYPE_ENUM.main;
+    return REST_CLIENT_TYPE_ENUM.mainV1;
   }
 
   /**

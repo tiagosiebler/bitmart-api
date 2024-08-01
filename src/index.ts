@@ -1,6 +1,7 @@
 export * from './lib/logger.js';
 export * from './lib/requestUtils.js';
 export * from './RestClient.js';
+export * from './RestClientV2.js';
 export * from './types/request/futures.types.js';
 export * from './types/request/spot.types.js';
 export * from './types/response/futures.types.js';

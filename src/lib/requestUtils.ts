@@ -1,5 +1,7 @@
 import WebSocket from 'isomorphic-ws';
 
+import { REST_CLIENT_TYPE_ENUM, RestClientType } from './BaseRestClient.js';
+
 export interface RestClientOptions {
   /** Your API key */
   apiKey?: string;
@@ -67,9 +69,11 @@ export function serializeParams<T extends Record<string, any> | undefined = {}>(
 export function getRestBaseUrl(
   useTestnet: boolean,
   restInverseOptions: RestClientOptions,
+  restClientType: RestClientType,
 ): string {
   const exchangeBaseUrls = {
-    livenet: 'https://api-cloud.bitmart.com',
+    livenetV1: 'https://api-cloud.bitmart.com',
+    livenetV2: 'https://api-cloud-v2.bitmart.com',
     testnet: 'https://noTestnet',
   };
 
@@ -81,7 +85,16 @@ export function getRestBaseUrl(
     return exchangeBaseUrls.testnet;
   }
 
-  return exchangeBaseUrls.livenet;
+  switch (restClientType) {
+    case REST_CLIENT_TYPE_ENUM.mainV1: {
+      return exchangeBaseUrls.livenetV1;
+    }
+    case REST_CLIENT_TYPE_ENUM.mainV2: {
+      return exchangeBaseUrls.livenetV2;
+    }
+  }
+
+  return exchangeBaseUrls.livenetV1;
 }
 
 export const APIID = 'bitmartapinode1';
