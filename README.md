@@ -14,7 +14,7 @@
 
 Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 
-- Complete integration with all BitMart APIs.
+- Complete integration with all BitMart APIs. Full support for Futures V2 domain.
 - TypeScript support (with type declarations for most API requests & responses)
 - Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
 - Browser-friendly HMAC signature mechanism.
