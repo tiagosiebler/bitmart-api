@@ -1,4 +1,6 @@
 import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
 
 /** Optional, implement a custom logger */
 const customLogger: typeof DefaultLogger = {

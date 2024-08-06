@@ -1,6 +1,8 @@
 import { createHmac } from 'crypto';
 
 import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',

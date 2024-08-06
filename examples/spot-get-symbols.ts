@@ -1,4 +1,6 @@
 import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
 
 const client = new RestClient();
 
