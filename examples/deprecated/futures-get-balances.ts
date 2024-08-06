@@ -1,6 +1,4 @@
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
+import { RestClient } from '../../src/index.js';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
@@ -8,7 +6,11 @@ const account = {
   memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
-const client = new FuturesClientV2({
+/**
+ * Note: for futures, use the new FuturesClientV2 for all REST API calls.
+ * These are mapped to the new V2 futures sub domain.
+ */
+const client = new RestClient({
   apiKey: account.key,
   apiSecret: account.secret,
   apiMemo: account.memo,

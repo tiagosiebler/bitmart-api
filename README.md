@@ -44,7 +44,7 @@ Most methods pass values as-is into HTTP requests. These can be populated using 
 - Call the function corresponding to the API call and handle the returned promise.
 
 ```typescript
-const { RestClient } = require('bitmart-api');
+const { RestClient, FuturesClientV2 } = require('bitmart-api');
 
 const client = new RestClient({
   apiKey: 'yourAPIKeyHere',
@@ -60,6 +60,17 @@ client
   .catch((err) => {
     console.error('getAccountBalancesV1 error: ', err);
   });
+
+// For futures, use the FuturesClientV2 - it's mapped to the new V2 futures sub domain
+const futuresV2Client = new FuturesClientV2({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+});
+
+const balances = await futuresV2Client.getFuturesAccountAssets();
+
+console.log('Balances: ', JSON.stringify(balances, null, 2));
 ```
 
 ### WebSocket
