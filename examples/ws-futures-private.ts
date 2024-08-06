@@ -1,5 +1,8 @@
 import { DefaultLogger, LogParams, WebsocketClient } from '../src/index.js';
 
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
+
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
   secret: process.env.API_SECRET || 'apiSecretHere',

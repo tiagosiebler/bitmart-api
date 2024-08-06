@@ -1,4 +1,6 @@
 import { LogParams, WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { LogParams, WebsocketClient } from 'bitmart-api';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',

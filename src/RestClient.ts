@@ -548,7 +548,7 @@ export class RestClient extends BaseRestClient {
    */
 
   /**
-   * Get a list of all symbols, including most recent price, rules (min/max precision/volume/etc) and other metrics (funding rate, open interest, contract expiry, etc).
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
   getFuturesContractDetails(params?: {
     symbol?: string;
@@ -556,24 +556,36 @@ export class RestClient extends BaseRestClient {
     return this.get('contract/public/details', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesContractDepth(params: {
     symbol: string;
   }): Promise<APIResponse<FuturesContractDepth>> {
     return this.get('contract/public/depth', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesOpenInterest(params: {
     symbol: string;
   }): Promise<APIResponse<FuturesOpenInterest>> {
     return this.get('contract/public/open-interest', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesFundingRate(params: {
     symbol: string;
   }): Promise<APIResponse<FuturesFundingRate>> {
     return this.get('contract/public/funding-rate', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesKlines(
     params: FuturesKlinesRequest,
   ): Promise<APIResponse<FuturesKline[]>> {
@@ -586,6 +598,9 @@ export class RestClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountAssets(): Promise<APIResponse<FuturesAccountAsset[]>> {
     return this.getPrivate('contract/private/assets-detail');
   }
@@ -596,30 +611,45 @@ export class RestClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountOrder(
     params: FuturesAccountOrderRequest,
   ): Promise<APIResponse<FuturesAccountOrder>> {
     return this.getPrivate('contract/private/order', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountOrderHistory(
     params: FuturesAccountHistoricOrderRequest,
   ): Promise<APIResponse<FuturesAccountHistoricOrder>> {
     return this.getPrivate('contract/private/order-history', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountOpenOrders(
     params?: FuturesAccountOpenOrdersRequest,
   ): Promise<APIResponse<FuturesAccountOpenOrder[]>> {
     return this.getPrivate('contract/private/get-open-orders', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountPlanOrders(
     params?: FuturesAccountPlanOrdersRequest,
   ): Promise<APIResponse<FuturesAccountPlanOrders[]>> {
     return this.getPrivate('contract/private/current-plan-order', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountPositions(params?: {
     symbol?: string;
   }): Promise<APIResponse<FuturesAccountPosition[]>> {
@@ -627,7 +657,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Get current position risk details
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
   getPositionRiskDetails(params?: {
     symbol?: string;
@@ -635,12 +665,18 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('contract/private/position-risk', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAccountTrades(
     params: FuturesAccountTradesRequest,
   ): Promise<APIResponse<FuturesAccountTrade[]>> {
     return this.getPrivate('contract/private/trades', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesTransfers(params: FuturesAccountTransfersRequest): Promise<
     APIResponse<{
       records: FuturesAccountTransfer[];
@@ -649,24 +685,35 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('account/v1/transfer-contract-list', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesOrder(
     params: SubmitFuturesOrderRequest,
   ): Promise<APIResponse<FuturesOrderSubmitResult>> {
     return this.postPrivate('contract/private/submit-order', params);
   }
 
-  cancelFuturesOrder(
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */ cancelFuturesOrder(
     params: FuturesAccountOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-order', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   cancelAllFuturesOrders(params: {
     symbol: string;
   }): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-orders', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesPlanOrder(params: SubmitFuturesPlanOrderRequest): Promise<
     APIResponse<{
       order_id: number;
@@ -675,18 +722,27 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('contract/private/submit-plan-order', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   cancelFuturesPlanOrder(
     params: FuturesAccountOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-plan-order', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesTransfer(
     params: SubmitFuturesTransferRequest,
   ): Promise<APIResponse<FuturesTransferSubmitResult>> {
     return this.postPrivate('account/v1/transfer-contract', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   setFuturesLeverage(
     params: SetFuturesLeverageRequest,
   ): Promise<APIResponse<FuturesAccountSetLeverageResult>> {
@@ -699,6 +755,9 @@ export class RestClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesSubToMainTransferFromMain(
     params: TransferFuturesAssetsRequest,
   ): Promise<APIResponse<any>> {
@@ -708,6 +767,9 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesMainToSubTransferFromMain(
     params: TransferFuturesAssetsRequest,
   ): Promise<APIResponse<any>> {
@@ -717,6 +779,9 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   submitFuturesSubToMainSubFromSub(
     params: SubmitFuturesSubToMainSubFromSubRequest,
   ): Promise<APIResponse<any>> {
@@ -726,6 +791,9 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesSubWallet(params?: FuturesSubWalletRequest): Promise<
     APIResponse<{
       wallet: AccountCurrencyBalanceV1[];
@@ -737,6 +805,9 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesSubTransfers(
     params: FuturesSubTransfersRequest,
   ): Promise<APIResponse<FuturesAccountSubTransfer[]>> {
@@ -746,6 +817,9 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesSubTransferHistory(params: {
     limit: number; // Range [1,100]
   }): Promise<APIResponse<FuturesAccountSubTransfer[]>> {
@@ -761,12 +835,18 @@ export class RestClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAffiliateRebates(
     params: FuturesAffiliateRebatesRequest,
   ): Promise<APIResponse<any>> {
     return this.getPrivate('contract/private/affiliate/rebate-list', params);
   }
 
+  /**
+   * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
+   */
   getFuturesAffiliateTrades(
     params: FuturesAffiliateTradesRequest,
   ): Promise<APIResponse<any>> {

@@ -1,4 +1,6 @@
 import { WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { WebsocketClient } from 'bitmart-api';
 
 async function start() {
   const client = new WebsocketClient();
