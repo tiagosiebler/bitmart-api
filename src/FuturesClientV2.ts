@@ -25,7 +25,6 @@ import {
   SubmitFuturesTransferRequest,
   TransferFuturesAssetsRequest,
 } from './types/request/futures.types.js';
-import { SpotBrokerRebateRequest } from './types/request/spot.types.js';
 import {
   FuturesAccountAsset,
   FuturesAccountHistoricOrder,
@@ -50,10 +49,7 @@ import {
   AccountCurrencyBalanceV1,
   APIResponse,
 } from './types/response/shared.types.js';
-import {
-  ServiceStatus,
-  SpotBrokerRebateResult,
-} from './types/response/spot.types.js';
+import { ServiceStatus } from './types/response/spot.types.js';
 
 /**
  * REST API client for Bitmart's V2 Futures APIs via the "api-cloud-v2.bitmart.com" domain
@@ -323,17 +319,5 @@ export class FuturesClientV2 extends BaseRestClient {
     params: FuturesAffiliateTradesRequest,
   ): Promise<APIResponse<any>> {
     return this.getPrivate('contract/private/affiliate/trade-list', params);
-  }
-
-  /**
-   *
-   * API Broker Endpoints
-   *
-   **/
-
-  getBrokerRebate(
-    params?: SpotBrokerRebateRequest,
-  ): Promise<APIResponse<SpotBrokerRebateResult>> {
-    return this.getPrivate('spot/v1/broker/rebate', params);
   }
 }
