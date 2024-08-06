@@ -4,6 +4,8 @@ export const WS_KEY_MAP = {
   spotPrivateV1: 'spotPrivateV1',
   futuresPublicV1: 'futuresPublicV1',
   futuresPrivateV1: 'futuresPrivateV1',
+  futuresPublicV2: 'futuresPublicV2',
+  futuresPrivateV2: 'futuresPrivateV2',
 } as const;
 
 /** This is used to differentiate between each of the available websocket streams */
@@ -24,29 +26,24 @@ type NetworkMap<
     ? Record<TOptionalKeys, string | undefined>
     : Record<TRequiredKeys, string>);
 
-export const WS_BASE_URL_MAP: Record<
-  WsKey,
-  Record<'all', NetworkMap<'livenet'>>
-> = {
+export const WS_BASE_URL_MAP: Record<WsKey, NetworkMap<'livenet'>> = {
   spotPublicV1: {
-    all: {
-      livenet: 'wss://ws-manager-compress.bitmart.com/api?protocol=1.1',
-    },
+    livenet: 'wss://ws-manager-compress.bitmart.com/api?protocol=1.1',
   },
   spotPrivateV1: {
-    all: {
-      livenet: 'wss://ws-manager-compress.bitmart.com/user?protocol=1.1',
-    },
+    livenet: 'wss://ws-manager-compress.bitmart.com/user?protocol=1.1',
   },
   futuresPublicV1: {
-    all: {
-      livenet: 'wss://openapi-ws.bitmart.com/api?protocol=1.1',
-    },
+    livenet: 'wss://openapi-ws.bitmart.com/api?protocol=1.1',
   },
   futuresPrivateV1: {
-    all: {
-      livenet: 'wss://openapi-ws.bitmart.com/user?protocol=1.1',
-    },
+    livenet: 'wss://openapi-ws.bitmart.com/user?protocol=1.1',
+  },
+  futuresPublicV2: {
+    livenet: 'wss://openapi-ws-v2.bitmart.com/api?protocol=1.1',
+  },
+  futuresPrivateV2: {
+    livenet: 'wss://openapi-ws-v2.bitmart.com/user?protocol=1.1',
   },
 };
 

@@ -23,12 +23,14 @@ export const WS_LOGGER_CATEGORY = { category: 'bitmart-ws' };
 const PRIVATE_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPrivateV1,
   WS_KEY_MAP.futuresPrivateV1,
+  WS_KEY_MAP.futuresPrivateV2,
 ];
 
 /** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
 export const PUBLIC_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPublicV1,
   WS_KEY_MAP.futuresPublicV1,
+  WS_KEY_MAP.futuresPublicV2,
 ];
 
 /**
@@ -48,8 +50,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     return [
       this.connect(WS_KEY_MAP.spotPublicV1),
       this.connect(WS_KEY_MAP.spotPrivateV1),
-      this.connect(WS_KEY_MAP.futuresPublicV1),
-      this.connect(WS_KEY_MAP.futuresPrivateV1),
+      this.connect(WS_KEY_MAP.futuresPublicV2),
+      this.connect(WS_KEY_MAP.futuresPrivateV2),
     ];
   }
 
@@ -107,7 +109,9 @@ export class WebsocketClient extends BaseWebsocketClient<
         return this.tryWsSend(wsKey, 'ping');
       }
       case WS_KEY_MAP.futuresPublicV1:
-      case WS_KEY_MAP.futuresPrivateV1: {
+      case WS_KEY_MAP.futuresPrivateV1:
+      case WS_KEY_MAP.futuresPublicV2:
+      case WS_KEY_MAP.futuresPrivateV2: {
         return this.tryWsSend(wsKey, '{"action":"ping"}');
       }
       default: {
@@ -239,16 +243,18 @@ export class WebsocketClient extends BaseWebsocketClient<
     return isPrivate
       ? market === 'spot'
         ? WS_KEY_MAP.spotPrivateV1
-        : WS_KEY_MAP.futuresPrivateV1
+        : WS_KEY_MAP.futuresPrivateV2
       : market === 'spot'
         ? WS_KEY_MAP.spotPublicV1
-        : WS_KEY_MAP.futuresPublicV1;
+        : WS_KEY_MAP.futuresPublicV2;
   }
 
   protected getWsMarketForWsKey(key: WsKey): WsMarket {
     switch (key) {
       case 'futuresPrivateV1':
-      case 'futuresPublicV1': {
+      case 'futuresPublicV1':
+      case 'futuresPrivateV2':
+      case 'futuresPublicV2': {
         return 'futures';
       }
       case 'spotPrivateV1':
@@ -279,27 +285,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     const networkKey = 'livenet';
 
-    switch (wsKey) {
-      case WS_KEY_MAP.spotPublicV1: {
-        return WS_BASE_URL_MAP.spotPublicV1.all[networkKey];
-      }
-      case WS_KEY_MAP.spotPrivateV1: {
-        return WS_BASE_URL_MAP.spotPrivateV1.all[networkKey];
-      }
-      case WS_KEY_MAP.futuresPublicV1: {
-        return WS_BASE_URL_MAP.futuresPublicV1.all[networkKey];
-      }
-      case WS_KEY_MAP.futuresPrivateV1: {
-        return WS_BASE_URL_MAP.futuresPrivateV1.all[networkKey];
-      }
-      default: {
-        this.logger.error('getWsUrl(): Unhandled wsKey: ', {
-          ...WS_LOGGER_CATEGORY,
-          wsKey,
-        });
-        throw neverGuard(wsKey, `getWsUrl(): Unhandled wsKey`);
-      }
-    }
+    return WS_BASE_URL_MAP[wsKey][networkKey];
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
@@ -308,7 +294,9 @@ export class WebsocketClient extends BaseWebsocketClient<
       case 'futuresPrivateV1':
       case 'futuresPublicV1':
       case 'spotPrivateV1':
-      case 'spotPublicV1': {
+      case 'spotPublicV1':
+      case 'futuresPrivateV2':
+      case 'futuresPublicV2': {
         // Return a number if there's a limit on the number of sub topics per rq
         return null;
       }
@@ -470,6 +458,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         return wsRequestEvent;
       }
       case 'futures': {
+        // https://developer-pro.bitmart.com/en/futuresv2/#private-login
         const wsRequestEvent: WsFuturesOperation<string> = {
           action: 'access',
           args: authArgs,
@@ -506,6 +495,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     const topicsByWsKey: Record<WsKey, WsTopic[]> = {
       futuresPrivateV1: [],
       futuresPublicV1: [],
+      futuresPrivateV2: [],
+      futuresPublicV2: [],
       spotPrivateV1: [],
       spotPublicV1: [],
     };

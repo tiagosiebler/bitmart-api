@@ -1,4 +1,4 @@
-import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+import { DefaultLogger, LogParams, WebsocketClient } from '../src/index.js';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',

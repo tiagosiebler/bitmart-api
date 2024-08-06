@@ -1,3 +1,4 @@
+export * from './FuturesClientV2.js';
 export * from './lib/logger.js';
 export * from './lib/requestUtils.js';
 export * from './RestClient.js';

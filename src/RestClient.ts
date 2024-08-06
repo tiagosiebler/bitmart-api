@@ -110,6 +110,8 @@ import {
 
 /**
  * Unified REST API client for all of Bitmart's REST APIs
+ *
+ * Note: for futures V2 APIs, use the `FuturesClientV2` class instead (which maps to a different base URL)
  */
 export class RestClient extends BaseRestClient {
   constructor(
@@ -121,7 +123,7 @@ export class RestClient extends BaseRestClient {
   }
 
   getClientType(): RestClientType {
-    return REST_CLIENT_TYPE_ENUM.main;
+    return REST_CLIENT_TYPE_ENUM.mainV1;
   }
 
   /**
