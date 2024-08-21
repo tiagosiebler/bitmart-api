@@ -119,14 +119,21 @@ export interface FuturesSubTransfersRequest {
 }
 
 export interface FuturesAffiliateRebatesRequest {
-  user_id: number;
+  user_id?: number;
   page: number;
   size: number;
-  start_time?: number;
-  end_time?: number;
+  currency: string;
+  rebate_start_time?: number;
+  rebate_end_time?: number;
+  register_start_time?: number;
+  register_end_time?: number;
 }
 
-export interface FuturesAffiliateTradesRequest
-  extends FuturesAffiliateRebatesRequest {
+export interface FuturesAffiliateTradesRequest {
+  user_id?: number;
+  page: number;
   type: 1 | 2;
+  size: number;
+  start_time: number;
+  end_time: number;
 }
