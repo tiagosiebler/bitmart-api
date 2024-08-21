@@ -371,7 +371,7 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('spot/v4/cancel_orders', params);
   }
 
-  cancelAllSpotOrders(params: {
+  cancelAllSpotOrders(params?: {
     symbol?: string;
     side?: OrderSide;
   }): Promise<APIResponse<any>> {
