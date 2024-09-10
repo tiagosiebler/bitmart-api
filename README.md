@@ -35,6 +35,7 @@ Most methods pass values as-is into HTTP requests. These can be populated using 
 
 - [BitMart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
 - [BitMart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
 
 ### REST APIs
 
