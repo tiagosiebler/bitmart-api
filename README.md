@@ -1,4 +1,4 @@
-# Node.js & Typescript BitMart API SDK
+# Node.js & JavaScript SDK for BitMart REST API & WebSockets
 
 [![npm version](https://img.shields.io/npm/v/bitmart-api)][1]
 [![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1]
@@ -8,7 +8,14 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api)
 [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
-[![connector logo](https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logo1.png?raw=true)][1]
+<p align="center">
+  <a href="https://www.npmjs.com/package/bitmart-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
 
 [1]: https://www.npmjs.com/package/bitmart-api
 
