@@ -22,8 +22,12 @@ import {
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
   SubmitFuturesSubToMainSubFromSubRequest,
+  SubmitFuturesTPSLOrderRequest,
   SubmitFuturesTransferRequest,
   TransferFuturesAssetsRequest,
+  UpdateFuturesPlanOrderRequest,
+  UpdateFuturesPresetPlanOrderRequest,
+  UpdateFuturesTPSLOrderRequest,
 } from './types/request/futures.types.js';
 import {
   FuturesAccountAsset,
@@ -239,6 +243,44 @@ export class FuturesClientV2 extends BaseRestClient {
     params: SetFuturesLeverageRequest,
   ): Promise<APIResponse<FuturesAccountSetLeverageResult>> {
     return this.postPrivate('contract/private/submit-leverage', params);
+  }
+
+  submitFuturesTPSLOrder(params: SubmitFuturesTPSLOrderRequest): Promise<
+    APIResponse<{
+      order_id: string;
+      client_order_id?: string;
+    }>
+  > {
+    return this.postPrivate('contract/private/submit-tp-sl-order', params);
+  }
+
+  updateFuturesPlanOrder(params: UpdateFuturesPlanOrderRequest): Promise<
+    APIResponse<{
+      order_id: string;
+    }>
+  > {
+    return this.postPrivate('contract/private/modify-plan-order', params);
+  }
+
+  updateFuturesPresetPlanOrder(
+    params: UpdateFuturesPresetPlanOrderRequest,
+  ): Promise<
+    APIResponse<{
+      order_id: string;
+    }>
+  > {
+    return this.postPrivate(
+      'contract/private/modify-preset-plan-order',
+      params,
+    );
+  }
+
+  updateFuturesTPSLOrder(params: UpdateFuturesTPSLOrderRequest): Promise<
+    APIResponse<{
+      order_id: string;
+    }>
+  > {
+    return this.postPrivate('contract/private/modify-tp-sl-order', params);
   }
 
   /**
