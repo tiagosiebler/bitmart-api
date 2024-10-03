@@ -8,6 +8,7 @@ export interface FuturesKlinesRequest {
 export interface FuturesAccountOrderRequest {
   symbol: string;
   order_id: string;
+  client_order_id?: string;
 }
 
 export interface FuturesAccountHistoricOrderRequest {
@@ -27,6 +28,7 @@ export interface FuturesAccountPlanOrdersRequest {
   symbol?: string;
   type?: 'limit' | 'market';
   limit?: number;
+  plan_type?: 'plan' | 'profit_loss';
 }
 
 export interface FuturesAccountTradesRequest {
@@ -136,4 +138,47 @@ export interface FuturesAffiliateTradesRequest {
   size: number;
   start_time: number;
   end_time: number;
+}
+
+export interface SubmitFuturesTPSLOrderRequest {
+  symbol: string;
+  type: 'take_profit' | 'stop_loss';
+  side: 2 | 3;
+  size?: number;
+  trigger_price: string;
+  executive_price: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  client_order_id?: string;
+  category?: 'limit' | 'market';
+}
+
+export interface UpdateFuturesPlanOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  type: 'limit' | 'market';
+}
+
+export interface UpdateFuturesPresetPlanOrderRequest {
+  order_id: string;
+  symbol: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+
+export interface UpdateFuturesTPSLOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  category?: 'limit' | 'market';
 }
