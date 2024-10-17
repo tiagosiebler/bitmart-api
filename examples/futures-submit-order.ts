@@ -17,10 +17,10 @@ const client = new FuturesClientV2({
 async function SumbitFuturesOrder() {
   try {
     const order = await client.submitFuturesOrder({
-      symbol: 'BTC_USDT',
+      symbol: 'BTCUSDT',
+      type: 'market',
       side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
-      leverage: '5',
-      size: 0.001,
+      size: 1,
       open_type: 'cross',
     });
 

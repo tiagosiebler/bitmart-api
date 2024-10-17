@@ -5,7 +5,6 @@ const { RestClient } = require('bitmart-api');
   // ENDPOINT: spot/v1/margin/submit_order
   // METHOD: POST
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/bitmart-api/blob/master/src/RestClient.ts#L336
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',
