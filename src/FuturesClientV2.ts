@@ -148,6 +148,16 @@ export class FuturesClientV2 extends BaseRestClient {
    *
    */
 
+  getFuturesTradeFeeRate(params: { symbol: string }): Promise<
+    APIResponse<{
+      symbol: string;
+      taker_fee_rate: string;
+      maker_fee_rate: string;
+    }>
+  > {
+    return this.getPrivate('contract/private/trade-fee-rate', params);
+  }
+
   getFuturesAccountOrder(
     params: FuturesAccountOrderRequest,
   ): Promise<APIResponse<FuturesAccountOrder>> {
