@@ -226,6 +226,8 @@ export interface BasicFeeRateV1 {
   maker_fee_rate_B: string;
   taker_fee_rate_C: string;
   maker_fee_rate_C: string;
+  taker_fee_rate_D: string;
+  maker_fee_rate_D: string;
 }
 
 export interface ActualFeeRateV1 {

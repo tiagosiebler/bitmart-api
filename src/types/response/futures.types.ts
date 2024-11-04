@@ -27,6 +27,8 @@ export interface FuturesContractDetails {
   high_24h: string;
   low_24h: string;
   change_24h: string;
+  market_max_volume: string;
+  funding_interval_hours: number;
 }
 
 export interface FuturesContractDepth {
