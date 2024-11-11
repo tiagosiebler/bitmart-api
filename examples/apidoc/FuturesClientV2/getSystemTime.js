@@ -7,8 +7,9 @@ const { FuturesClientV2 } = require('bitmart-api');
   // PUBLIC: YES
 
 const client = new FuturesClientV2({
-  apiKey: 'insert_api_key_here',
-  apiSecret: 'insert_api_secret_here',
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
 });
 
 client.getSystemTime(params)

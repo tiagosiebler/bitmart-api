@@ -7,8 +7,9 @@ const { RestClient } = require('bitmart-api');
   // PUBLIC: YES
 
 const client = new RestClient({
-  apiKey: 'insert_api_key_here',
-  apiSecret: 'insert_api_secret_here',
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
 });
 
 client.getSpotOrderBookDepthV1(params)
