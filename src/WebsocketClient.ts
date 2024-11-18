@@ -298,7 +298,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       case 'futuresPrivateV2':
       case 'futuresPublicV2': {
         // Return a number if there's a limit on the number of sub topics per rq
-        return null;
+        return 20;
       }
       default: {
         throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
