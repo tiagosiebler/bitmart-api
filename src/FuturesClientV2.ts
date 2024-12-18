@@ -23,6 +23,7 @@ import {
   SubmitFuturesPlanOrderRequest,
   SubmitFuturesSubToMainSubFromSubRequest,
   SubmitFuturesTPSLOrderRequest,
+  SubmitFuturesTrailOrderRequest,
   SubmitFuturesTransferRequest,
   TransferFuturesAssetsRequest,
   UpdateFuturesPlanOrderRequest,
@@ -291,6 +292,20 @@ export class FuturesClientV2 extends BaseRestClient {
     }>
   > {
     return this.postPrivate('contract/private/modify-tp-sl-order', params);
+  }
+
+  submitFuturesTrailOrder(params: SubmitFuturesTrailOrderRequest): Promise<
+    APIResponse<{
+      order_id: number;
+    }>
+  > {
+    return this.postPrivate('contract/private/submit-trail-order', params);
+  }
+
+  cancelFuturesTrailOrder(
+    params: FuturesAccountOrderRequest,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-trail-order', params);
   }
 
   /**
