@@ -8,6 +8,7 @@ import {
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
   FuturesAccountHistoricOrderRequest,
+  FuturesAccountHistoricTransactionRequest,
   FuturesAccountOpenOrdersRequest,
   FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
@@ -23,6 +24,7 @@ import {
   SubmitFuturesPlanOrderRequest,
   SubmitFuturesSubToMainSubFromSubRequest,
   SubmitFuturesTPSLOrderRequest,
+  SubmitFuturesTrailOrderRequest,
   SubmitFuturesTransferRequest,
   TransferFuturesAssetsRequest,
   UpdateFuturesPlanOrderRequest,
@@ -32,6 +34,7 @@ import {
 import {
   FuturesAccountAsset,
   FuturesAccountHistoricOrder,
+  FuturesAccountHistoricTransaction,
   FuturesAccountOpenOrder,
   FuturesAccountOrder,
   FuturesAccountPlanOrders,
@@ -203,6 +206,12 @@ export class FuturesClientV2 extends BaseRestClient {
     return this.getPrivate('contract/private/trades', params);
   }
 
+  getFuturesAccountTransactionHistory(
+    params: FuturesAccountHistoricTransactionRequest,
+  ): Promise<APIResponse<FuturesAccountHistoricTransaction[]>> {
+    return this.getPrivate('contract/private/transaction-history', params);
+  }
+
   getFuturesTransfers(params: FuturesAccountTransfersRequest): Promise<
     APIResponse<{
       records: FuturesAccountTransfer[];
@@ -291,6 +300,20 @@ export class FuturesClientV2 extends BaseRestClient {
     }>
   > {
     return this.postPrivate('contract/private/modify-tp-sl-order', params);
+  }
+
+  submitFuturesTrailOrder(params: SubmitFuturesTrailOrderRequest): Promise<
+    APIResponse<{
+      order_id: number;
+    }>
+  > {
+    return this.postPrivate('contract/private/submit-trail-order', params);
+  }
+
+  cancelFuturesTrailOrder(
+    params: FuturesAccountOrderRequest,
+  ): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-trail-order', params);
   }
 
   /**

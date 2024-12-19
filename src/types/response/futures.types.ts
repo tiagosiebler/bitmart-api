@@ -179,6 +179,15 @@ export interface FuturesAccountTrade {
   create_time: number;
 }
 
+export interface FuturesAccountHistoricTransaction {
+  symbol: string;
+  type: string;
+  amount: string;
+  asset: string;
+  time: string;
+  tran_id: string
+}
+
 export interface FuturesAccountTransfer {
   transfer_id: string;
   currency: string;

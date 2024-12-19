@@ -37,6 +37,14 @@ export interface FuturesAccountTradesRequest {
   end_time?: number;
 }
 
+export interface FuturesAccountHistoricTransactionRequest {
+  symbol?: string;
+  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
+  start_time?: number;
+  end_time?: number;
+  page_size?: number;
+}
+
 export interface FuturesAccountTransfersRequest {
   currency?: string;
   time_start?: number;
@@ -51,14 +59,11 @@ export interface SubmitFuturesOrderRequest {
   client_order_id?: string;
   side: 1 | 2 | 3 | 4;
   mode?: 1 | 2 | 3 | 4;
-  type?: 'limit' | 'market' | 'trailing';
+  type?: 'limit' | 'market';
   leverage: string;
   open_type: 'cross' | 'isolated';
   size: number;
   price?: string;
-  activation_price?: string;
-  callback_rate?: string;
-  activation_price_type?: 1 | 2;
   preset_take_profit_price_type?: 1 | 2;
   preset_stop_loss_price_type?: 1 | 2;
   preset_take_profit_price?: string;
@@ -181,4 +186,15 @@ export interface UpdateFuturesTPSLOrderRequest {
   price_type: 1 | 2;
   plan_category?: 1 | 2;
   category?: 'limit' | 'market';
+}
+
+export interface SubmitFuturesTrailOrderRequest {
+  symbol: string;
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  size: number;
+  activation_price: string;
+  callback_rate: string;
+  activation_price_type: 1 | 2;
 }
