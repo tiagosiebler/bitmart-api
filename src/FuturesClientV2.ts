@@ -8,6 +8,7 @@ import {
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
   FuturesAccountHistoricOrderRequest,
+  FuturesAccountHistoricTransactionRequest,
   FuturesAccountOpenOrdersRequest,
   FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
@@ -33,6 +34,7 @@ import {
 import {
   FuturesAccountAsset,
   FuturesAccountHistoricOrder,
+  FuturesAccountHistoricTransaction,
   FuturesAccountOpenOrder,
   FuturesAccountOrder,
   FuturesAccountPlanOrders,
@@ -202,6 +204,12 @@ export class FuturesClientV2 extends BaseRestClient {
     params: FuturesAccountTradesRequest,
   ): Promise<APIResponse<FuturesAccountTrade[]>> {
     return this.getPrivate('contract/private/trades', params);
+  }
+
+  getFuturesAccountTransactionHistory(
+    params: FuturesAccountHistoricTransactionRequest,
+  ): Promise<APIResponse<FuturesAccountHistoricTransaction[]>> {
+    return this.getPrivate('contract/private/transaction-history', params);
   }
 
   getFuturesTransfers(params: FuturesAccountTransfersRequest): Promise<

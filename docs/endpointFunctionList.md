@@ -158,6 +158,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getFuturesAccountPositions()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L185)             | :closed_lock_with_key:  | GET | `contract/private/position` |
 | [getPositionRiskDetails()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L194)                 | :closed_lock_with_key:  | GET | `contract/private/position-risk` |
 | [getFuturesAccountTrades()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L200)                | :closed_lock_with_key:  | GET | `contract/private/trades` |
+| [getFuturesAccountTransactionHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L209)    | :closed_lock_with_key:  | GET | `contract/private/transaction-history` |
 | [getFuturesTransfers()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L206)                    | :closed_lock_with_key:  | GET | `account/v1/transfer-contract-list` |
 | [submitFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L214)                     | :closed_lock_with_key:  | POST | `contract/private/submit-order` |
 | [cancelFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L220)                     | :closed_lock_with_key:  | POST | `contract/private/cancel-order` |

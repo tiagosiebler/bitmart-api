@@ -37,6 +37,14 @@ export interface FuturesAccountTradesRequest {
   end_time?: number;
 }
 
+export interface FuturesAccountHistoricTransactionRequest {
+  symbol?: string;
+  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
+  start_time?: number;
+  end_time?: number;
+  page_size?: number;
+}
+
 export interface FuturesAccountTransfersRequest {
   currency?: string;
   time_start?: number;
