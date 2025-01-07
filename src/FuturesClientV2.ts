@@ -46,6 +46,7 @@ import {
   FuturesContractDepth,
   FuturesContractDetails,
   FuturesFundingRate,
+  FuturesFundingRateHistory,
   FuturesKline,
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
@@ -133,6 +134,17 @@ export class FuturesClientV2 extends BaseRestClient {
     params: FuturesKlinesRequest,
   ): Promise<APIResponse<FuturesKline[]>> {
     return this.get('contract/public/kline', params);
+  }
+
+  getFuturesFundingRateHistory(params: {
+    symbol: string;
+    limit?: string;
+  }): Promise<
+    APIResponse<{
+      list: FuturesFundingRateHistory[];
+    }>
+  > {
+    return this.get('contract/public/funding-rate-history', params);
   }
 
   /**
