@@ -61,6 +61,12 @@ export interface FuturesKline {
   volume: string;
 }
 
+export interface FuturesFundingRateHistory {
+  symbol: string;
+  funding_rate: string;
+  funding_time: string;
+}
+
 export interface FuturesAccountAsset {
   currency: string;
   position_deposit: string;
@@ -185,7 +191,7 @@ export interface FuturesAccountHistoricTransaction {
   amount: string;
   asset: string;
   time: string;
-  tran_id: string
+  tran_id: string;
 }
 
 export interface FuturesAccountTransfer {

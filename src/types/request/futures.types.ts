@@ -161,7 +161,6 @@ export interface SubmitFuturesTPSLOrderRequest {
 export interface UpdateFuturesPlanOrderRequest {
   symbol: string;
   order_id?: string;
-  client_order_id?: string;
   trigger_price: string;
   executive_price?: string;
   price_type: 1 | 2;
