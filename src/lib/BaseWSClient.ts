@@ -305,7 +305,7 @@ export abstract class BaseWebsocketClient<
     const ws = this.getWs(wsKey);
     ws?.close();
     if (force) {
-      safeTerminateWs(ws, true);
+      safeTerminateWs(ws);
     }
   }
 
@@ -451,7 +451,7 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      safeTerminateWs(this.getWs(wsKey));
+      safeTerminateWs(this.getWs(wsKey), true);
       delete this.wsStore.get(wsKey, true).activePongTimer;
     }, this.options.pongTimeout);
   }
