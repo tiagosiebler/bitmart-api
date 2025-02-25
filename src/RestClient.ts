@@ -106,6 +106,7 @@ import {
   SubmittedSpotBatchOrderResponseV2,
   SubTransferRow,
   SymbolMarginAccountDetailsV1,
+  WithdrawAddressListItem,
 } from './types/response/spot.types.js';
 
 /**
@@ -320,10 +321,10 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('account/v1/wallet', params);
   }
 
-  getAccountCurrenciesV1(): Promise<
-    APIResponse<{ currencies: AccountCurrencyV1[] }>
-  > {
-    return this.get('account/v1/currencies');
+  getAccountCurrenciesV1(params?: {
+    currencies?: string;
+  }): Promise<APIResponse<{ currencies: AccountCurrencyV1[] }>> {
+    return this.get('account/v1/currencies', params);
   }
 
   getSpotWalletBalanceV1(): Promise<
@@ -348,6 +349,14 @@ export class RestClient extends BaseRestClient {
     params: SubmitWithdrawalV1Request,
   ): Promise<APIResponse<{ withdrawal_id: string }>> {
     return this.postPrivate('account/v1/withdraw/apply', params);
+  }
+
+  getWithdrawAddressList(): Promise<
+    APIResponse<{
+      list: WithdrawAddressListItem[];
+    }>
+  > {
+    return this.getPrivate('account/v1/withdraw/address/list');
   }
 
   getDepositWithdrawHistoryV2(

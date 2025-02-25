@@ -8,6 +8,7 @@ import {
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
 import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import { safeTerminateWs } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
 import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
 
@@ -304,7 +305,7 @@ export abstract class BaseWebsocketClient<
     const ws = this.getWs(wsKey);
     ws?.close();
     if (force) {
-      ws?.terminate();
+      safeTerminateWs(ws);
     }
   }
 
@@ -450,7 +451,7 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      this.getWs(wsKey)?.terminate();
+      safeTerminateWs(this.getWs(wsKey), true);
       delete this.wsStore.get(wsKey, true).activePongTimer;
     }, this.options.pongTimeout);
   }

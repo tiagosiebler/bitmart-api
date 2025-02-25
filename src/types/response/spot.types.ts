@@ -155,6 +155,8 @@ export interface AccountCurrencyV1 {
   deposit_enabled: boolean;
   withdraw_minsize: string | null;
   withdraw_minfee: string | null;
+  withdraw_fee: string | null;
+  withdraw_maxsize: string | null;
 }
 
 export interface SpotWalletBalanceV1 {
@@ -176,6 +178,16 @@ export interface AccountWithdrawQuotaV1 {
   min_withdraw: string;
   withdraw_precision: number;
   withdraw_fee: string;
+}
+
+export interface WithdrawAddressListItem {
+  currency: string;
+  network: string;
+  address: string;
+  memo: string;
+  remark: string;
+  addressType: number;
+  verifyStatus: number;
 }
 
 export interface AccountDepositWithdrawHistoryV2 {

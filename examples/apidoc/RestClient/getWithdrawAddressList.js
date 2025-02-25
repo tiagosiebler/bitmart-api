@@ -1,18 +1,18 @@
-const { FuturesClientV2 } = require('bitmart-api');
+const { RestClient } = require('bitmart-api');
 
   // This example shows how to call this bitmart API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "bitmart-api" for bitmart exchange
   // This bitmart API SDK is available on npm via "npm install bitmart-api"
-  // ENDPOINT: contract/public/funding-rate-history
+  // ENDPOINT: account/v1/withdraw/address/list
   // METHOD: GET
-  // PUBLIC: YES
+  // PUBLIC: NO
 
-const client = new FuturesClientV2({
+const client = new RestClient({
   apiKey: 'yourAPIKeyHere',
   apiSecret: 'yourAPISecretHere',
   apiMemo: 'yourAPIMemoHere',
 });
 
-client.getFuturesFundingRateHistory(params)
+client.getWithdrawAddressList(params)
   .then((response) => {
     console.log(response);
   })
