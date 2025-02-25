@@ -14,5 +14,6 @@ export interface AccountCurrencyBalanceV1 {
   currency: string;
   name: string;
   available: string;
+  available_usd_valuation: string;
   frozen: string;
 }

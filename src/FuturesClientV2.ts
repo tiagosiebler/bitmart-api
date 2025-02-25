@@ -136,6 +136,12 @@ export class FuturesClientV2 extends BaseRestClient {
     return this.get('contract/public/kline', params);
   }
 
+  getFuturesMarkPriceKlines(
+    params: FuturesKlinesRequest,
+  ): Promise<APIResponse<FuturesKline[]>> {
+    return this.get('contract/public/markprice-kline', params);
+  }
+
   getFuturesFundingRateHistory(params: {
     symbol: string;
     limit?: string;

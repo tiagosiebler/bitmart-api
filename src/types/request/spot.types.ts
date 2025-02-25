@@ -30,6 +30,8 @@ export interface SubmitWithdrawalV1Request {
 export interface DepositWithdrawHistoryV2Request {
   currency?: string;
   operation_type: 'deposit' | 'withdraw';
+  start_time?: number;
+  end_time?: number;
   N: number;
 }
 

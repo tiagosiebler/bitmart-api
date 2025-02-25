@@ -1,3 +1,5 @@
+import WebSocket from 'ws';
+
 /** Should be one WS key per unique URL */
 export const WS_KEY_MAP = {
   spotPublicV1: 'spotPublicV1',
@@ -53,4 +55,26 @@ export const WS_ERROR_ENUM = {
 
 export function neverGuard(x: never, msg: string): Error {
   return new Error(`Unhandled value exception "${x}", ${msg}`);
+}
+
+/**
+ * ws.terminate() is undefined in browsers.
+ * This only works in node.js, not in browsers.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
+ */
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean {
+  if (!ws) {
+    return false;
+  }
+  if (typeof ws['terminate'] === 'function') {
+    ws.terminate();
+    return true;
+  } else if (fallbackToClose) {
+    ws.close();
+  }
+
+  return false;
 }
