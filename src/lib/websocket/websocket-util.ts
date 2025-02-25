@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 
 /** Should be one WS key per unique URL */
 export const WS_KEY_MAP = {
