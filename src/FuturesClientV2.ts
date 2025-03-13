@@ -27,6 +27,7 @@ import {
   SubmitFuturesTrailOrderRequest,
   SubmitFuturesTransferRequest,
   TransferFuturesAssetsRequest,
+  UpdateFuturesLimitOrderRequest,
   UpdateFuturesPlanOrderRequest,
   UpdateFuturesPresetPlanOrderRequest,
   UpdateFuturesTPSLOrderRequest,
@@ -242,6 +243,15 @@ export class FuturesClientV2 extends BaseRestClient {
     params: SubmitFuturesOrderRequest,
   ): Promise<APIResponse<FuturesOrderSubmitResult>> {
     return this.postPrivate('contract/private/submit-order', params);
+  }
+
+  updateFuturesLimitOrder(params: UpdateFuturesLimitOrderRequest): Promise<
+    APIResponse<{
+      order_id: number;
+      client_order_id?: string;
+    }>
+  > {
+    return this.postPrivate('contract/private/modify-limit-order', params);
   }
 
   cancelFuturesOrder(
