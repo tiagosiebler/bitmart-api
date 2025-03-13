@@ -143,44 +143,45 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [getSystemTime()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L84) |  | GET | `system/time` |
-| [getSystemStatus()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L88) |  | GET | `system/service` |
-| [getFuturesContractDetails()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L109) |  | GET | `contract/public/details` |
-| [getFuturesContractDepth()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L115) |  | GET | `contract/public/depth` |
-| [getFuturesOpenInterest()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L121) |  | GET | `contract/public/open-interest` |
-| [getFuturesFundingRate()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L127) |  | GET | `contract/public/funding-rate` |
-| [getFuturesKlines()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L133) |  | GET | `contract/public/kline` |
-| [getFuturesMarkPriceKlines()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L139) |  | GET | `contract/public/markprice-kline` |
-| [getFuturesFundingRateHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L145) |  | GET | `contract/public/funding-rate-history` |
-| [getFuturesAccountAssets()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L162) | :closed_lock_with_key:  | GET | `contract/private/assets-detail` |
-| [getFuturesTradeFeeRate()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L172) | :closed_lock_with_key:  | GET | `contract/private/trade-fee-rate` |
-| [getFuturesAccountOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L182) | :closed_lock_with_key:  | GET | `contract/private/order` |
-| [getFuturesAccountOrderHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L188) | :closed_lock_with_key:  | GET | `contract/private/order-history` |
-| [getFuturesAccountOpenOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L194) | :closed_lock_with_key:  | GET | `contract/private/get-open-orders` |
-| [getFuturesAccountPlanOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L200) | :closed_lock_with_key:  | GET | `contract/private/current-plan-order` |
-| [getFuturesAccountPositions()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L206) | :closed_lock_with_key:  | GET | `contract/private/position` |
-| [getPositionRiskDetails()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L215) | :closed_lock_with_key:  | GET | `contract/private/position-risk` |
-| [getFuturesAccountTrades()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L221) | :closed_lock_with_key:  | GET | `contract/private/trades` |
-| [getFuturesAccountTransactionHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L227) | :closed_lock_with_key:  | GET | `contract/private/transaction-history` |
-| [getFuturesTransfers()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L233) | :closed_lock_with_key:  | GET | `account/v1/transfer-contract-list` |
-| [submitFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L241) | :closed_lock_with_key:  | POST | `contract/private/submit-order` |
-| [cancelFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L247) | :closed_lock_with_key:  | POST | `contract/private/cancel-order` |
-| [cancelAllFuturesOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L253) | :closed_lock_with_key:  | POST | `contract/private/cancel-orders` |
-| [submitFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L259) | :closed_lock_with_key:  | POST | `contract/private/submit-plan-order` |
-| [cancelFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L267) | :closed_lock_with_key:  | POST | `contract/private/cancel-plan-order` |
-| [submitFuturesTransfer()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L273) | :closed_lock_with_key:  | POST | `account/v1/transfer-contract` |
-| [setFuturesLeverage()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L279) | :closed_lock_with_key:  | POST | `contract/private/submit-leverage` |
-| [submitFuturesTPSLOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L285) | :closed_lock_with_key:  | POST | `contract/private/submit-tp-sl-order` |
-| [updateFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L294) | :closed_lock_with_key:  | POST | `contract/private/modify-plan-order` |
-| [updateFuturesPresetPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L302) | :closed_lock_with_key:  | POST | `contract/private/modify-preset-plan-order` |
-| [updateFuturesTPSLOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L315) | :closed_lock_with_key:  | POST | `contract/private/modify-tp-sl-order` |
-| [submitFuturesTrailOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L323) | :closed_lock_with_key:  | POST | `contract/private/submit-trail-order` |
-| [cancelFuturesTrailOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L331) | :closed_lock_with_key:  | POST | `contract/private/cancel-trail-order` |
-| [submitFuturesSubToMainTransferFromMain()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L343) | :closed_lock_with_key:  | POST | `account/contract/sub-account/main/v1/sub-to-main` |
-| [submitFuturesMainToSubTransferFromMain()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L352) | :closed_lock_with_key:  | POST | `account/contract/sub-account/main/v1/main-to-sub` |
-| [submitFuturesSubToMainSubFromSub()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L361) | :closed_lock_with_key:  | POST | `account/contract/sub-account/sub/v1/sub-to-main` |
-| [getFuturesSubWallet()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L370) | :closed_lock_with_key:  | GET | `account/contract/sub-account/main/v1/wallet` |
-| [getFuturesSubTransfers()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L381) | :closed_lock_with_key:  | GET | `account/contract/sub-account/main/v1/transfer-list` |
-| [getFuturesSubTransferHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L390) | :closed_lock_with_key:  | GET | `account/contract/sub-account/v1/transfer-history` |
-| [getFuturesAffiliateRebates()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L405) | :closed_lock_with_key:  | GET | `contract/private/affiliate/rebate-list` |
-| [getFuturesAffiliateTrades()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L411) | :closed_lock_with_key:  | GET | `contract/private/affiliate/trade-list` |
+| [getSystemTime()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L85) |  | GET | `system/time` |
+| [getSystemStatus()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L89) |  | GET | `system/service` |
+| [getFuturesContractDetails()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L110) |  | GET | `contract/public/details` |
+| [getFuturesContractDepth()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L116) |  | GET | `contract/public/depth` |
+| [getFuturesOpenInterest()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L122) |  | GET | `contract/public/open-interest` |
+| [getFuturesFundingRate()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L128) |  | GET | `contract/public/funding-rate` |
+| [getFuturesKlines()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L134) |  | GET | `contract/public/kline` |
+| [getFuturesMarkPriceKlines()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L140) |  | GET | `contract/public/markprice-kline` |
+| [getFuturesFundingRateHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L146) |  | GET | `contract/public/funding-rate-history` |
+| [getFuturesAccountAssets()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L163) | :closed_lock_with_key:  | GET | `contract/private/assets-detail` |
+| [getFuturesTradeFeeRate()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L173) | :closed_lock_with_key:  | GET | `contract/private/trade-fee-rate` |
+| [getFuturesAccountOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L183) | :closed_lock_with_key:  | GET | `contract/private/order` |
+| [getFuturesAccountOrderHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L189) | :closed_lock_with_key:  | GET | `contract/private/order-history` |
+| [getFuturesAccountOpenOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L195) | :closed_lock_with_key:  | GET | `contract/private/get-open-orders` |
+| [getFuturesAccountPlanOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L201) | :closed_lock_with_key:  | GET | `contract/private/current-plan-order` |
+| [getFuturesAccountPositions()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L207) | :closed_lock_with_key:  | GET | `contract/private/position` |
+| [getPositionRiskDetails()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L216) | :closed_lock_with_key:  | GET | `contract/private/position-risk` |
+| [getFuturesAccountTrades()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L222) | :closed_lock_with_key:  | GET | `contract/private/trades` |
+| [getFuturesAccountTransactionHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L228) | :closed_lock_with_key:  | GET | `contract/private/transaction-history` |
+| [getFuturesTransfers()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L234) | :closed_lock_with_key:  | GET | `account/v1/transfer-contract-list` |
+| [submitFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L242) | :closed_lock_with_key:  | POST | `contract/private/submit-order` |
+| [updateFuturesLimitOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L248) | :closed_lock_with_key:  | POST | `contract/private/modify-limit-order` |
+| [cancelFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L257) | :closed_lock_with_key:  | POST | `contract/private/cancel-order` |
+| [cancelAllFuturesOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L263) | :closed_lock_with_key:  | POST | `contract/private/cancel-orders` |
+| [submitFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L269) | :closed_lock_with_key:  | POST | `contract/private/submit-plan-order` |
+| [cancelFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L277) | :closed_lock_with_key:  | POST | `contract/private/cancel-plan-order` |
+| [submitFuturesTransfer()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L283) | :closed_lock_with_key:  | POST | `account/v1/transfer-contract` |
+| [setFuturesLeverage()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L289) | :closed_lock_with_key:  | POST | `contract/private/submit-leverage` |
+| [submitFuturesTPSLOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L295) | :closed_lock_with_key:  | POST | `contract/private/submit-tp-sl-order` |
+| [updateFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L304) | :closed_lock_with_key:  | POST | `contract/private/modify-plan-order` |
+| [updateFuturesPresetPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L312) | :closed_lock_with_key:  | POST | `contract/private/modify-preset-plan-order` |
+| [updateFuturesTPSLOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L325) | :closed_lock_with_key:  | POST | `contract/private/modify-tp-sl-order` |
+| [submitFuturesTrailOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L333) | :closed_lock_with_key:  | POST | `contract/private/submit-trail-order` |
+| [cancelFuturesTrailOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L341) | :closed_lock_with_key:  | POST | `contract/private/cancel-trail-order` |
+| [submitFuturesSubToMainTransferFromMain()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L353) | :closed_lock_with_key:  | POST | `account/contract/sub-account/main/v1/sub-to-main` |
+| [submitFuturesMainToSubTransferFromMain()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L362) | :closed_lock_with_key:  | POST | `account/contract/sub-account/main/v1/main-to-sub` |
+| [submitFuturesSubToMainSubFromSub()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L371) | :closed_lock_with_key:  | POST | `account/contract/sub-account/sub/v1/sub-to-main` |
+| [getFuturesSubWallet()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L380) | :closed_lock_with_key:  | GET | `account/contract/sub-account/main/v1/wallet` |
+| [getFuturesSubTransfers()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L391) | :closed_lock_with_key:  | GET | `account/contract/sub-account/main/v1/transfer-list` |
+| [getFuturesSubTransferHistory()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L400) | :closed_lock_with_key:  | GET | `account/contract/sub-account/v1/transfer-history` |
+| [getFuturesAffiliateRebates()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L415) | :closed_lock_with_key:  | GET | `contract/private/affiliate/rebate-list` |
+| [getFuturesAffiliateTrades()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L421) | :closed_lock_with_key:  | GET | `contract/private/affiliate/trade-list` |

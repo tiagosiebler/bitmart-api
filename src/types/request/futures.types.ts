@@ -68,6 +68,15 @@ export interface SubmitFuturesOrderRequest {
   preset_stop_loss_price_type?: 1 | 2;
   preset_take_profit_price?: string;
   preset_stop_loss_price?: string;
+  stp_mode?: number;
+}
+
+export interface UpdateFuturesLimitOrderRequest {
+  symbol: string;
+  order_id?: number;
+  client_order_id?: string;
+  price?: string;
+  size?: string;
 }
 
 export interface SubmitFuturesPlanOrderRequest {
