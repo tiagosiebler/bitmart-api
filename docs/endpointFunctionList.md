@@ -167,7 +167,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [updateFuturesLimitOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L248) | :closed_lock_with_key:  | POST | `contract/private/modify-limit-order` |
 | [cancelFuturesOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L257) | :closed_lock_with_key:  | POST | `contract/private/cancel-order` |
 | [cancelAllFuturesOrders()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L263) | :closed_lock_with_key:  | POST | `contract/private/cancel-orders` |
-| [cancelAllFuturesOrdersAfterTimeout()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L269) | :closed_lock_with_key:  | POST | `contract/private/cancel-all-after` |
+| [cancelAllFuturesOrdersAfter()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L269) | :closed_lock_with_key:  | POST | `contract/private/cancel-all-after` |
 | [submitFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L275) | :closed_lock_with_key:  | POST | `contract/private/submit-plan-order` |
 | [cancelFuturesPlanOrder()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L283) | :closed_lock_with_key:  | POST | `contract/private/cancel-plan-order` |
 | [submitFuturesTransfer()](https://github.com/tiagosiebler/bitmart-api/blob/master/src/FuturesClientV2.ts#L289) | :closed_lock_with_key:  | POST | `account/v1/transfer-contract` |
