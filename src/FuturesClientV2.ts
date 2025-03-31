@@ -266,6 +266,12 @@ export class FuturesClientV2 extends BaseRestClient {
     return this.postPrivate('contract/private/cancel-orders', params);
   }
 
+  cancelAllFuturesOrderTimed(params: {
+    timeout: number;
+  }): Promise<APIResponse<any>> {
+    return this.postPrivate('contract/private/cancel-all-after', params);
+  }
+
   submitFuturesPlanOrder(params: SubmitFuturesPlanOrderRequest): Promise<
     APIResponse<{
       order_id: number;
