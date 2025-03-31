@@ -12,7 +12,7 @@ const client = new FuturesClientV2({
   apiMemo: 'yourAPIMemoHere',
 });
 
-client.cancelAllFuturesOrderTimed(params)
+client.cancelAllFuturesOrdersAfterTimeout(params)
   .then((response) => {
     console.log(response);
   })
