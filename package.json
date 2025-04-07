@@ -1,6 +1,6 @@
 {
   "name": "bitmart-api",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "description": "Complete & robust Node.js SDK for BitMart's REST APIs and WebSockets, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",

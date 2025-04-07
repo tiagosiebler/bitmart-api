@@ -206,6 +206,7 @@ export class FuturesClientV2 extends BaseRestClient {
 
   getFuturesAccountPositions(params?: {
     symbol?: string;
+    account?: string;
   }): Promise<APIResponse<FuturesAccountPosition[]>> {
     return this.getPrivate('contract/private/position', params);
   }
@@ -215,6 +216,7 @@ export class FuturesClientV2 extends BaseRestClient {
    */
   getPositionRiskDetails(params?: {
     symbol?: string;
+    account?: string;
   }): Promise<APIResponse<PositionRisk[]>> {
     return this.getPrivate('contract/private/position-risk', params);
   }
@@ -268,6 +270,7 @@ export class FuturesClientV2 extends BaseRestClient {
 
   cancelAllFuturesOrdersAfter(params: {
     timeout: number;
+    symbol: string;
   }): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-all-after', params);
   }
