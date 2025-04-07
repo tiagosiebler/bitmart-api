@@ -9,12 +9,14 @@ export interface FuturesAccountOrderRequest {
   symbol: string;
   order_id: string;
   client_order_id?: string;
+  account?: string;
 }
 
 export interface FuturesAccountHistoricOrderRequest {
   symbol: string;
   start_time?: number;
   end_time?: number;
+  account?: string;
 }
 
 export interface FuturesAccountOpenOrdersRequest {
@@ -35,6 +37,7 @@ export interface FuturesAccountTradesRequest {
   symbol: string;
   start_time?: number;
   end_time?: number;
+  account?: string;
 }
 
 export interface FuturesAccountHistoricTransactionRequest {
@@ -43,6 +46,7 @@ export interface FuturesAccountHistoricTransactionRequest {
   start_time?: number;
   end_time?: number;
   page_size?: number;
+  account?: string;
 }
 
 export interface FuturesAccountTransfersRequest {
