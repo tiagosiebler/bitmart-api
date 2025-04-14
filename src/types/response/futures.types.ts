@@ -103,6 +103,7 @@ export interface FuturesAccountOrder extends FuturesOrderBase {
   preset_take_profit_price?: string;
   preset_stop_loss_price?: string;
   account: string;
+  position_mode?: string;
 }
 
 export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
@@ -115,6 +116,7 @@ export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
   activation_price_type?: 1 | 2;
   executive_order_id?: string;
   account?: string;
+  position_mode?: string;
 }
 
 export interface FuturesAccountOpenOrder extends FuturesOrderBase {
@@ -125,6 +127,7 @@ export interface FuturesAccountOpenOrder extends FuturesOrderBase {
   activation_price?: string;
   callback_rate?: string;
   activation_price_type?: 1 | 2;
+  position_mode: string;
 }
 
 export interface FuturesAccountPlanOrders extends FuturesOrderBase {
@@ -135,6 +138,7 @@ export interface FuturesAccountPlanOrders extends FuturesOrderBase {
   price_type: number;
   plan_category: 1 | 2;
   type: 'plan' | 'take_profit' | 'stop_loss';
+  position_mode: string;
 }
 
 export interface FuturesAccountPosition {
@@ -157,6 +161,7 @@ export interface FuturesAccountPosition {
   realized_value: string;
   position_type: 1 | 2;
   account: string;
+  position_mode: string;
 }
 
 export interface PositionRisk {
