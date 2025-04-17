@@ -18,7 +18,7 @@
     "removeComments": false,
     "resolveJsonModule": true,
     "rootDir": "src",
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
