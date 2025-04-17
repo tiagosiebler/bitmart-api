@@ -354,6 +354,24 @@ export class FuturesClientV2 extends BaseRestClient {
   }
 
   /**
+   * Set position mode (hedge_mode or one_way_mode)
+   */
+  setPositionMode(params: {
+    position_mode: 'hedge_mode' | 'one_way_mode';
+  }): Promise<APIResponse<{ position_mode: 'hedge_mode' | 'one_way_mode' }>> {
+    return this.postPrivate('contract/private/set-position-mode', params);
+  }
+
+  /**
+   * Get current position mode
+   */
+  getPositionMode(): Promise<
+    APIResponse<{ position_mode: 'hedge_mode' | 'one_way_mode' }>
+  > {
+    return this.getPrivate('contract/private/get-position-mode');
+  }
+
+  /**
    *
    * Futures Sub-Account Endpoints
    *
