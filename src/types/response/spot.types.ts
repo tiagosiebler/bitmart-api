@@ -289,6 +289,7 @@ export interface SpotTradeBase {
   notional: string;
   createTime: number;
   updateTime: number;
+  cancelSource: string;
 }
 
 export interface SpotOrderV4 extends SpotTradeBase {
