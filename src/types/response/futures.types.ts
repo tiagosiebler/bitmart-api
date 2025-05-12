@@ -164,6 +164,33 @@ export interface FuturesAccountPosition {
   position_mode: string;
 }
 
+export interface FuturesAccountPositionV2 {
+  symbol: string;
+  leverage: string;
+  timestamp: number;
+  current_fee: string;
+  open_timestamp: number;
+  current_value: string;
+  mark_price: string;
+  position_value: string;
+  position_cross: string;
+  maintenance_margin: string;
+  close_vol: string;
+  close_avg_price: string;
+  open_avg_price: string;
+  entry_price: string;
+  current_amount: string;
+  realized_value: string;
+  mark_value: string;
+  account: string;
+  open_type: string;
+  position_side: string;
+  unrealized_pnl: string;
+  liquidation_price: string;
+  max_notional_value: string;
+  initial_margin: string;
+}
+
 export interface PositionRisk {
   symbol: string;
   position_amt: string;
