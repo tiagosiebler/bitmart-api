@@ -40,6 +40,7 @@ import {
   FuturesAccountOrder,
   FuturesAccountPlanOrders,
   FuturesAccountPosition,
+  FuturesAccountPositionV2,
   FuturesAccountSetLeverageResult,
   FuturesAccountSubTransfer,
   FuturesAccountTrade,
@@ -208,6 +209,13 @@ export class FuturesClientV2 extends BaseRestClient {
     symbol?: string;
     account?: string;
   }): Promise<APIResponse<FuturesAccountPosition[]>> {
+    return this.getPrivate('contract/private/position', params);
+  }
+
+  getFuturesAccountPositionsV2(params?: {
+    symbol?: string;
+    account?: string;
+  }): Promise<APIResponse<FuturesAccountPositionV2[]>> {
     return this.getPrivate('contract/private/position', params);
   }
 
