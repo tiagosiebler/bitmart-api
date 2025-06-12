@@ -29,6 +29,8 @@ export interface FuturesContractDetails {
   change_24h: string;
   market_max_volume: string;
   funding_interval_hours: number;
+  delist_time: number;
+  status: string;
 }
 
 export interface FuturesContractDepth {
@@ -65,6 +67,20 @@ export interface FuturesFundingRateHistory {
   symbol: string;
   funding_rate: string;
   funding_time: string;
+}
+
+export interface FuturesLeverageBracket {
+  bracket: number;
+  initial_leverage: number;
+  notional_cap: string;
+  notional_floor: string;
+  maint_margin_ratio: string;
+  cum: string;
+}
+
+export interface FuturesLeverageBracketRule {
+  symbol: string;
+  brackets: FuturesLeverageBracket[];
 }
 
 export interface FuturesAccountAsset {
