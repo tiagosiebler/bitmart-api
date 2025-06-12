@@ -50,6 +50,7 @@ import {
   FuturesFundingRate,
   FuturesFundingRateHistory,
   FuturesKline,
+  FuturesLeverageBracketRule,
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
   FuturesTransferSubmitResult,
@@ -153,6 +154,19 @@ export class FuturesClientV2 extends BaseRestClient {
     }>
   > {
     return this.get('contract/public/funding-rate-history', params);
+  }
+
+  /**
+   * Get current leverage risk limit for a specified contract
+   * @param params Optional parameters including symbol
+   * @returns Promise with leverage bracket information
+   */
+  getFuturesLeverageBracket(params?: { symbol?: string }): Promise<
+    APIResponse<{
+      rules: FuturesLeverageBracketRule[];
+    }>
+  > {
+    return this.get('contract/public/leverage-bracket', params);
   }
 
   /**
