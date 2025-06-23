@@ -51,6 +51,7 @@ import {
   FuturesFundingRateHistory,
   FuturesKline,
   FuturesLeverageBracketRule,
+  FuturesMarketTrade,
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
   FuturesTransferSubmitResult,
@@ -119,6 +120,13 @@ export class FuturesClientV2 extends BaseRestClient {
     symbol: string;
   }): Promise<APIResponse<FuturesContractDepth>> {
     return this.get('contract/public/depth', params);
+  }
+
+  getFuturesMarketTrade(params: {
+    symbol: string;
+    limit?: number; // Default 50; max 100
+  }): Promise<APIResponse<FuturesMarketTrade[]>> {
+    return this.get('contract/public/market-trade', params);
   }
 
   getFuturesOpenInterest(params: {
