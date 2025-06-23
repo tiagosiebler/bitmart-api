@@ -33,6 +33,15 @@ export interface FuturesContractDetails {
   status: string;
 }
 
+export interface FuturesMarketTrade {
+  symbol: string;
+  price: string;
+  qty: string;
+  quote_qty: string;
+  time: number;
+  is_buyer_maker: boolean;
+}
+
 export interface FuturesContractDepth {
   timestamp: number;
   symbol: string;
