@@ -297,6 +297,7 @@ export interface SpotOrderV4 extends SpotTradeBase {
   priceAvg: string;
   filledSize: string;
   filledNotional: string;
+  stpmode: 'none' | 'cancel_maker' | 'cancel_taker' | 'cancel_both';
 }
 
 export interface CancelSpotBatchOrdersV4Response {
@@ -314,6 +315,7 @@ export interface SpotAccountTradeV4 extends SpotTradeBase {
   tradeRole: 'taker' | 'maker';
   orderMode: 'spot' | 'iso_margin';
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+  stpmode: 'none' | 'cancel_maker' | 'cancel_taker' | 'cancel_both';
 }
 
 /**

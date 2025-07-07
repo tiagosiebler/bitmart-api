@@ -46,6 +46,7 @@ export interface SubmitSpotOrderV2Request {
   symbol: string;
   side: 'buy' | 'sell';
   type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+  stpmode?: 'none' | 'cancel_maker' | 'cancel_taker' | 'cancel_both';
   client_order_id?: string;
   size?: string;
   price?: string;
@@ -66,6 +67,7 @@ export interface SubmitSpotBatchOrdersV4Request {
     price?: string;
     side: 'buy' | 'sell';
     type: 'limit' | 'market' | 'limit_maker' | 'ioc';
+    stpmode?: 'none' | 'cancel_maker' | 'cancel_taker' | 'cancel_both';
     notional?: string;
   }[];
   recvWindow?: number;
