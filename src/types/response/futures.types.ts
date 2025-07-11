@@ -133,7 +133,14 @@ export interface FuturesAccountOrder extends FuturesOrderBase {
 
 export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
   price: string;
-  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl' | 'trailing';
+  type:
+    | 'limit'
+    | 'market'
+    | 'liquidate'
+    | 'bankruptcy'
+    | 'adl'
+    | 'trailing'
+    | 'planorder';
   deal_avg_price: string;
   deal_size: string;
   activation_price?: string;
@@ -205,6 +212,7 @@ export interface FuturesAccountPositionV2 {
   open_avg_price: string;
   entry_price: string;
   current_amount: string;
+  position_amount: string;
   realized_value: string;
   mark_value: string;
   account: string;

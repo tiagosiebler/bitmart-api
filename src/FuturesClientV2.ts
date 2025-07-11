@@ -238,7 +238,7 @@ export class FuturesClientV2 extends BaseRestClient {
     symbol?: string;
     account?: string;
   }): Promise<APIResponse<FuturesAccountPositionV2[]>> {
-    return this.getPrivate('contract/private/position', params);
+    return this.getPrivate('contract/private/position-v2', params);
   }
 
   /**
