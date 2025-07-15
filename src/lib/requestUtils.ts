@@ -36,6 +36,18 @@ export interface RestClientOptions {
    * Look in the examples folder for a demonstration on using node's createHmac instead.
    */
   customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
 }
 
 export function serializeParams<T extends Record<string, any> | undefined = {}>(
