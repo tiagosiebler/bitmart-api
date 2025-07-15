@@ -67,6 +67,7 @@ export abstract class BaseWebsocketClient<
   private wsStore: WsStore<TWSKey, TWSTopic>;
 
   protected logger: typeof DefaultLogger;
+
   protected options: WebsocketClientOptions;
 
   constructor(
@@ -93,6 +94,7 @@ export abstract class BaseWebsocketClient<
   ): TWSKey;
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+
   protected abstract isWsPong(data: any): boolean;
 
   protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
@@ -102,7 +104,9 @@ export abstract class BaseWebsocketClient<
   protected abstract isPrivateChannel(subscribeEvent: TWSTopic): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
+
   protected abstract getWsUrl(wsKey: TWSKey): string;
+
   protected abstract getMaxTopicsPerSubscribeEvent(
     wsKey: TWSKey,
   ): number | null;
@@ -395,7 +399,7 @@ export abstract class BaseWebsocketClient<
   /** Get a signature, build the auth request and send it */
   private async sendAuthRequest(wsKey: TWSKey): Promise<void> {
     try {
-      this.logger.info(`Sending auth request...`, {
+      this.logger.info('Sending auth request...', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
@@ -546,7 +550,7 @@ export abstract class BaseWebsocketClient<
    */
   public tryWsSend(wsKey: TWSKey, wsMessage: string) {
     try {
-      this.logger.trace(`Sending upstream ws message: `, {
+      this.logger.trace('Sending upstream ws message: ', {
         ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
@@ -564,7 +568,7 @@ export abstract class BaseWebsocketClient<
       }
       ws.send(wsMessage);
     } catch (e) {
-      this.logger.error(`Failed to send WS message`, {
+      this.logger.error('Failed to send WS message', {
         ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
@@ -624,7 +628,7 @@ export abstract class BaseWebsocketClient<
     );
     this.requestSubscribeTopics(wsKey, publicTopics);
 
-    this.logger.trace(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
+    this.logger.trace('Enabled ping timer', { ...WS_LOGGER_CATEGORY, wsKey });
     this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
       () => this.ping(wsKey),
       this.options.pingInterval,
@@ -689,7 +693,7 @@ export abstract class BaseWebsocketClient<
           }
 
           if (emittable.eventType === 'authenticated') {
-            this.logger.trace(`Successfully authenticated`, {
+            this.logger.trace('Successfully authenticated', {
               ...WS_LOGGER_CATEGORY,
               wsKey,
             });
