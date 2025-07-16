@@ -28,7 +28,11 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/ban-types': 'off',
-    '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always' }],
+    '@typescript-eslint/no-empty-object-type': [
+      'error',
+      { allowObjectTypes: 'always' },
+    ],
+    'no-param-reassign': ['error'],
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'array-bracket-spacing': ['error', 'never'],
