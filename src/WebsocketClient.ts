@@ -199,7 +199,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         eventType: 'exception',
       });
 
-      this.logger.error(`Failed to parse event data due to exception: `, {
+      this.logger.error('Failed to parse event data due to exception: ', {
         exception: e,
         eventData: event.data,
       });
@@ -301,7 +301,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         return 20;
       }
       default: {
-        throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
+        throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled wsKey');
       }
     }
   }
@@ -420,7 +420,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       !this.options.apiMemo
     ) {
       throw new Error(
-        `Cannot auth - missing api key, secret or memo in config`,
+        'Cannot auth - missing api key, secret or memo in config',
       );
     }
 
