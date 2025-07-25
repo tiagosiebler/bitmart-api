@@ -216,6 +216,22 @@ File: src/lib/misc-util.ts
 export function neverGuard(x: never, msg: string): Error
 
 ================
+File: src/lib/webCryptoAPI.ts
+================
+import { neverGuard } from './misc-util.js';
+⋮----
+function bufferToB64(buffer: ArrayBuffer): string
+⋮----
+/**
+ * Sign a message, with a secret, using the Web Crypto API
+ */
+export async function signMessage(
+  message: string,
+  secret: string,
+  method: 'hex' | 'base64',
+): Promise<string>
+
+================
 File: src/types/websockets/client.ts
 ================
 /**
@@ -941,22 +957,6 @@ deleteTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
 // Check if we're subscribed to a topic like this
 
 ================
-File: src/lib/webCryptoAPI.ts
-================
-import { neverGuard } from './misc-util.js';
-⋮----
-function bufferToB64(buffer: ArrayBuffer): string
-⋮----
-/**
- * Sign a message, with a secret, using the Web Crypto API
- */
-export async function signMessage(
-  message: string,
-  secret: string,
-  method: 'hex' | 'base64',
-): Promise<string>
-
-================
 File: src/types/response/shared.types.ts
 ================
 export interface APIResponse<TData = {}, TCode = number> {
@@ -1335,41 +1335,9 @@ File: src/index.ts
 
 
 ================
-File: tsconfig.json
+File: .eslintrc.cjs
 ================
-{
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "noEmitOnError": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": false,
-    "inlineSourceMap": false,
-    "lib": ["esnext"],
-    "listEmittedFiles": false,
-    "listFiles": false,
-    "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noUnusedParameters": true,
-    "pretty": true,
-    "removeComments": false,
-    "resolveJsonModule": true,
-    "rootDir": "src",
-    "skipLibCheck": false,
-    "sourceMap": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "types": ["node", "jest"],
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-    "target": "esnext"
-  },
-  "compileOnSave": true,
-  "exclude": ["node_modules", "dist", "test"],
-  "include": ["src/**/*.*", ".eslintrc.cjs"]
-}
+// 'no-unused-vars': ['warn'],
 
 ================
 File: src/lib/websocket/websocket-util.ts
@@ -1893,11 +1861,6 @@ private getWs(wsKey: TWSKey)
 private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
 
 ================
-File: .eslintrc.cjs
-================
-// 'no-unused-vars': ['warn'],
-
-================
 File: src/WebsocketClient.ts
 ================
 import WebSocket from 'isomorphic-ws';
@@ -2046,6 +2009,43 @@ private getMarketForTopic(topic: string): WsMarket
 private arrangeTopicsIntoWsKeyGroups(
     topics: WsTopic[],
 ): Record<WsKey, WsTopic[]>
+
+================
+File: tsconfig.json
+================
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "noEmitOnError": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": false,
+    "inlineSourceMap": false,
+    "lib": ["esnext"],
+    "listEmittedFiles": false,
+    "listFiles": false,
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "removeComments": false,
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "skipLibCheck": false,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "types": ["node", "jest"],
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext"
+  },
+  "compileOnSave": true,
+  "exclude": ["node_modules", "dist", "test"],
+  "include": ["src/**/*.*", ".eslintrc.cjs"]
+}
 
 ================
 File: src/types/response/spot.types.ts
@@ -3063,15 +3063,57 @@ File: README.md
 
 Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 
-- Complete integration with all BitMart APIs. Full support for Futures V2 domain.
-- TypeScript support (with type declarations for most API requests & responses)
+- Professional, robust & performant BitMart SDK with extensive production use in live trading environments.
+- Complete integration with all BitMart APIs and domains.
+  - Spot trading APIs via RestClient
+  - Full support for Futures V2 domain via FuturesClientV2
+  - Unified WebSocket client for all markets
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
+- Actively maintained with a modern, promise-driven interface.
 - Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
-- Browser-friendly HMAC signature mechanism.
+  - Event driven messaging.
+  - Smart WebSocket persistence with automatic reconnection handling.
+  - Emit `reconnected` event when dropped connection is restored.
+  - Support for both public and private WebSocket streams.
+- Browser-friendly HMAC signature mechanism with Web Crypto API support.
 - Automatically supports both ESM and CJS projects.
+- Custom HMAC signing support for enhanced performance.
+- Heavy automated end-to-end testing with real API calls.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Usage](#usage)
+  - [REST API Clients](#rest-apis)
+    - [Spot & Margin APIs](#spot--margin-apis)
+    - [Futures V2 APIs](#futures-v2-apis)
+  - [WebSocket Client](#websocket)
+    - [Public Streams](#public-websocket-streams)
+    - [Private Streams](#private-websocket-streams)
+  - [Configuration Options](#configuration-options)
+    - [Recv Window](#recv-window)
+    - [Custom Sign](#custom-sign)
+- [Related Projects](#related-projects)
+- [Structure](#structure)
+- [LLMs & AI](#use-with-llms--ai)
+- [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
 
 `npm install --save bitmart-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos, including:
+
+- **REST API Examples**: spot trading, futures trading, account management
+- **WebSocket Examples**: public data streams, private account streams, custom logging
+- **Advanced Features**: custom HMAC signing, error handling
 
 ## Issues & Discussion
 
@@ -3081,145 +3123,285 @@ Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 
 ## Usage
 
-Most methods pass values as-is into HTTP requests. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
+Create API credentials on BitMart's website if you plan to use private endpoints or place trades.
+
+Most methods accept JS objects. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
+
+### Documentation Links
 
 - [BitMart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
 - [BitMart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
 - [REST Endpoint Function List](./docs/endpointFunctionList.md)
 
-### REST APIs
+## REST APIs
 
-- Create API credentials within your account on BitMart's website, if you haven't done so already.
-- Import/require the module
-- Create an instance of the REST client
-- Call the function corresponding to the API call and handle the returned promise.
+There are two main REST API clients depending on the market you're trading:
+
+1. `RestClient` - for spot trading, margin, and general account operations
+2. `FuturesClientV2` - dedicated client for USD-M futures trading (uses V2 domain)
+
+### Spot & Margin APIs
+
+Use the `RestClient` for spot trading, margin trading, and general account operations.
 
 ```typescript
-const { RestClient, FuturesClientV2 } = require('bitmart-api');
+import { RestClient } from 'bitmart-api';
+// or if you prefer require:
+// const { RestClient } = require('bitmart-api');
+
+const API_KEY = 'yourAPIKeyHere';
+const API_SECRET = 'yourAPISecretHere';
+const API_MEMO = 'yourAPIMemoHere';
 
 const client = new RestClient({
-  apiKey: 'yourAPIKeyHere',
-  apiSecret: 'yourAPISecretHere',
-  apiMemo: 'yourAPIMemoHere',
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
 });
 
+// For public endpoints, API credentials are optional
+// const client = new RestClient();
+
+// Get account balances
 client
   .getAccountBalancesV1()
   .then((result) => {
-    console.log('getAccountBalancesV1 result: ', result);
+    console.log('Account balances: ', result);
   })
   .catch((err) => {
-    console.error('getAccountBalancesV1 error: ', err);
+    console.error('Error: ', err);
   });
 
-// For futures, use the FuturesClientV2 - it's mapped to the new V2 futures sub domain
-const futuresV2Client = new FuturesClientV2({
-  apiKey: 'yourAPIKeyHere',
-  apiSecret: 'yourAPISecretHere',
-  apiMemo: 'yourAPIMemoHere',
-});
+// Submit a spot order
+client
+  .submitSpotOrderV2({
+    symbol: 'BTC_USDT',
+    side: 'buy',
+    type: 'limit',
+    size: '0.001',
+    price: '30000',
+  })
+  .then((result) => {
+    console.log('Order submitted: ', result);
+  })
+  .catch((err) => {
+    console.error('Order error: ', err);
+  });
 
-const balances = await futuresV2Client.getFuturesAccountAssets();
-
-console.log('Balances: ', JSON.stringify(balances, null, 2));
+// Get spot candlestick data
+client
+  .getSpotKlinesV3({
+    symbol: 'BTC_USDT',
+    step: 60, // 1 minute
+    from: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
+    to: Math.floor(Date.now() / 1000),
+  })
+  .then((result) => {
+    console.log('Klines: ', result);
+  })
+  .catch((err) => {
+    console.error('Klines error: ', err);
+  });
 ```
 
-### WebSocket
+### Futures V2 APIs
 
-- All available WebSockets can be used via a shared WebsocketClient
-- Simple instructions are below, for more examples check [examples](./examples)
+Use the `FuturesClientV2` for USD-M futures trading. This client connects to BitMart's V2 futures domain.
 
 ```typescript
-// create websocket client
-// If public client, doesn't need API keys
-const client = new WebsocketClient();
+import { FuturesClientV2 } from 'bitmart-api';
+// or if you prefer require:
+// const { FuturesClientV2 } = require('bitmart-api');
 
-// If private client, needs API keys
-const client = new WebsocketClient({
-  apiKey: 'yourAPIKeyHere',
-  apiSecret: 'yourAPISecretHere',
-  apiMemo: 'yourAPIMemoHere',
+const futuresClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
 });
 
-client.on('open', (data) => {
-  console.log('connected ', data?.wsKey);
+// Get futures account assets
+try {
+  const balances = await futuresClient.getFuturesAccountAssets();
+  console.log('Futures balances: ', JSON.stringify(balances, null, 2));
+} catch (error) {
+  console.error('Error getting balances: ', error);
+}
+
+// Submit a futures order
+futuresClient
+  .submitFuturesOrder({
+    symbol: 'BTCUSDT',
+    side: 'buy',
+    type: 'limit',
+    size: '0.001',
+    price: '30000',
+    leverage: '10',
+  })
+  .then((result) => {
+    console.log('Futures order submitted: ', result);
+  })
+  .catch((err) => {
+    console.error('Futures order error: ', err);
+  });
+```
+
+## WebSocket
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams, with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for both public and private data streams
+- Unified client for spot and futures markets
+
+### Public WebSocket Streams
+
+For public data streams, API credentials are not required:
+
+```typescript
+import { WebsocketClient } from 'bitmart-api';
+// or if you prefer require:
+// const { WebsocketClient } = require('bitmart-api');
+
+// Create WebSocket client for public streams
+const wsClient = new WebsocketClient();
+
+// Set up event handlers
+wsClient.on('open', (data) => {
+  console.log('WebSocket connected: ', data?.wsKey);
 });
 
-// Data received
-client.on('update', (data) => {
-  console.info('data received: ', JSON.stringify(data));
+wsClient.on('update', (data) => {
+  console.log('Data received: ', JSON.stringify(data, null, 2));
 });
 
-// Something happened, attempting to reconenct
-client.on('reconnect', (data) => {
-  console.log('reconnect: ', data);
+wsClient.on('reconnected', (data) => {
+  console.log('WebSocket reconnected: ', data);
 });
 
-// Reconnect successful
-client.on('reconnected', (data) => {
-  console.log('reconnected: ', data);
+wsClient.on('exception', (data) => {
+  console.error('WebSocket error: ', data);
 });
 
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-client.on('close', (data) => {
-  console.error('close: ', data);
-});
+// Subscribe to public data streams
 
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-client.on('response', (data) => {
-  console.info('response: ', data);
-});
+// Spot market ticker
+wsClient.subscribe('spot/ticker:BTC_USDT', 'spot');
 
-client.on('exception', (data) => {
-  console.error('exception: ', data);
-});
+// Spot market depth
+wsClient.subscribe('spot/depth20:BTC_USDT', 'spot');
 
-client.on('authenticated', (data) => {
-  console.error('authenticated: ', data);
-});
+// Futures market ticker
+wsClient.subscribe('futures/ticker', 'futures');
 
-// subscribing to topics
+// Futures market depth
+wsClient.subscribe('futures/depth20:BTCUSDT', 'futures');
 
-// Spot User Orders
-client.subscribe('spot/user/order:BTC_USDT', 'spot');
+// Futures trades
+wsClient.subscribe('futures/trade:BTCUSDT', 'futures');
 
-// Ticker Channel
-// client.subscribe('futures/ticker', 'futures');
-
-// Depth Channel
-// client.subscribe('futures/depth20:BTCUSDT', 'futures');
-
-// Trade Channel
-// client.subscribe('futures/trade:BTCUSDT', 'futures');
-
-// KlineBin Channel
-// client.subscribe('futures/klineBin1m:BTCUSDT', 'futures');
-
-// Or have multiple topics in one array:
-client.subscribe(
+// Multiple futures kline subscriptions
+wsClient.subscribe(
   [
     'futures/klineBin1m:BTCUSDT',
     'futures/klineBin1m:ETHUSDT',
-    'futures/klineBin1m:XRPUSDT',
-    'futures/klineBin1m:BMXUSDT',
-    'futures/klineBin1m:SOLUSDT',
+    'futures/klineBin5m:BTCUSDT',
+    'futures/klineBin1h:ETHUSDT',
   ],
   'futures',
 );
 ```
 
+### Private WebSocket Streams
+
+For private account data streams, API credentials are required:
+
+```typescript
+import { WebsocketClient } from 'bitmart-api';
+
+// Create WebSocket client with API credentials for private streams
+const wsClient = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+});
+
+// Set up event handlers
+wsClient.on('open', (data) => {
+  console.log('Private WebSocket connected: ', data?.wsKey);
+});
+
+wsClient.on('update', (data) => {
+  console.log('Private data received: ', JSON.stringify(data, null, 2));
+});
+
+wsClient.on('authenticated', (data) => {
+  console.log('WebSocket authenticated: ', data);
+});
+
+wsClient.on('response', (data) => {
+  console.log('WebSocket response: ', data);
+});
+
+wsClient.on('exception', (data) => {
+  console.error('WebSocket error: ', data);
+});
+
+// Subscribe to private data streams
+
+// Spot account orders
+wsClient.subscribe('spot/user/order:BTC_USDT', 'spot');
+
+// Spot account balance updates
+wsClient.subscribe('spot/user/balance:USDT', 'spot');
+
+// Futures account orders
+wsClient.subscribe('futures/user/order:BTCUSDT', 'futures');
+
+// Futures account positions
+wsClient.subscribe('futures/user/position:BTCUSDT', 'futures');
+```
+
+For more comprehensive examples, including custom logging and error handling, check the [examples](./examples) folder.
+
+## Configuration Options
+
 ### Recv Window
 
-This can be set two levels:
+The receive window parameter determines how long an API request is valid. This can be configured at two levels:
 
-- Per method: if provided in a method, will be used instead of the global default
-- Global default: this will apply by default to any api call that supports recvWindow, if no recvWindow is provided in the method call.
+- **Per method**: If provided in a method call, will be used instead of the global default
+- **Global default**: Applied by default to any API call that supports recvWindow, if no recvWindow is provided in the method call
+
+```typescript
+// Set global receive window during client initialization
+const client = new RestClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  recvWindow: 10000, // 10 seconds global default
+});
+
+// Override receive window for specific method calls
+client.getAccountBalancesV1({ recvWindow: 5000 }); // 5 seconds for this call
+```
 
 ### Custom Sign
 
-Authentication involves HMAC signing on the request, using API credentials. Internally, this SDK uses the Web Crypto API. The REST client also supports injecting a custom sign function, should you wish to use an alternative (such as node's native & faster createHmac).
+Authentication involves HMAC signing on requests using API credentials. Internally, this SDK uses the Web Crypto API for browser compatibility. The REST client also supports injecting a custom sign function if you wish to use an alternative (such as Node.js's native & faster `createHmac`).
 
-Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a demonstration.
+
+Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a complete demonstration.
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
 
 ---
 
@@ -4409,7 +4591,7 @@ File: package.json
 ================
 {
   "name": "bitmart-api",
-  "version": "2.1.24",
+  "version": "2.1.26",
   "description": "Complete & robust Node.js SDK for BitMart's REST APIs and WebSockets, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -4429,7 +4611,8 @@ File: package.json
   },
   "type": "module",
   "files": [
-    "dist/*"
+    "dist/*",
+    "llms.txt"
   ],
   "author": "Tiago Siebler (https://github.com/tiagosiebler)",
   "contributors": [
