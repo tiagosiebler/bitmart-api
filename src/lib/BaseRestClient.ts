@@ -8,7 +8,7 @@ import {
   RestClientOptions,
   serializeParams,
 } from './requestUtils.js';
-import { signMessage } from './webCryptoAPI.js';
+import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
 
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Memo are ALL required to use the authenticated REST client';
@@ -166,6 +166,18 @@ export abstract class BaseRestClient {
       credentials.some((v) => typeof v === 'string')
     ) {
       throw new Error(MISSING_API_KEYS_ERROR);
+    }
+
+    // Check Web Crypto API support when credentials are provided and no custom sign function is used
+    if (
+      this.apiKey &&
+      this.apiSecret &&
+      this.apiMemo &&
+      !this.options.customSignMessageFn
+    ) {
+      // Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
+      // A few users have been caught out by using the end-of-life Node.js v18 release.
+      checkWebCryptoAPISupported();
     }
   }
 

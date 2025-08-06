@@ -8,6 +8,7 @@ import {
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
 import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
 import { safeTerminateWs } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
 import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
@@ -86,6 +87,18 @@ export abstract class BaseWebsocketClient<
       recvWindow: 0,
       ...options,
     };
+
+    // Check Web Crypto API support when credentials are provided and no custom sign function is used
+    if (
+      this.options.apiKey &&
+      this.options.apiSecret &&
+      this.options.apiMemo &&
+      !this.options.customSignMessageFn
+    ) {
+      // Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
+      // A few users have been caught out by using the end-of-life Node.js v18 release.
+      checkWebCryptoAPISupported();
+    }
   }
 
   protected abstract getWsKeyForMarket(
