@@ -752,7 +752,12 @@ export abstract class BaseWebsocketClient<
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
       this.emit('reconnect', { wsKey, event });
     } else {
+      // intentional close - clean up
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
+
+      // This was an intentional close, delete all state for this connection, as if it never existed:
+      this.wsStore.delete(wsKey);
+
       this.emit('close', { wsKey, event });
     }
   }
