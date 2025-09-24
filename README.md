@@ -149,7 +149,7 @@ client
 
 // Get spot candlestick data
 client
-  .getSpotKlinesV3({
+  .getSpotHistoryKlineV3({
     symbol: 'BTC_USDT',
     step: 60, // 1 minute
     from: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
