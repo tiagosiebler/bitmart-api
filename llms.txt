@@ -112,6 +112,49 @@ Files
 ================================================================
 
 ================
+File: examples/fasterHmacSign.ts
+================
+import { createHmac } from 'crypto';
+⋮----
+import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+/**
+   * Overkill in almost every case, but if you need any optimisation available,
+   * you can inject a faster sign mechanism such as node's native createHmac:
+   */
+⋮----
+async function getSpotBalances()
+
+================
+File: examples/futures-get-balances.ts
+================
+import { FuturesClientV2 } from '../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesAssets()
+
+================
+File: examples/futures-get-klines.ts
+================
+import { FuturesClientV2 } from '../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesKlines()
+
+================
+File: examples/futures-get-tickers.ts
+================
+import { FuturesClientV2 } from '../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesTickers()
+
+================
 File: examples/README.md
 ================
 # Bitmart API Examples Node.js
@@ -133,6 +176,61 @@ API_KEY="apiKeyHere" API_SECRET="secretHere" API_MEMO="memoHere" ts-node example
 ```
 
 ================
+File: examples/spot-get-balances.ts
+================
+import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+async function getSpotBalances()
+
+================
+File: examples/spot-get-klines.ts
+================
+import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+async function getKlines()
+
+================
+File: examples/spot-get-symbols.ts
+================
+import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+async function getTickers()
+
+================
+File: examples/spot-submit-order.ts
+================
+import { RestClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+async function start()
+⋮----
+// const usdValue = 6;
+// const price = 52000;
+// const qty = usdValue / price;
+⋮----
+// const limitBuyOrder = {
+//   symbol: 'BTC_USDT',
+//   side: 'buy',
+//   type: 'limit',
+//   size: String(qty),
+//   price: String(price),
+// };
+⋮----
+// const res = await client.submitSpotOrder({
+//   symbol: 'BTC_USDT',
+//   side: 'buy',
+//   type: 'market',
+//   size: String(qty),
+// });
+
+================
 File: examples/tsconfig.examples.json
 ================
 {
@@ -145,6 +243,180 @@ File: examples/tsconfig.examples.json
   },
   "include": ["../src/**/*.*", "../examples/**/*.*"]
 }
+
+================
+File: examples/ws-custom-logger.ts
+================
+import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
+⋮----
+/** Optional, implement a custom logger */
+⋮----
+async function start()
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+//
+
+================
+File: examples/ws-futures-private.ts
+================
+import { DefaultLogger, LogParams, WebsocketClient } from '../src/index.js';
+⋮----
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
+⋮----
+async function start()
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// Assets Channel
+⋮----
+// Position Channel
+// client.subscribe('futures/position', 'futures');
+⋮----
+// Order Channel
+// client.subscribe('futures/order', 'futures');
+
+================
+File: examples/ws-futures-public.ts
+================
+import { WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { WebsocketClient } from 'bitmart-api';
+⋮----
+async function start()
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// Ticker Channel
+// client.subscribe('futures/ticker', 'futures');
+⋮----
+// Depth Channel
+// client.subscribe('futures/depth20:BTCUSDT', 'futures');
+⋮----
+// Trade Channel
+// client.subscribe('futures/trade:BTCUSDT', 'futures');
+⋮----
+// KlineBin Channel
+// client.subscribe('futures/klineBin1m:BTCUSDT', 'futures');
+⋮----
+// Or have multiple topics in one array:
+
+================
+File: examples/ws-spot-private.ts
+================
+import { LogParams, WebsocketClient } from '../src';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { LogParams, WebsocketClient } from 'bitmart-api';
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+async function start()
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// order progress
+⋮----
+// balance updates
+// client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
+
+================
+File: examples/ws-spot-public.ts
+================
+import {
+  WebsocketClient,
+  // WsSpotOperation,
+} from '../src';
+⋮----
+// WsSpotOperation,
+⋮----
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { WebsocketClient } from 'bitmart-api';
+⋮----
+async function start()
+⋮----
+// Some topics allow requests, here's an example for sending a request
+// const wsKey = 'spotPublicV1';
+// if (data?.wsKey === wsKey) {
+//   const depthIncreaseDataRequest: WsSpotOperation = {
+//     op: 'request',
+//     args: ['spot/depth/increase100:BTC_USDT'],
+//   };
+⋮----
+//   client.tryWsSend(
+//     'spotPublicV1',
+//     JSON.stringify(depthIncreaseDataRequest),
+//   );
+// }
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+/**
+     * Use the client subscribe(topic, market) pattern to subscribe to any websocket topic.
+     *
+     * You can subscribe to topics one at a time:
+     */
+⋮----
+// Ticker Channel
+// client.subscribe('spot/ticker:BTC_USDT', 'spot');
+⋮----
+// KLine/Candles Channel
+// client.subscribe('spot/kline1m:BTC_USDT', 'spot');
+⋮----
+// Depth-All Channel
+// client.subscribe('spot/depth5:BTC_USDT', 'spot');
+⋮----
+// Depth-Increase Channel
+// client.subscribe('spot/depth/increase100:BTC_USDT', 'spot');
+⋮----
+// Trade Channel
+// client.subscribe('spot/trade:BTC_USDT', 'spot');
+⋮----
+/**
+     * Or have multiple topics in one array, in a single request:
+     */
 
 ================
 File: src/lib/websocket/WsStore.types.ts
@@ -214,24 +486,6 @@ export type LogParams = null | any;
 File: src/lib/misc-util.ts
 ================
 export function neverGuard(x: never, msg: string): Error
-
-================
-File: src/lib/webCryptoAPI.ts
-================
-import { neverGuard } from './misc-util.js';
-⋮----
-function bufferToB64(buffer: ArrayBuffer): string
-⋮----
-/**
- * Sign a message, with a secret, using the Web Crypto API
- */
-export async function signMessage(
-  message: string,
-  secret: string,
-  method: 'hex' | 'base64',
-): Promise<string>
-⋮----
-export function checkWebCryptoAPISupported()
 
 ================
 File: src/types/websockets/client.ts
@@ -348,6 +602,11 @@ export interface WsFuturesOperation<TWSTopic extends string> {
 export type WsRequestOperation<TWSTopic extends string> =
   | WsSpotOperation<TWSTopic>
   | WsFuturesOperation<TWSTopic>;
+
+================
+File: src/index.ts
+================
+
 
 ================
 File: .prettierrc
@@ -627,248 +886,15 @@ File: tsconfig.linting.json
 }
 
 ================
-File: examples/fasterHmacSign.ts
-================
-import { createHmac } from 'crypto';
-⋮----
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-/**
-   * Overkill in almost every case, but if you need any optimisation available,
-   * you can inject a faster sign mechanism such as node's native createHmac:
-   */
-⋮----
-async function getSpotBalances()
-
-================
-File: examples/futures-get-balances.ts
+File: examples/futures-submit-order.ts
 ================
 import { FuturesClientV2 } from '../src/index.js';
 // // import from npm, after installing via npm `npm install bitmart-api`
 // import { FuturesClientV2 } from 'bitmart-api';
 ⋮----
-async function getFuturesAssets()
-
-================
-File: examples/futures-get-klines.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
+async function SumbitFuturesOrder()
 ⋮----
-async function getFuturesKlines()
-
-================
-File: examples/futures-get-tickers.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
-⋮----
-async function getFuturesTickers()
-
-================
-File: examples/spot-get-balances.ts
-================
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-async function getSpotBalances()
-
-================
-File: examples/spot-get-klines.ts
-================
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-async function getKlines()
-
-================
-File: examples/spot-get-symbols.ts
-================
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-async function getTickers()
-
-================
-File: examples/spot-submit-order.ts
-================
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-async function start()
-⋮----
-// const usdValue = 6;
-// const price = 52000;
-// const qty = usdValue / price;
-⋮----
-// const limitBuyOrder = {
-//   symbol: 'BTC_USDT',
-//   side: 'buy',
-//   type: 'limit',
-//   size: String(qty),
-//   price: String(price),
-// };
-⋮----
-// const res = await client.submitSpotOrder({
-//   symbol: 'BTC_USDT',
-//   side: 'buy',
-//   type: 'market',
-//   size: String(qty),
-// });
-
-================
-File: examples/ws-custom-logger.ts
-================
-import { DefaultLogger, LogParams, WebsocketClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
-⋮----
-/** Optional, implement a custom logger */
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-//
-
-================
-File: examples/ws-futures-public.ts
-================
-import { WebsocketClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { WebsocketClient } from 'bitmart-api';
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// Ticker Channel
-// client.subscribe('futures/ticker', 'futures');
-⋮----
-// Depth Channel
-// client.subscribe('futures/depth20:BTCUSDT', 'futures');
-⋮----
-// Trade Channel
-// client.subscribe('futures/trade:BTCUSDT', 'futures');
-⋮----
-// KlineBin Channel
-// client.subscribe('futures/klineBin1m:BTCUSDT', 'futures');
-⋮----
-// Or have multiple topics in one array:
-
-================
-File: examples/ws-spot-private.ts
-================
-import { LogParams, WebsocketClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { LogParams, WebsocketClient } from 'bitmart-api';
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// order progress
-⋮----
-// balance updates
-// client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
-
-================
-File: examples/ws-spot-public.ts
-================
-import {
-  WebsocketClient,
-  // WsSpotOperation,
-} from '../src';
-⋮----
-// WsSpotOperation,
-⋮----
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { WebsocketClient } from 'bitmart-api';
-⋮----
-async function start()
-⋮----
-// Some topics allow requests, here's an example for sending a request
-// const wsKey = 'spotPublicV1';
-// if (data?.wsKey === wsKey) {
-//   const depthIncreaseDataRequest: WsSpotOperation = {
-//     op: 'request',
-//     args: ['spot/depth/increase100:BTC_USDT'],
-//   };
-⋮----
-//   client.tryWsSend(
-//     'spotPublicV1',
-//     JSON.stringify(depthIncreaseDataRequest),
-//   );
-// }
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-/**
-     * Use the client subscribe(topic, market) pattern to subscribe to any websocket topic.
-     *
-     * You can subscribe to topics one at a time:
-     */
-⋮----
-// Ticker Channel
-// client.subscribe('spot/ticker:BTC_USDT', 'spot');
-⋮----
-// KLine/Candles Channel
-// client.subscribe('spot/kline1m:BTC_USDT', 'spot');
-⋮----
-// Depth-All Channel
-// client.subscribe('spot/depth5:BTC_USDT', 'spot');
-⋮----
-// Depth-Increase Channel
-// client.subscribe('spot/depth/increase100:BTC_USDT', 'spot');
-⋮----
-// Trade Channel
-// client.subscribe('spot/trade:BTC_USDT', 'spot');
-⋮----
-/**
-     * Or have multiple topics in one array, in a single request:
-     */
+side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
 
 ================
 File: src/lib/websocket/WsStore.ts
@@ -1073,6 +1099,24 @@ export interface MessageEventLike {
 export function isMessageEvent(msg: unknown): msg is MessageEventLike
 
 ================
+File: src/lib/webCryptoAPI.ts
+================
+import { neverGuard } from './misc-util.js';
+⋮----
+function bufferToB64(buffer: ArrayBuffer): string
+⋮----
+/**
+ * Sign a message, with a secret, using the Web Crypto API
+ */
+export async function signMessage(
+  message: string,
+  secret: string,
+  method: 'hex' | 'base64',
+): Promise<string>
+⋮----
+export function checkWebCryptoAPISupported()
+
+================
 File: src/types/response/shared.types.ts
 ================
 export interface APIResponse<TData = {}, TCode = number> {
@@ -1096,234 +1140,46 @@ export interface AccountCurrencyBalanceV1 {
 }
 
 ================
-File: src/index.ts
-================
-
-
-================
 File: .nvmrc
 ================
 v22.17.1
 
 ================
-File: examples/futures-submit-order.ts
+File: src/lib/websocket/websocket-util.ts
 ================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
+import WebSocket from 'isomorphic-ws';
 ⋮----
-async function SumbitFuturesOrder()
+/** Should be one WS key per unique URL */
 ⋮----
-side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
-
-================
-File: examples/ws-futures-private.ts
-================
-import { DefaultLogger, LogParams, WebsocketClient } from '../src/index.js';
-⋮----
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// Assets Channel
-⋮----
-// Position Channel
-// client.subscribe('futures/position', 'futures');
-⋮----
-// Order Channel
-// client.subscribe('futures/order', 'futures');
-
-================
-File: src/lib/BaseRestClient.ts
-================
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import https from 'https';
-⋮----
-import { neverGuard } from './misc-util.js';
-import {
-  APIID,
-  getRestBaseUrl,
-  RestClientOptions,
-  serializeParams,
-} from './requestUtils.js';
-import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
+/** This is used to differentiate between each of the available websocket streams */
+export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 ⋮----
 /**
- * Used to switch how authentication/requests work under the hood
+ * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
+ * Examples:
+ *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
+ *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
+ *  - Only one livenet, no other networks: NetworkMap<'livenet'>
  */
+type NetworkMap<
+  TRequiredKeys extends string,
+  TOptionalKeys extends string | undefined = undefined,
+> = Record<TRequiredKeys, string> &
+  (TOptionalKeys extends string
+    ? Record<TOptionalKeys, string | undefined>
+    : Record<TRequiredKeys, string>);
 ⋮----
-export type RestClientType =
-  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
-⋮----
-interface SignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign?: T & { sign: string };
-  serializedParams: string;
-  sign: string;
-  queryParamsWithSign: string;
-  timestamp: number;
-  recvWindow: number;
-}
-⋮----
-interface UnsignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign: T;
-}
-⋮----
-type SignMethod = 'bitmart';
+export function neverGuard(x: never, msg: string): Error
 ⋮----
 /**
- * Enables:
- * - Detailed request/response logging
- * - Full request dump in any exceptions thrown from API responses
+ * ws.terminate() is undefined in browsers.
+ * This only works in node.js, not in browsers.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
  */
-⋮----
-// request: {
-//   url: response.config.url,
-//   method: response.config.method,
-//   data: response.config.data,
-//   headers: response.config.headers,
-// },
-⋮----
-export abstract class BaseRestClient
-⋮----
-/** Defines the client type (affecting how requests & signatures behave) */
-abstract getClientType(): RestClientType;
-⋮----
-/**
-   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
-   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
-   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
-   */
-constructor(
-    restClientOptions: RestClientOptions = {},
-    networkOptions: AxiosRequestConfig = {},
-)
-⋮----
-/** Throw errors if any request params are empty */
-⋮----
-/** in ms == 5 minutes by default */
-⋮----
-/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
-⋮----
-// If enabled, configure a https agent with keepAlive enabled
-⋮----
-// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
-⋮----
-// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
-// parameter to define a custom httpsAgent with the desired properties
-⋮----
-// Throw if one of the 3 values is missing, but at least one of them is set
-⋮----
-// Check Web Crypto API support when credentials are provided and no custom sign function is used
-⋮----
-// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
-// A few users have been caught out by using the end-of-life Node.js v18 release.
-⋮----
-/**
-   * Timestamp used to sign the request. Override this method to implement your own timestamp/sync mechanism
-   */
-getSignTimestampMs(): number
-⋮----
-get(endpoint: string, params?: any)
-⋮----
-post(endpoint: string, params?: any)
-⋮----
-getPrivate(endpoint: string, params?: any)
-⋮----
-postPrivate(endpoint: string, params?: any)
-⋮----
-deletePrivate(endpoint: string, params?: any)
-⋮----
-/**
-   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
-   */
-private async _call(
-    method: Method,
-    endpoint: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<any>
-⋮----
-// Sanity check to make sure it's only ever prefixed by one forward slash
-⋮----
-// Build a request and handle signature process
-⋮----
-// Dispatch request
-⋮----
-// Throw API rejections by parsing the response code from the body
-⋮----
-/**
-   * @private generic handler to parse request exceptions
-   */
-parseException(e: any, request: AxiosRequestConfig<any>): unknown
-⋮----
-// Something happened in setting up the request that triggered an error
-⋮----
-// request made but no response received
-⋮----
-// The request was made and the server responded with a status code
-// that falls out of the range of 2xx
-⋮----
-// console.error('err: ', response?.data);
-⋮----
-// Prevent credentials from leaking into error messages
-⋮----
-/**
-   * @private sign request and set recv window
-   */
-private async signRequest<T extends object | undefined = {}>(
-    data: T,
-    _endpoint: string,
-    method: Method,
-    signMethod: SignMethod,
-): Promise<SignedRequest<T>>
-⋮----
-// It's possible to override the recv window on a per rquest level
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: true,
-  ): Promise<UnsignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: false | undefined,
-  ): Promise<SignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: boolean,
-)
-⋮----
-/** Returns an axios request object. Handles signing process automatically if this is a private API call */
-private async buildRequest(
-    method: Method,
-    endpoint: string,
-    url: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<AxiosRequestConfig>
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean
 
 ================
 File: src/types/request/spot.types.ts
@@ -1518,362 +1374,6 @@ export interface SpotBrokerRebateRequest {
 }
 
 ================
-File: .eslintrc.cjs
-================
-// 'no-unused-vars': ['warn'],
-
-================
-File: src/lib/websocket/websocket-util.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-/** Should be one WS key per unique URL */
-⋮----
-/** This is used to differentiate between each of the available websocket streams */
-export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
-⋮----
-/**
- * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
- * Examples:
- *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
- *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
- *  - Only one livenet, no other networks: NetworkMap<'livenet'>
- */
-type NetworkMap<
-  TRequiredKeys extends string,
-  TOptionalKeys extends string | undefined = undefined,
-> = Record<TRequiredKeys, string> &
-  (TOptionalKeys extends string
-    ? Record<TOptionalKeys, string | undefined>
-    : Record<TRequiredKeys, string>);
-⋮----
-export function neverGuard(x: never, msg: string): Error
-⋮----
-/**
- * ws.terminate() is undefined in browsers.
- * This only works in node.js, not in browsers.
- * Does nothing if `ws` is undefined. Does nothing in browsers.
- */
-export function safeTerminateWs(
-  ws?: WebSocket | any,
-  fallbackToClose?: boolean,
-): boolean
-
-================
-File: src/lib/BaseWSClient.ts
-================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-} from '../types/websockets/client.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { DefaultLogger } from './logger.js';
-import { isMessageEvent, MessageEventLike } from './requestUtils.js';
-import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
-import { safeTerminateWs } from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
-}
-⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-/** Reconnecting a dropped connection */
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType: 'response' | 'update' | 'exception' | 'authenticated';
-  event: TEvent;
-}
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSMarket extends string,
-  TWSKey extends string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSTopic = any,
-> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-}
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-TWSMarket extends string,
-⋮----
-/**
-   * The "topic" being subscribed to, not the event sent to subscribe to one or more topics
-   */
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
-)
-⋮----
-// Check Web Crypto API support when credentials are provided and no custom sign function is used
-⋮----
-// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
-// A few users have been caught out by using the end-of-life Node.js v18 release.
-⋮----
-protected abstract getWsKeyForMarket(
-    market: TWSMarket,
-    isPrivate?: boolean,
-  ): TWSKey;
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
-⋮----
-protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
-⋮----
-protected abstract isPrivateChannel(subscribeEvent: TWSTopic): boolean;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): string;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
-   */
-protected abstract getWsSubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
-   */
-protected abstract getWsUnsubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
-⋮----
-/**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
-   */
-protected abstract resolveEmittableEvents(
-    event: MessageEventLike,
-  ): EmittableEvent[];
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-abstract connectAll(): Promise<WebSocket | undefined>[];
-⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsTopics array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-public subscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       * Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-public unsubscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-   */
-public subscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivate?: boolean,
-)
-⋮----
-// Persist this topic to the expected topics list
-⋮----
-// if connected, send subscription request
-⋮----
-// if not authenticated, dont sub to private topics yet.
-// This'll happen automatically once authenticated
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-/**
-   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-   */
-public unsubscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivateTopic?: boolean,
-)
-⋮----
-// unsubscribe request only necessary if active connection exists
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, TWSTopic>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-protected async connect(wsKey: TWSKey): Promise<WebSocket | undefined>
-⋮----
-const url = this.getWsUrl(wsKey); // + authParams;
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(wsKey: TWSKey): Promise<void>
-⋮----
-// console.log('ws auth req', request);
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private requestSubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private requestUnsubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(wsKey: TWSKey, wsMessage: string)
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-private async onWsOpen(event: any, wsKey: TWSKey)
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-// Private topics will be resubscribed to once reconnected
-⋮----
-/** Handle subscription to private topics _after_ authentication successfully completes asynchronously */
-private onWsAuthenticated(wsKey: TWSKey)
-⋮----
-private onWsMessage(event: unknown, wsKey: TWSKey)
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
-
-================
 File: src/WebsocketClient.ts
 ================
 import WebSocket from 'isomorphic-ws';
@@ -2022,6 +1522,192 @@ private getMarketForTopic(topic: string): WsMarket
 private arrangeTopicsIntoWsKeyGroups(
     topics: WsTopic[],
 ): Record<WsKey, WsTopic[]>
+
+================
+File: .eslintrc.cjs
+================
+// 'no-unused-vars': ['warn'],
+
+================
+File: src/lib/BaseRestClient.ts
+================
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+import https from 'https';
+⋮----
+import { neverGuard } from './misc-util.js';
+import {
+  APIID,
+  getRestBaseUrl,
+  RestClientOptions,
+  serializeParams,
+} from './requestUtils.js';
+import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
+⋮----
+/**
+ * Used to switch how authentication/requests work under the hood
+ */
+⋮----
+export type RestClientType =
+  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
+⋮----
+interface SignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign?: T & { sign: string };
+  serializedParams: string;
+  sign: string;
+  queryParamsWithSign: string;
+  timestamp: number;
+  recvWindow: number;
+}
+⋮----
+interface UnsignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign: T;
+}
+⋮----
+type SignMethod = 'bitmart';
+⋮----
+/**
+ * Enables:
+ * - Detailed request/response logging
+ * - Full request dump in any exceptions thrown from API responses
+ */
+⋮----
+// request: {
+//   url: response.config.url,
+//   method: response.config.method,
+//   data: response.config.data,
+//   headers: response.config.headers,
+// },
+⋮----
+export abstract class BaseRestClient
+⋮----
+/** Defines the client type (affecting how requests & signatures behave) */
+abstract getClientType(): RestClientType;
+⋮----
+/**
+   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
+   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
+   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
+   */
+constructor(
+    restClientOptions: RestClientOptions = {},
+    networkOptions: AxiosRequestConfig = {},
+)
+⋮----
+/** Throw errors if any request params are empty */
+⋮----
+/** in ms == 5 minutes by default */
+⋮----
+/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
+⋮----
+// If enabled, configure a https agent with keepAlive enabled
+⋮----
+// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
+⋮----
+// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
+// parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Throw if one of the 3 values is missing, but at least one of them is set
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
+// A few users have been caught out by using the end-of-life Node.js v18 release.
+⋮----
+/**
+   * Timestamp used to sign the request. Override this method to implement your own timestamp/sync mechanism
+   */
+getSignTimestampMs(): number
+⋮----
+get(endpoint: string, params?: any)
+⋮----
+post(endpoint: string, params?: any)
+⋮----
+getPrivate(endpoint: string, params?: any)
+⋮----
+postPrivate(endpoint: string, params?: any)
+⋮----
+deletePrivate(endpoint: string, params?: any)
+⋮----
+/**
+   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
+   */
+private async _call(
+    method: Method,
+    endpoint: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<any>
+⋮----
+// Sanity check to make sure it's only ever prefixed by one forward slash
+⋮----
+// Build a request and handle signature process
+⋮----
+// Dispatch request
+⋮----
+// Throw API rejections by parsing the response code from the body
+⋮----
+/**
+   * @private generic handler to parse request exceptions
+   */
+parseException(e: any, request: AxiosRequestConfig<any>): unknown
+⋮----
+// Something happened in setting up the request that triggered an error
+⋮----
+// request made but no response received
+⋮----
+// The request was made and the server responded with a status code
+// that falls out of the range of 2xx
+⋮----
+// console.error('err: ', response?.data);
+⋮----
+// Prevent credentials from leaking into error messages
+⋮----
+/**
+   * @private sign request and set recv window
+   */
+private async signRequest<T extends object | undefined = {}>(
+    data: T,
+    _endpoint: string,
+    method: Method,
+    signMethod: SignMethod,
+): Promise<SignedRequest<T>>
+⋮----
+// It's possible to override the recv window on a per rquest level
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: true,
+  ): Promise<UnsignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: false | undefined,
+  ): Promise<SignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: boolean,
+)
+⋮----
+/** Returns an axios request object. Handles signing process automatically if this is a private API call */
+private async buildRequest(
+    method: Method,
+    endpoint: string,
+    url: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<AxiosRequestConfig>
 
 ================
 File: tsconfig.json
@@ -2488,566 +2174,6 @@ export interface SpotBrokerRebateResult {
   rebates: {
     [date: string]: SpotBrokerRebateRow[];
   };
-}
-
-================
-File: .gitignore
-================
-spot-private-test.ts
-node_modules
-futures-private-test.ts
-signTest.ts
-privaterepotracker
-restClientRegex.ts
-testfile.ts
-dist
-repomix.sh
-
-================
-File: src/types/request/futures.types.ts
-================
-export interface FuturesKlinesRequest {
-  symbol: string;
-  start_time: number;
-  end_time: number;
-  step?: number;
-}
-⋮----
-export interface FuturesAccountOrderRequest {
-  symbol: string;
-  order_id: string;
-  client_order_id?: string;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountHistoricOrderRequest {
-  symbol: string;
-  start_time?: number;
-  end_time?: number;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountOpenOrdersRequest {
-  symbol?: string;
-  type?: 'limit' | 'market' | 'trailing';
-  order_state?: 'all' | 'partially_filled';
-  limit?: number;
-}
-⋮----
-export interface FuturesAccountPlanOrdersRequest {
-  symbol?: string;
-  type?: 'limit' | 'market';
-  limit?: number;
-  plan_type?: 'plan' | 'profit_loss';
-}
-⋮----
-export interface FuturesAccountTradesRequest {
-  symbol: string;
-  start_time?: number;
-  end_time?: number;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountHistoricTransactionRequest {
-  symbol?: string;
-  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
-  start_time?: number;
-  end_time?: number;
-  page_size?: number;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountTransfersRequest {
-  currency?: string;
-  time_start?: number;
-  time_end?: number;
-  page: number;
-  limit: number;
-  recvWindow?: number;
-}
-⋮----
-export interface SubmitFuturesOrderRequest {
-  symbol: string;
-  client_order_id?: string;
-  side: 1 | 2 | 3 | 4;
-  mode?: 1 | 2 | 3 | 4;
-  type?: 'limit' | 'market';
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  size: number;
-  price?: string;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-  stp_mode?: number;
-}
-⋮----
-export interface UpdateFuturesLimitOrderRequest {
-  symbol: string;
-  order_id?: number;
-  client_order_id?: string;
-  price?: string;
-  size?: string;
-}
-⋮----
-export interface SubmitFuturesPlanOrderRequest {
-  symbol: string;
-  type?: 'limit' | 'market' | 'take_profit' | 'stop_loss';
-  side: 1 | 2 | 3 | 4;
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  mode?: 1 | 2 | 3 | 4;
-  size: number;
-  trigger_price: string;
-  executive_price?: string;
-  price_way: 1 | 2;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-}
-⋮----
-export interface SubmitFuturesTransferRequest {
-  currency: string; // Only USDT is supported
-  amount: string; // Transfer amount, allowed range[0.01,10000000000]
-  type: 'spot_to_contract' | 'contract_to_spot';
-  recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
-}
-⋮----
-currency: string; // Only USDT is supported
-amount: string; // Transfer amount, allowed range[0.01,10000000000]
-⋮----
-recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
-⋮----
-export interface SetFuturesLeverageRequest {
-  symbol: string; // Symbol of the contract(like BTCUSDT)
-  leverage?: string; // Order leverage
-  open_type: 'cross' | 'isolated'; // Open type, required at close position
-}
-⋮----
-symbol: string; // Symbol of the contract(like BTCUSDT)
-leverage?: string; // Order leverage
-open_type: 'cross' | 'isolated'; // Open type, required at close position
-⋮----
-export interface TransferFuturesAssetsRequest {
-  requestNo: string; // UUID, unique identifier, max length 64
-  amount: string; // Transfer amount
-  currency: 'USDT'; // Currently only USDT is supported
-  subAccount: string; // Sub-Account username
-}
-⋮----
-requestNo: string; // UUID, unique identifier, max length 64
-amount: string; // Transfer amount
-currency: 'USDT'; // Currently only USDT is supported
-subAccount: string; // Sub-Account username
-⋮----
-export interface SubmitFuturesSubToMainSubFromSubRequest {
-  requestNo: string; // UUID, unique identifier, max length 64
-  amount: string; // Transfer amount
-  currency: 'USDT'; // Currently only USDT is supported
-}
-⋮----
-requestNo: string; // UUID, unique identifier, max length 64
-amount: string; // Transfer amount
-currency: 'USDT'; // Currently only USDT is supported
-⋮----
-export interface FuturesSubWalletRequest {
-  subAccount: string; // Sub-Account username
-  currency?: string; // Currency is optional
-}
-⋮----
-subAccount: string; // Sub-Account username
-currency?: string; // Currency is optional
-⋮----
-export interface FuturesSubTransfersRequest {
-  subAccount: string;
-  limit: number; // Range [1,100]
-}
-⋮----
-limit: number; // Range [1,100]
-⋮----
-export interface FuturesAffiliateRebatesRequest {
-  user_id?: number;
-  page: number;
-  size: number;
-  currency: string;
-  rebate_start_time?: number;
-  rebate_end_time?: number;
-  register_start_time?: number;
-  register_end_time?: number;
-}
-⋮----
-export interface FuturesAffiliateTradesRequest {
-  user_id?: number;
-  page: number;
-  type: 1 | 2;
-  size: number;
-  start_time: number;
-  end_time: number;
-}
-⋮----
-export interface SubmitFuturesTPSLOrderRequest {
-  symbol: string;
-  type: 'take_profit' | 'stop_loss';
-  side: 2 | 3;
-  size?: number;
-  trigger_price: string;
-  executive_price: string;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  client_order_id?: string;
-  category?: 'limit' | 'market';
-}
-⋮----
-export interface UpdateFuturesPlanOrderRequest {
-  symbol: string;
-  order_id?: string;
-  trigger_price: string;
-  executive_price?: string;
-  price_type: 1 | 2;
-  type: 'limit' | 'market';
-}
-⋮----
-export interface UpdateFuturesPresetPlanOrderRequest {
-  order_id: string;
-  symbol: string;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-}
-⋮----
-export interface UpdateFuturesTPSLOrderRequest {
-  symbol: string;
-  order_id?: string;
-  client_order_id?: string;
-  trigger_price: string;
-  executive_price?: string;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  category?: 'limit' | 'market';
-}
-⋮----
-export interface SubmitFuturesTrailOrderRequest {
-  symbol: string;
-  side: 1 | 2 | 3 | 4;
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  size: number;
-  activation_price: string;
-  callback_rate: string;
-  activation_price_type: 1 | 2;
-}
-
-================
-File: src/types/response/futures.types.ts
-================
-export type FuturesMarginType = 'cross' | 'isolated';
-⋮----
-export interface FuturesContractDetails {
-  symbol: string;
-  product_type: number;
-  open_timestamp: number;
-  expire_timestamp: number;
-  settle_timestamp: number;
-  base_currency: string;
-  quote_currency: string;
-  last_price: string;
-  volume_24h: string;
-  turnover_24h: string;
-  index_price: string;
-  index_name: string;
-  contract_size: string;
-  min_leverage: string;
-  max_leverage: string;
-  price_precision: string;
-  vol_precision: string;
-  max_volume: string;
-  min_volume: string;
-  funding_rate: string;
-  expected_funding_rate: string;
-  open_interest: string;
-  open_interest_value: string;
-  high_24h: string;
-  low_24h: string;
-  change_24h: string;
-  market_max_volume: string;
-  funding_interval_hours: number;
-  delist_time: number;
-  status: string;
-}
-⋮----
-export interface FuturesMarketTrade {
-  symbol: string;
-  price: string;
-  qty: string;
-  quote_qty: string;
-  time: number;
-  is_buyer_maker: boolean;
-}
-⋮----
-export interface FuturesContractDepth {
-  timestamp: number;
-  symbol: string;
-  asks: [string, string, string][];
-  bids: [string, string, string][];
-}
-⋮----
-export interface FuturesOpenInterest {
-  timestamp: number;
-  symbol: string;
-  open_interest: string;
-  open_interest_value: string;
-}
-⋮----
-export interface FuturesFundingRate {
-  timestamp: number;
-  symbol: string;
-  rate_value: string;
-  expected_rate: string;
-}
-⋮----
-export interface FuturesKline {
-  timestamp: number;
-  open_price: string;
-  close_price: string;
-  high_price: string;
-  low_price: string;
-  volume: string;
-}
-⋮----
-export interface FuturesFundingRateHistory {
-  symbol: string;
-  funding_rate: string;
-  funding_time: string;
-}
-⋮----
-export interface FuturesLeverageBracket {
-  bracket: number;
-  initial_leverage: number;
-  notional_cap: string;
-  notional_floor: string;
-  maint_margin_ratio: string;
-  cum: string;
-}
-⋮----
-export interface FuturesLeverageBracketRule {
-  symbol: string;
-  brackets: FuturesLeverageBracket[];
-}
-⋮----
-export interface FuturesAccountAsset {
-  currency: string;
-  position_deposit: string;
-  frozen_balance: string;
-  available_balance: string;
-  equity: string;
-  unrealized: string;
-}
-⋮----
-export interface FuturesOrderBase {
-  order_id: string;
-  client_order_id: string;
-  size: string;
-  symbol: string;
-  state: 1 | 2 | 4;
-  side: 1 | 2 | 3 | 4;
-  leverage: string;
-  open_type: FuturesMarginType;
-  create_time: number;
-  update_time: number;
-}
-⋮----
-export interface FuturesAccountOrder extends FuturesOrderBase {
-  price: string;
-  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl';
-  deal_avg_price: string;
-  deal_size: string;
-  activation_price?: string;
-  callback_rate?: string;
-  activation_price_type?: 1 | 2;
-  executive_order_id?: string;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-  account: string;
-  position_mode?: string;
-}
-⋮----
-export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
-  price: string;
-  type:
-    | 'limit'
-    | 'market'
-    | 'liquidate'
-    | 'bankruptcy'
-    | 'adl'
-    | 'trailing'
-    | 'planorder';
-  deal_avg_price: string;
-  deal_size: string;
-  activation_price?: string;
-  callback_rate?: string;
-  activation_price_type?: 1 | 2;
-  executive_order_id?: string;
-  account?: string;
-  position_mode?: string;
-}
-⋮----
-export interface FuturesAccountOpenOrder extends FuturesOrderBase {
-  price: string;
-  type: 'limit' | 'market' | 'trailing';
-  deal_avg_price: string;
-  deal_size: string;
-  activation_price?: string;
-  callback_rate?: string;
-  activation_price_type?: 1 | 2;
-  position_mode: string;
-}
-⋮----
-export interface FuturesAccountPlanOrders extends FuturesOrderBase {
-  executive_price: string;
-  trigger_price: string;
-  mode: number;
-  price_way: number;
-  price_type: number;
-  plan_category: 1 | 2;
-  type: 'plan' | 'take_profit' | 'stop_loss';
-  position_mode: string;
-}
-⋮----
-export interface FuturesAccountPosition {
-  timestamp: number;
-  symbol: string;
-  leverage: string;
-  current_fee: string;
-  open_timestamp: number;
-  current_value: string;
-  mark_price: string;
-  position_value: string;
-  position_cross: string;
-  maintenance_margin: string;
-  close_vol: string;
-  close_avg_price: string;
-  open_avg_price: string;
-  entry_price: string;
-  current_amount: string;
-  unrealized_value: string;
-  realized_value: string;
-  position_type: 1 | 2;
-  account: string;
-  position_mode: string;
-}
-⋮----
-export interface FuturesAccountPositionV2 {
-  symbol: string;
-  leverage: string;
-  timestamp: number;
-  current_fee: string;
-  open_timestamp: number;
-  current_value: string;
-  mark_price: string;
-  position_value: string;
-  position_cross: string;
-  maintenance_margin: string;
-  close_vol: string;
-  close_avg_price: string;
-  open_avg_price: string;
-  entry_price: string;
-  current_amount: string;
-  position_amount: string;
-  realized_value: string;
-  mark_value: string;
-  account: string;
-  open_type: string;
-  position_side: string;
-  unrealized_pnl: string;
-  liquidation_price: string;
-  max_notional_value: string;
-  initial_margin: string;
-}
-⋮----
-export interface PositionRisk {
-  symbol: string;
-  position_amt: string;
-  mark_price: string;
-  unrealized_profit: string;
-  liquidation_price: string;
-  leverage: string;
-  max_notional_value: string;
-  margin_type: 'Cross' | 'Isolated';
-  isolated_margin: string;
-  position_side: 'Long' | 'Short';
-  notional: string;
-  update_time: number;
-  account: string;
-}
-⋮----
-export interface FuturesAccountTrade {
-  order_id: string;
-  trade_id: string;
-  symbol: string;
-  side: 1 | 2 | 3 | 4;
-  price: string;
-  vol: string;
-  exec_type: 'Taker' | 'Maker';
-  profit: boolean;
-  realised_profit: string;
-  paid_fees: string;
-  create_time: number;
-  account: string;
-}
-⋮----
-export interface FuturesAccountHistoricTransaction {
-  symbol: string;
-  type: string;
-  amount: string;
-  asset: string;
-  time: string;
-  tran_id: string;
-  account: string;
-}
-⋮----
-export interface FuturesAccountTransfer {
-  transfer_id: string;
-  currency: string;
-  amount: string;
-  type: 'spot_to_contract' | 'contract_to_spot';
-  state: 'PROCESSING' | 'FINISHED' | 'FAILED';
-  timestamp: number;
-}
-⋮----
-export interface FuturesOrderSubmitResult {
-  order_id: number;
-  price: string;
-}
-⋮----
-export interface FuturesTransferSubmitResult {
-  currency: string;
-  amount: string;
-}
-⋮----
-export interface FuturesAccountSetLeverageResult {
-  symbol: string;
-  leverage: string;
-  open_type: FuturesMarginType;
-  max_value: string; // Maximum leverage
-}
-⋮----
-max_value: string; // Maximum leverage
-⋮----
-export interface FuturesAccountSubTransfer {
-  fromAccount: string;
-  toAccount: string;
-  toWalletType: 'future';
-  fromWalletType: 'future';
-  currency: string;
-  amount: string;
-  submissionTime: number;
 }
 
 ================
@@ -3775,6 +2901,576 @@ getBrokerRebate(
 ): Promise<APIResponse<SpotBrokerRebateResult>>
 
 ================
+File: .gitignore
+================
+spot-private-test.ts
+node_modules
+futures-private-test.ts
+signTest.ts
+privaterepotracker
+restClientRegex.ts
+testfile.ts
+dist
+repomix.sh
+
+================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+} from '../types/websockets/client.js';
+import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { DefaultLogger } from './logger.js';
+import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import { safeTerminateWs } from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Reconnecting a dropped connection */
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (response: any & { wsKey: WsKey }) => void;
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+  exception: (response: any & { wsKey: WsKey }) => void;
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+/** Reconnecting a dropped connection */
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+export interface EmittableEvent<TEvent = any> {
+  eventType: 'response' | 'update' | 'exception' | 'authenticated';
+  event: TEvent;
+}
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TWSMarket extends string,
+  TWSKey extends string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TWSTopic = any,
+> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+TWSMarket extends string,
+⋮----
+/**
+   * The "topic" being subscribed to, not the event sent to subscribe to one or more topics
+   */
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions,
+    logger?: typeof DefaultLogger,
+)
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
+// A few users have been caught out by using the end-of-life Node.js v18 release.
+⋮----
+protected abstract getWsKeyForMarket(
+    market: TWSMarket,
+    isPrivate?: boolean,
+  ): TWSKey;
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
+⋮----
+protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
+⋮----
+protected abstract isPrivateChannel(subscribeEvent: TWSTopic): boolean;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): string;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
+   */
+protected abstract getWsSubscribeEventsForTopics(
+    topics: TWSTopic[],
+    wsKey: TWSKey,
+  ): string[];
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
+   */
+protected abstract getWsUnsubscribeEventsForTopics(
+    topics: TWSTopic[],
+    wsKey: TWSKey,
+  ): string[];
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+abstract connectAll(): Promise<WebSocket | undefined>[];
+⋮----
+protected isPrivateWsKey(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsTopics array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+public subscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       * Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+public unsubscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+public subscribe(
+    wsTopics: TWSTopic[] | TWSTopic,
+    market: TWSMarket,
+    isPrivate?: boolean,
+)
+⋮----
+// Persist this topic to the expected topics list
+⋮----
+// if connected, send subscription request
+⋮----
+// if not authenticated, dont sub to private topics yet.
+// This'll happen automatically once authenticated
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+/**
+   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+public unsubscribe(
+    wsTopics: TWSTopic[] | TWSTopic,
+    market: TWSMarket,
+    isPrivateTopic?: boolean,
+)
+⋮----
+// unsubscribe request only necessary if active connection exists
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, TWSTopic>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+protected async connect(wsKey: TWSKey): Promise<WebSocket | undefined>
+⋮----
+const url = this.getWsUrl(wsKey); // + authParams;
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(wsKey: TWSKey): Promise<void>
+⋮----
+// console.log('ws auth req', request);
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private requestSubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private requestUnsubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(wsKey: TWSKey, wsMessage: string)
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+private async onWsOpen(event: any, wsKey: TWSKey)
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+// Private topics will be resubscribed to once reconnected
+⋮----
+/** Handle subscription to private topics _after_ authentication successfully completes asynchronously */
+private onWsAuthenticated(wsKey: TWSKey)
+⋮----
+private onWsMessage(event: unknown, wsKey: TWSKey)
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// intentional close - clean up
+⋮----
+// This was an intentional close, delete all state for this connection, as if it never existed:
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+
+================
+File: src/types/request/futures.types.ts
+================
+export interface FuturesKlinesRequest {
+  symbol: string;
+  start_time: number;
+  end_time: number;
+  step?: number;
+}
+⋮----
+export interface FuturesAccountOrderRequest {
+  symbol: string;
+  order_id: string;
+  client_order_id?: string;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountHistoricOrderRequest {
+  symbol: string;
+  start_time?: number;
+  end_time?: number;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountOpenOrdersRequest {
+  symbol?: string;
+  type?: 'limit' | 'market' | 'trailing';
+  order_state?: 'all' | 'partially_filled';
+  limit?: number;
+}
+⋮----
+export interface FuturesAccountPlanOrdersRequest {
+  symbol?: string;
+  type?: 'limit' | 'market';
+  limit?: number;
+  plan_type?: 'plan' | 'profit_loss';
+}
+⋮----
+export interface FuturesAccountTradesRequest {
+  symbol: string;
+  start_time?: number;
+  end_time?: number;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountHistoricTransactionRequest {
+  symbol?: string;
+  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
+  start_time?: number;
+  end_time?: number;
+  page_size?: number;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountTransfersRequest {
+  currency?: string;
+  time_start?: number;
+  time_end?: number;
+  page: number;
+  limit: number;
+  recvWindow?: number;
+}
+⋮----
+export interface SubmitFuturesOrderRequest {
+  symbol: string;
+  client_order_id?: string;
+  side: 1 | 2 | 3 | 4;
+  mode?: 1 | 2 | 3 | 4;
+  type?: 'limit' | 'market';
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  size: number;
+  price?: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+  stp_mode?: number;
+}
+⋮----
+export interface UpdateFuturesLimitOrderRequest {
+  symbol: string;
+  order_id?: number;
+  client_order_id?: string;
+  price?: string;
+  size?: string;
+}
+⋮----
+export interface SubmitFuturesPlanOrderRequest {
+  symbol: string;
+  type?: 'limit' | 'market' | 'take_profit' | 'stop_loss';
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  mode?: 1 | 2 | 3 | 4;
+  size: number;
+  trigger_price: string;
+  executive_price?: string;
+  price_way: 1 | 2;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+⋮----
+export interface SubmitFuturesTransferRequest {
+  currency: string; // Only USDT is supported
+  amount: string; // Transfer amount, allowed range[0.01,10000000000]
+  type: 'spot_to_contract' | 'contract_to_spot';
+  recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
+}
+⋮----
+currency: string; // Only USDT is supported
+amount: string; // Transfer amount, allowed range[0.01,10000000000]
+⋮----
+recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
+⋮----
+export interface SetFuturesLeverageRequest {
+  symbol: string; // Symbol of the contract(like BTCUSDT)
+  leverage?: string; // Order leverage
+  open_type: 'cross' | 'isolated'; // Open type, required at close position
+}
+⋮----
+symbol: string; // Symbol of the contract(like BTCUSDT)
+leverage?: string; // Order leverage
+open_type: 'cross' | 'isolated'; // Open type, required at close position
+⋮----
+export interface TransferFuturesAssetsRequest {
+  requestNo: string; // UUID, unique identifier, max length 64
+  amount: string; // Transfer amount
+  currency: 'USDT'; // Currently only USDT is supported
+  subAccount: string; // Sub-Account username
+}
+⋮----
+requestNo: string; // UUID, unique identifier, max length 64
+amount: string; // Transfer amount
+currency: 'USDT'; // Currently only USDT is supported
+subAccount: string; // Sub-Account username
+⋮----
+export interface SubmitFuturesSubToMainSubFromSubRequest {
+  requestNo: string; // UUID, unique identifier, max length 64
+  amount: string; // Transfer amount
+  currency: 'USDT'; // Currently only USDT is supported
+}
+⋮----
+requestNo: string; // UUID, unique identifier, max length 64
+amount: string; // Transfer amount
+currency: 'USDT'; // Currently only USDT is supported
+⋮----
+export interface FuturesSubWalletRequest {
+  subAccount: string; // Sub-Account username
+  currency?: string; // Currency is optional
+}
+⋮----
+subAccount: string; // Sub-Account username
+currency?: string; // Currency is optional
+⋮----
+export interface FuturesSubTransfersRequest {
+  subAccount: string;
+  limit: number; // Range [1,100]
+}
+⋮----
+limit: number; // Range [1,100]
+⋮----
+export interface FuturesAffiliateRebatesRequest {
+  user_id?: number;
+  page: number;
+  size: number;
+  currency: string;
+  rebate_start_time?: number;
+  rebate_end_time?: number;
+  register_start_time?: number;
+  register_end_time?: number;
+}
+⋮----
+export interface FuturesAffiliateTradesRequest {
+  user_id?: number;
+  page: number;
+  type: 1 | 2;
+  size: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface SubmitFuturesTPSLOrderRequest {
+  symbol: string;
+  type: 'take_profit' | 'stop_loss';
+  side: 2 | 3;
+  size?: number;
+  trigger_price: string;
+  executive_price: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  client_order_id?: string;
+  category?: 'limit' | 'market';
+}
+⋮----
+export interface UpdateFuturesPlanOrderRequest {
+  symbol: string;
+  order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  type: 'limit' | 'market';
+}
+⋮----
+export interface UpdateFuturesPresetPlanOrderRequest {
+  order_id: string;
+  symbol: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+⋮----
+export interface UpdateFuturesTPSLOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  category?: 'limit' | 'market';
+}
+⋮----
+export interface SubmitFuturesTrailOrderRequest {
+  symbol: string;
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  size: number;
+  activation_price: string;
+  callback_rate: string;
+  activation_price_type: 1 | 2;
+}
+
+================
 File: README.md
 ================
 # Node.js & JavaScript SDK for BitMart REST API & WebSockets
@@ -3928,7 +3624,7 @@ client
 
 // Get spot candlestick data
 client
-  .getSpotKlinesV3({
+  .getSpotHistoryKlineV3({
     symbol: 'BTC_USDT',
     step: 60, // 1 minute
     from: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
@@ -4216,6 +3912,314 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 [![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
 
 <!-- template_star_history_end -->
+
+================
+File: src/types/response/futures.types.ts
+================
+export type FuturesMarginType = 'cross' | 'isolated';
+⋮----
+export interface FuturesContractDetails {
+  symbol: string;
+  product_type: number;
+  open_timestamp: number;
+  expire_timestamp: number;
+  settle_timestamp: number;
+  base_currency: string;
+  quote_currency: string;
+  last_price: string;
+  volume_24h: string;
+  turnover_24h: string;
+  index_price: string;
+  index_name: string;
+  contract_size: string;
+  min_leverage: string;
+  max_leverage: string;
+  price_precision: string;
+  vol_precision: string;
+  max_volume: string;
+  min_volume: string;
+  funding_rate: string;
+  expected_funding_rate: string;
+  open_interest: string;
+  open_interest_value: string;
+  high_24h: string;
+  low_24h: string;
+  change_24h: string;
+  market_max_volume: string;
+  funding_interval_hours: number;
+  delist_time: number;
+  status: string;
+}
+⋮----
+export interface FuturesMarketTrade {
+  symbol: string;
+  price: string;
+  qty: string;
+  quote_qty: string;
+  time: number;
+  is_buyer_maker: boolean;
+}
+⋮----
+export interface FuturesContractDepth {
+  timestamp: number;
+  symbol: string;
+  asks: [string, string, string][];
+  bids: [string, string, string][];
+}
+⋮----
+export interface FuturesOpenInterest {
+  timestamp: number;
+  symbol: string;
+  open_interest: string;
+  open_interest_value: string;
+}
+⋮----
+export interface FuturesFundingRate {
+  timestamp: number;
+  symbol: string;
+  rate_value: string;
+  expected_rate: string;
+}
+⋮----
+export interface FuturesKline {
+  timestamp: number;
+  open_price: string;
+  close_price: string;
+  high_price: string;
+  low_price: string;
+  volume: string;
+}
+⋮----
+export interface FuturesFundingRateHistory {
+  symbol: string;
+  funding_rate: string;
+  funding_time: string;
+}
+⋮----
+export interface FuturesLeverageBracket {
+  bracket: number;
+  initial_leverage: number;
+  notional_cap: string;
+  notional_floor: string;
+  maint_margin_ratio: string;
+  cum: string;
+}
+⋮----
+export interface FuturesLeverageBracketRule {
+  symbol: string;
+  brackets: FuturesLeverageBracket[];
+}
+⋮----
+export interface FuturesAccountAsset {
+  currency: string;
+  position_deposit: string;
+  frozen_balance: string;
+  available_balance: string;
+  equity: string;
+  unrealized: string;
+}
+⋮----
+export interface FuturesOrderBase {
+  order_id: string;
+  client_order_id: string;
+  size: string;
+  symbol: string;
+  state: 1 | 2 | 4;
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: FuturesMarginType;
+  create_time: number;
+  update_time: number;
+}
+⋮----
+export interface FuturesAccountOrder extends FuturesOrderBase {
+  price: string;
+  type: 'limit' | 'market' | 'liquidate' | 'bankruptcy' | 'adl';
+  deal_avg_price: string;
+  deal_size: string;
+  activation_price?: string;
+  callback_rate?: string;
+  activation_price_type?: 1 | 2;
+  executive_order_id?: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+  account: string;
+  position_mode?: string;
+}
+⋮----
+export interface FuturesAccountHistoricOrder extends FuturesOrderBase {
+  price: string;
+  type:
+    | 'limit'
+    | 'market'
+    | 'liquidate'
+    | 'bankruptcy'
+    | 'adl'
+    | 'trailing'
+    | 'planorder';
+  deal_avg_price: string;
+  deal_size: string;
+  activation_price?: string;
+  callback_rate?: string;
+  activation_price_type?: 1 | 2;
+  executive_order_id?: string;
+  account?: string;
+  position_mode?: string;
+}
+⋮----
+export interface FuturesAccountOpenOrder extends FuturesOrderBase {
+  price: string;
+  type: 'limit' | 'market' | 'trailing';
+  deal_avg_price: string;
+  deal_size: string;
+  activation_price?: string;
+  callback_rate?: string;
+  activation_price_type?: 1 | 2;
+  position_mode: string;
+}
+⋮----
+export interface FuturesAccountPlanOrders extends FuturesOrderBase {
+  executive_price: string;
+  trigger_price: string;
+  mode: number;
+  price_way: number;
+  price_type: number;
+  plan_category: 1 | 2;
+  type: 'plan' | 'take_profit' | 'stop_loss';
+  position_mode: string;
+}
+⋮----
+export interface FuturesAccountPosition {
+  timestamp: number;
+  symbol: string;
+  leverage: string;
+  current_fee: string;
+  open_timestamp: number;
+  current_value: string;
+  mark_price: string;
+  position_value: string;
+  position_cross: string;
+  maintenance_margin: string;
+  close_vol: string;
+  close_avg_price: string;
+  open_avg_price: string;
+  entry_price: string;
+  current_amount: string;
+  unrealized_value: string;
+  realized_value: string;
+  position_type: 1 | 2;
+  account: string;
+  position_mode: string;
+}
+⋮----
+export interface FuturesAccountPositionV2 {
+  symbol: string;
+  leverage: string;
+  timestamp: number;
+  current_fee: string;
+  open_timestamp: number;
+  current_value: string;
+  mark_price: string;
+  position_value: string;
+  position_cross: string;
+  maintenance_margin: string;
+  close_vol: string;
+  close_avg_price: string;
+  open_avg_price: string;
+  entry_price: string;
+  current_amount: string;
+  position_amount: string;
+  realized_value: string;
+  mark_value: string;
+  account: string;
+  open_type: string;
+  position_side: string;
+  unrealized_pnl: string;
+  liquidation_price: string;
+  max_notional_value: string;
+  initial_margin: string;
+}
+⋮----
+export interface PositionRisk {
+  symbol: string;
+  position_amt: string;
+  mark_price: string;
+  unrealized_profit: string;
+  liquidation_price: string;
+  leverage: string;
+  max_notional_value: string;
+  margin_type: 'Cross' | 'Isolated';
+  isolated_margin: string;
+  position_side: 'Long' | 'Short';
+  notional: string;
+  update_time: number;
+  account: string;
+}
+⋮----
+export interface FuturesAccountTrade {
+  order_id: string;
+  trade_id: string;
+  symbol: string;
+  side: 1 | 2 | 3 | 4;
+  price: string;
+  vol: string;
+  exec_type: 'Taker' | 'Maker';
+  profit: boolean;
+  realised_profit: string;
+  paid_fees: string;
+  create_time: number;
+  account: string;
+}
+⋮----
+export interface FuturesAccountHistoricTransaction {
+  symbol: string;
+  type: string;
+  amount: string;
+  asset: string;
+  time: string;
+  tran_id: string;
+  account: string;
+}
+⋮----
+export interface FuturesAccountTransfer {
+  transfer_id: string;
+  currency: string;
+  amount: string;
+  type: 'spot_to_contract' | 'contract_to_spot';
+  state: 'PROCESSING' | 'FINISHED' | 'FAILED';
+  timestamp: number;
+}
+⋮----
+export interface FuturesOrderSubmitResult {
+  order_id: number;
+  price: string;
+}
+⋮----
+export interface FuturesTransferSubmitResult {
+  currency: string;
+  amount: string;
+}
+⋮----
+export interface FuturesAccountSetLeverageResult {
+  symbol: string;
+  leverage: string;
+  open_type: FuturesMarginType;
+  max_value: string; // Maximum leverage
+}
+⋮----
+max_value: string; // Maximum leverage
+⋮----
+export interface FuturesAccountSubTransfer {
+  fromAccount: string;
+  toAccount: string;
+  toWalletType: 'future';
+  fromWalletType: 'future';
+  currency: string;
+  amount: string;
+  submissionTime: number;
+}
 
 ================
 File: src/FuturesClientV2.ts
@@ -4610,7 +4614,7 @@ File: package.json
 ================
 {
   "name": "bitmart-api",
-  "version": "2.1.27",
+  "version": "2.1.30",
   "description": "Complete & robust Node.js SDK for BitMart's REST APIs and WebSockets, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -4638,9 +4642,9 @@ File: package.json
     "Jerko J (https://github.com/JJ-Cro)"
   ],
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.12.2",
     "isomorphic-ws": "^4.0.1",
-    "ws": "^8.16.0"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
@@ -4695,6 +4699,7 @@ File: package.json
   },
   "homepage": "https://github.com/tiagosiebler/bitmart-api#readme"
 }
+
 
 
 
