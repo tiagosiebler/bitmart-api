@@ -283,9 +283,21 @@ export class WebsocketClient extends BaseWebsocketClient<
       return this.options.wsUrl;
     }
 
-    const networkKey = 'livenet';
+    // Demo environment is only available for V2 Futures
+    const networkKey =
+      this.options.useDemo &&
+      (wsKey === WS_KEY_MAP.futuresPublicV2 ||
+        wsKey === WS_KEY_MAP.futuresPrivateV2)
+        ? 'demo'
+        : 'livenet';
 
-    return WS_BASE_URL_MAP[wsKey][networkKey];
+    const url = WS_BASE_URL_MAP[wsKey][networkKey];
+    if (!url) {
+      // Fallback to livenet if demo is not available for this wsKey
+      return WS_BASE_URL_MAP[wsKey].livenet;
+    }
+
+    return url;
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */

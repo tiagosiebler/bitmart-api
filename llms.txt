@@ -98,8 +98,10 @@ src/
 .nvmrc
 .prettierrc
 jest.config.ts
+LICENSE.md
 package.json
 postBuild.sh
+PR_SUMMARY.md
 README.md
 tea.yaml
 tsconfig.cjs.json
@@ -530,6 +532,13 @@ export interface WSClientConfigurableOptions {
   wsUrl?: string;
 
   /**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+  useDemo?: boolean;
+
+  /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
    * Look in the examples folder for a demonstration on using node's createHmac instead.
@@ -550,6 +559,12 @@ export interface WSClientConfigurableOptions {
 /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
 ⋮----
 /** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
 ⋮----
 /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
@@ -837,6 +852,146 @@ find src -name '*.d.ts' -exec cp {} dist/mjs \;
 find src -name '*.d.ts' -exec cp {} dist/cjs \;
 
 ================
+File: PR_SUMMARY.md
+================
+# PR Summary: BitMart API Updates - New Endpoints & Demo Trading Support
+
+## Overview
+This PR implements updates from BitMart's API changelog (2025-11-18 to 2025-12-11), adding new endpoints, updating existing ones, and introducing demo/simulated trading environment support.
+
+## Changes
+
+### 1. Updated `/contract/private/trades` Endpoint (2025-12-02)
+**Files Modified:**
+- `src/types/request/futures.types.ts`
+
+**Changes:**
+- Added optional `order_id` and `client_order_id` fields to `FuturesAccountTradesRequest`
+- Made `symbol` field optional to support querying by order ID or client order ID
+- Enables querying order trades by order ID or client order ID in addition to symbol
+
+### 2. New Affiliate Rebate Endpoints (2025-12-11)
+**Files Modified:**
+- `src/types/request/futures.types.ts`
+- `src/types/response/futures.types.ts`
+- `src/FuturesClientV2.ts`
+
+**New Endpoints:**
+- `getFuturesAffiliateRebateUser()` - `/contract/private/affiliate/rebate-user`
+  - Query contract rebate data for users (up to 60 days)
+- `getFuturesAffiliateRebateApi()` - `/contract/private/affiliate/rebate-api`
+  - Query contract API rebate data (up to 60 days)
+
+**New Types:**
+- `FuturesAffiliateRebateUserRequest` - Request type for user rebate data
+- `FuturesAffiliateRebateApiRequest` - Request type for API rebate data
+- `FuturesAffiliateRebateUserResponse` - Response type for user rebate data
+- `FuturesAffiliateRebateApiResponse` - Response type for API rebate data
+
+### 3. Simulated Trading / Demo Environment Support (2025-11-18)
+**Files Modified:**
+- `src/types/request/futures.types.ts`
+- `src/types/response/futures.types.ts`
+- `src/lib/requestUtils.ts`
+- `src/lib/websocket/websocket-util.ts`
+- `src/types/websockets/client.ts`
+- `src/FuturesClientV2.ts`
+- `src/WebsocketClient.ts`
+- `README.md`
+
+**REST API Changes:**
+- Added `useDemo` option to `RestClientOptions` interface
+- Updated `getRestBaseUrl()` to support demo environment
+- Demo REST endpoint: `https://demo-api-cloud-v2.bitmart.com`
+- Added `submitFuturesSimulatedClaim()` method for simulated account claim
+- New types: `SubmitFuturesSimulatedClaimRequest`, `FuturesSimulatedClaimResponse`
+
+**WebSocket Changes:**
+- Added `useDemo` option to `WSClientConfigurableOptions` interface
+- Updated `WS_BASE_URL_MAP` to include demo URLs for V2 Futures
+- Updated `getWsUrl()` method to support demo environment
+- Demo WebSocket endpoints:
+  - Public: `wss://openapi-wsdemo-v2.bitmart.com/api?protocol=1.1`
+  - Private: `wss://openapi-wsdemo-v2.bitmart.com/user?protocol=1.1`
+
+**Documentation:**
+- Added demo trading section to README.md
+- Included examples for both REST and WebSocket clients
+- Clarified that demo environment is only available for V2 Futures
+
+## Usage Examples
+
+### New Affiliate Rebate Endpoints
+```typescript
+// Get user rebate data
+const userRebate = await futuresClient.getFuturesAffiliateRebateUser({
+  cid: 1000000,
+  start_time: 1000000000,
+  end_time: 2000000000,
+});
+
+// Get API rebate data
+const apiRebate = await futuresClient.getFuturesAffiliateRebateApi({
+  cid: 1000000,
+  start_time: 1000000000,
+  end_time: 2000000000,
+});
+```
+
+### Updated Trades Endpoint
+```typescript
+// Query by order ID
+const trades = await futuresClient.getFuturesAccountTrades({
+  order_id: 123456789,
+});
+
+// Query by client order ID
+const trades = await futuresClient.getFuturesAccountTrades({
+  client_order_id: 'my-order-id',
+});
+```
+
+### Demo Trading Environment
+```typescript
+// REST API
+const demoClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true,
+});
+
+// WebSocket
+const demoWsClient = new WebsocketClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // V2 Futures only
+});
+
+// Simulated claim
+await demoClient.submitFuturesSimulatedClaim({
+  currency: 'USDT',
+  amount: '10',
+});
+```
+
+## Breaking Changes
+None - all changes are backward compatible.
+
+## Notes
+- Demo environment is only available for V2 Futures (not Spot or V1 Futures)
+- The same API keys work for both production and demo environments
+- Manual `baseUrl`/`wsUrl` override still takes precedence over `useDemo` flag
+- All new endpoints follow existing code patterns and conventions
+
+## Testing
+- All TypeScript types are properly defined
+- Linter checks pass
+- Code follows existing patterns and conventions
+- Documentation updated with examples
+
+================
 File: tea.yaml
 ================
 ---
@@ -1016,6 +1171,13 @@ export interface RestClientOptions {
    **/
   baseUrl?: string;
 
+  /**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+  useDemo?: boolean;
+
   /** Default: true. whether to try and post-process request exceptions (and throw them). */
   parseExceptions?: boolean;
 
@@ -1057,6 +1219,12 @@ export interface RestClientOptions {
    * e.g baseUrl: 'https://api.bitmart.com'
    **/
 ⋮----
+/**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+⋮----
 /** Default: true. whether to try and post-process request exceptions (and throw them). */
 ⋮----
 /**
@@ -1089,6 +1257,10 @@ export function getRestBaseUrl(
   restInverseOptions: RestClientOptions,
   restClientType: RestClientType,
 ): string
+⋮----
+// Demo environment is only available for V2 Futures
+⋮----
+// For V1, fall back to production
 ⋮----
 export interface MessageEventLike {
   target: WebSocket;
@@ -1143,6 +1315,17 @@ export interface AccountCurrencyBalanceV1 {
 File: .nvmrc
 ================
 v22.17.1
+
+================
+File: LICENSE.md
+================
+Copyright 2025 Tiago Siebler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ================
 File: src/lib/websocket/websocket-util.ts
@@ -1475,6 +1658,10 @@ protected getWsKeyForTopic(topic: WsTopic): WsKey
 protected getPrivateWSKeys(): WsKey[]
 ⋮----
 protected getWsUrl(wsKey: WsKey): string
+⋮----
+// Demo environment is only available for V2 Futures
+⋮----
+// Fallback to livenet if demo is not available for this wsKey
 ⋮----
 /** Force subscription requests to be sent in smaller batches, if a number is returned */
 protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
@@ -3270,10 +3457,12 @@ export interface FuturesAccountPlanOrdersRequest {
 }
 ⋮----
 export interface FuturesAccountTradesRequest {
-  symbol: string;
+  symbol?: string;
   start_time?: number;
   end_time?: number;
   account?: string;
+  order_id?: number;
+  client_order_id?: string;
 }
 ⋮----
 export interface FuturesAccountHistoricTransactionRequest {
@@ -3469,6 +3658,23 @@ export interface SubmitFuturesTrailOrderRequest {
   callback_rate: string;
   activation_price_type: 1 | 2;
 }
+⋮----
+export interface FuturesAffiliateRebateUserRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface FuturesAffiliateRebateApiRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface SubmitFuturesSimulatedClaimRequest {
+  currency?: string;
+  amount?: string;
+}
 
 ================
 File: README.md
@@ -3653,6 +3859,14 @@ const futuresClient = new FuturesClientV2({
   apiMemo: API_MEMO,
 });
 
+// Enable demo/simulated trading environment (optional)
+const demoFuturesClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Connect to simulated trading environment
+});
+
 // Get futures account assets
 try {
   const balances = await futuresClient.getFuturesAccountAssets();
@@ -3764,6 +3978,14 @@ const wsClient = new WebsocketClient({
   apiMemo: 'yourAPIMemoHere',
 });
 
+// Enable demo/simulated trading environment for V2 Futures WebSocket (optional)
+const demoWsClient = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+  useDemo: true, // Connect to simulated trading environment (V2 Futures only)
+});
+
 // Set up event handlers
 wsClient.on('open', (data) => {
   console.log('Private WebSocket connected: ', data?.wsKey);
@@ -3803,6 +4025,34 @@ wsClient.subscribe('futures/user/position:BTCUSDT', 'futures');
 For more comprehensive examples, including custom logging and error handling, check the [examples](./examples) folder.
 
 ## Configuration Options
+
+### Demo Trading
+
+BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `useDemo: true` to your client configuration:
+
+**REST API (Futures V2 only):**
+
+```typescript
+const demoClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Uses https://demo-api-cloud-v2.bitmart.com
+});
+```
+
+**WebSocket (V2 Futures only):**
+
+```typescript
+const demoWsClient = new WebsocketClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
+});
+```
+
+**Note:** Demo environment is only available for V2 Futures. Spot trading and V1 Futures will continue using production endpoints. The same API keys work for both production and demo environments.
 
 ### Recv Window
 
@@ -4220,6 +4470,27 @@ export interface FuturesAccountSubTransfer {
   amount: string;
   submissionTime: number;
 }
+⋮----
+export interface FuturesAffiliateRebateUserResponse {
+  cid: number;
+  back_rate: string;
+  trading_vol_total: string;
+  trading_fee_total: string;
+  rebate_total: string;
+  trading_vol: string;
+  trading_fee: string;
+  rebate: string;
+}
+⋮----
+export interface FuturesAffiliateRebateApiResponse {
+  api_trading_fee_total: string;
+  api_rebate_total: string;
+}
+⋮----
+export interface FuturesSimulatedClaimResponse {
+  currency: string;
+  amount: string;
+}
 
 ================
 File: src/FuturesClientV2.ts
@@ -4240,7 +4511,9 @@ import {
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
+  FuturesAffiliateRebateApiRequest,
   FuturesAffiliateRebatesRequest,
+  FuturesAffiliateRebateUserRequest,
   FuturesAffiliateTradesRequest,
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
@@ -4248,6 +4521,7 @@ import {
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
+  SubmitFuturesSimulatedClaimRequest,
   SubmitFuturesSubToMainSubFromSubRequest,
   SubmitFuturesTPSLOrderRequest,
   SubmitFuturesTrailOrderRequest,
@@ -4271,6 +4545,8 @@ import {
   FuturesAccountSubTransfer,
   FuturesAccountTrade,
   FuturesAccountTransfer,
+  FuturesAffiliateRebateApiResponse,
+  FuturesAffiliateRebateUserResponse,
   FuturesContractDepth,
   FuturesContractDetails,
   FuturesFundingRate,
@@ -4280,6 +4556,7 @@ import {
   FuturesMarketTrade,
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
+  FuturesSimulatedClaimResponse,
   FuturesTransferSubmitResult,
   PositionRisk,
 } from './types/response/futures.types.js';
@@ -4608,13 +4885,51 @@ getFuturesAffiliateRebates(
 getFuturesAffiliateTrades(
     params: FuturesAffiliateTradesRequest,
 ): Promise<APIResponse<any>>
+⋮----
+/**
+   * Get User Rebate Data (KEYED)
+   * Used for API affiliates to query contract rebate data within a certain time range
+   * Feature: Query up to 60 days of data
+   */
+getFuturesAffiliateRebateUser(
+    params: FuturesAffiliateRebateUserRequest,
+): Promise<APIResponse<FuturesAffiliateRebateUserResponse>>
+⋮----
+/**
+   * Get API Rebate Data (KEYED)
+   * Used for API affiliates to query contract API rebate data within a certain time range
+   * Feature: Query up to 60 days of data
+   */
+getFuturesAffiliateRebateApi(
+    params: FuturesAffiliateRebateApiRequest,
+): Promise<APIResponse<FuturesAffiliateRebateApiResponse>>
+⋮----
+/**
+   * Simulated Claim (SIGNED)
+   * Add available funds to the futures account (Only available in the Simulated-Environment)
+   *
+   * Note: This endpoint is only available in the Simulated Trading environment.
+   * To use this endpoint, create a client instance with useDemo: true
+   * Example:
+   *   const simulatedClient = new FuturesClientV2({
+   *     apiKey: 'your-api-key',
+   *     apiSecret: 'your-api-secret',
+   *     apiMemo: 'your-api-memo',
+   *     useDemo: true
+   *   });
+   *
+   * Alternatively, you can manually set baseUrl: 'https://demo-api-cloud-v2.bitmart.com'
+   */
+submitFuturesSimulatedClaim(
+    params?: SubmitFuturesSimulatedClaimRequest,
+): Promise<APIResponse<FuturesSimulatedClaimResponse>>
 
 ================
 File: package.json
 ================
 {
   "name": "bitmart-api",
-  "version": "2.1.30",
+  "version": "2.2.0",
   "description": "Complete & robust Node.js SDK for BitMart's REST APIs and WebSockets, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",

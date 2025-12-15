@@ -178,6 +178,14 @@ const futuresClient = new FuturesClientV2({
   apiMemo: API_MEMO,
 });
 
+// Enable demo/simulated trading environment (optional)
+const demoFuturesClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Connect to simulated trading environment
+});
+
 // Get futures account assets
 try {
   const balances = await futuresClient.getFuturesAccountAssets();
@@ -289,6 +297,14 @@ const wsClient = new WebsocketClient({
   apiMemo: 'yourAPIMemoHere',
 });
 
+// Enable demo/simulated trading environment for V2 Futures WebSocket (optional)
+const demoWsClient = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+  useDemo: true, // Connect to simulated trading environment (V2 Futures only)
+});
+
 // Set up event handlers
 wsClient.on('open', (data) => {
   console.log('Private WebSocket connected: ', data?.wsKey);
@@ -328,6 +344,34 @@ wsClient.subscribe('futures/user/position:BTCUSDT', 'futures');
 For more comprehensive examples, including custom logging and error handling, check the [examples](./examples) folder.
 
 ## Configuration Options
+
+### Demo Trading
+
+BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `useDemo: true` to your client configuration:
+
+**REST API (Futures V2 only):**
+
+```typescript
+const demoClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Uses https://demo-api-cloud-v2.bitmart.com
+});
+```
+
+**WebSocket (V2 Futures only):**
+
+```typescript
+const demoWsClient = new WebsocketClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  useDemo: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
+});
+```
+
+**Note:** Demo environment is only available for V2 Futures. Spot trading and V1 Futures will continue using production endpoints. The same API keys work for both production and demo environments.
 
 ### Recv Window
 

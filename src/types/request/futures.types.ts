@@ -34,10 +34,12 @@ export interface FuturesAccountPlanOrdersRequest {
 }
 
 export interface FuturesAccountTradesRequest {
-  symbol: string;
+  symbol?: string;
   start_time?: number;
   end_time?: number;
   account?: string;
+  order_id?: number;
+  client_order_id?: string;
 }
 
 export interface FuturesAccountHistoricTransactionRequest {
@@ -209,4 +211,21 @@ export interface SubmitFuturesTrailOrderRequest {
   activation_price: string;
   callback_rate: string;
   activation_price_type: 1 | 2;
+}
+
+export interface FuturesAffiliateRebateUserRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+
+export interface FuturesAffiliateRebateApiRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+
+export interface SubmitFuturesSimulatedClaimRequest {
+  currency?: string;
+  amount?: string;
 }

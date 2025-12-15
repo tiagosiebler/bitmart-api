@@ -28,24 +28,30 @@ type NetworkMap<
     ? Record<TOptionalKeys, string | undefined>
     : Record<TRequiredKeys, string>);
 
-export const WS_BASE_URL_MAP: Record<WsKey, NetworkMap<'livenet'>> = {
+export const WS_BASE_URL_MAP: Record<WsKey, NetworkMap<'livenet', 'demo'>> = {
   spotPublicV1: {
     livenet: 'wss://ws-manager-compress.bitmart.com/api?protocol=1.1',
+    demo: undefined,
   },
   spotPrivateV1: {
     livenet: 'wss://ws-manager-compress.bitmart.com/user?protocol=1.1',
+    demo: undefined,
   },
   futuresPublicV1: {
     livenet: 'wss://openapi-ws.bitmart.com/api?protocol=1.1',
+    demo: undefined,
   },
   futuresPrivateV1: {
     livenet: 'wss://openapi-ws.bitmart.com/user?protocol=1.1',
+    demo: undefined,
   },
   futuresPublicV2: {
     livenet: 'wss://openapi-ws-v2.bitmart.com/api?protocol=1.1',
+    demo: 'wss://openapi-wsdemo-v2.bitmart.com/api?protocol=1.1',
   },
   futuresPrivateV2: {
     livenet: 'wss://openapi-ws-v2.bitmart.com/user?protocol=1.1',
+    demo: 'wss://openapi-wsdemo-v2.bitmart.com/user?protocol=1.1',
   },
 };
 
