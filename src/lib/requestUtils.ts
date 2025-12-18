@@ -32,7 +32,7 @@ export interface RestClientOptions {
    * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
    * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
    */
-  useDemo?: boolean;
+  demoTrading?: boolean;
 
   /** Default: true. whether to try and post-process request exceptions (and throw them). */
   parseExceptions?: boolean;
@@ -101,7 +101,7 @@ export function getRestBaseUrl(
     return restInverseOptions.baseUrl;
   }
 
-  if (restInverseOptions.useDemo) {
+  if (restInverseOptions.demoTrading) {
     // Demo environment is only available for V2 Futures
     if (restClientType === REST_CLIENT_TYPE_ENUM.mainV2) {
       return exchangeBaseUrls.demoV2;

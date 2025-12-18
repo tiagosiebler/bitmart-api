@@ -285,7 +285,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     // Demo environment is only available for V2 Futures
     const networkKey =
-      this.options.useDemo &&
+      this.options.demoTrading &&
       (wsKey === WS_KEY_MAP.futuresPublicV2 ||
         wsKey === WS_KEY_MAP.futuresPrivateV2)
         ? 'demo'

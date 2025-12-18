@@ -183,7 +183,7 @@ const demoFuturesClient = new FuturesClientV2({
   apiKey: API_KEY,
   apiSecret: API_SECRET,
   apiMemo: API_MEMO,
-  useDemo: true, // Connect to simulated trading environment
+  demoTrading: true, // Connect to simulated trading environment
 });
 
 // Get futures account assets
@@ -302,7 +302,7 @@ const demoWsClient = new WebsocketClient({
   apiKey: 'yourAPIKeyHere',
   apiSecret: 'yourAPISecretHere',
   apiMemo: 'yourAPIMemoHere',
-  useDemo: true, // Connect to simulated trading environment (V2 Futures only)
+  demoTrading: true, // Connect to simulated trading environment (V2 Futures only)
 });
 
 // Set up event handlers
@@ -347,7 +347,7 @@ For more comprehensive examples, including custom logging and error handling, ch
 
 ### Demo Trading
 
-BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `useDemo: true` to your client configuration:
+BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `demoTrading: true` to your client configuration:
 
 **REST API (Futures V2 only):**
 
@@ -356,7 +356,7 @@ const demoClient = new FuturesClientV2({
   apiKey: API_KEY,
   apiSecret: API_SECRET,
   apiMemo: API_MEMO,
-  useDemo: true, // Uses https://demo-api-cloud-v2.bitmart.com
+  demoTrading: true, // Uses https://demo-api-cloud-v2.bitmart.com
 });
 ```
 
@@ -367,7 +367,7 @@ const demoWsClient = new WebsocketClient({
   apiKey: API_KEY,
   apiSecret: API_SECRET,
   apiMemo: API_MEMO,
-  useDemo: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
+  demoTrading: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
 });
 ```
 

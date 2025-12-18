@@ -42,7 +42,7 @@ export interface WSClientConfigurableOptions {
    * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
    * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
    */
-  useDemo?: boolean;
+  demoTrading?: boolean;
 
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method

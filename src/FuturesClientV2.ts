@@ -514,13 +514,13 @@ export class FuturesClientV2 extends BaseRestClient {
    * Add available funds to the futures account (Only available in the Simulated-Environment)
    *
    * Note: This endpoint is only available in the Simulated Trading environment.
-   * To use this endpoint, create a client instance with useDemo: true
+   * To use this endpoint, create a client instance with demoTrading: true
    * Example:
    *   const simulatedClient = new FuturesClientV2({
    *     apiKey: 'your-api-key',
    *     apiSecret: 'your-api-secret',
    *     apiMemo: 'your-api-memo',
-   *     useDemo: true
+   *     demoTrading: true
    *   });
    *
    * Alternatively, you can manually set baseUrl: 'https://demo-api-cloud-v2.bitmart.com'
