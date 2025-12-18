@@ -27,6 +27,13 @@ export interface RestClientOptions {
    **/
   baseUrl?: string;
 
+  /**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+  demoTrading?: boolean;
+
   /** Default: true. whether to try and post-process request exceptions (and throw them). */
   parseExceptions?: boolean;
 
@@ -86,11 +93,20 @@ export function getRestBaseUrl(
   const exchangeBaseUrls = {
     livenetV1: 'https://api-cloud.bitmart.com',
     livenetV2: 'https://api-cloud-v2.bitmart.com',
+    demoV2: 'https://demo-api-cloud-v2.bitmart.com',
     testnet: 'https://noTestnet',
   };
 
   if (restInverseOptions.baseUrl) {
     return restInverseOptions.baseUrl;
+  }
+
+  if (restInverseOptions.demoTrading) {
+    // Demo environment is only available for V2 Futures
+    if (restClientType === REST_CLIENT_TYPE_ENUM.mainV2) {
+      return exchangeBaseUrls.demoV2;
+    }
+    // For V1, fall back to production
   }
 
   if (useTestnet) {
@@ -104,9 +120,10 @@ export function getRestBaseUrl(
     case REST_CLIENT_TYPE_ENUM.mainV2: {
       return exchangeBaseUrls.livenetV2;
     }
+    default: {
+      return exchangeBaseUrls.livenetV1;
+    }
   }
-
-  return exchangeBaseUrls.livenetV1;
 }
 
 export const APIID = 'bitmartapinode1';

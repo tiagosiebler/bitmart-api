@@ -14,7 +14,9 @@ import {
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
+  FuturesAffiliateRebateApiRequest,
   FuturesAffiliateRebatesRequest,
+  FuturesAffiliateRebateUserRequest,
   FuturesAffiliateTradesRequest,
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
@@ -22,6 +24,7 @@ import {
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
+  SubmitFuturesSimulatedClaimRequest,
   SubmitFuturesSubToMainSubFromSubRequest,
   SubmitFuturesTPSLOrderRequest,
   SubmitFuturesTrailOrderRequest,
@@ -45,6 +48,8 @@ import {
   FuturesAccountSubTransfer,
   FuturesAccountTrade,
   FuturesAccountTransfer,
+  FuturesAffiliateRebateApiResponse,
+  FuturesAffiliateRebateUserResponse,
   FuturesContractDepth,
   FuturesContractDetails,
   FuturesFundingRate,
@@ -54,6 +59,7 @@ import {
   FuturesMarketTrade,
   FuturesOpenInterest,
   FuturesOrderSubmitResult,
+  FuturesSimulatedClaimResponse,
   FuturesTransferSubmitResult,
   PositionRisk,
 } from './types/response/futures.types.js';
@@ -479,5 +485,49 @@ export class FuturesClientV2 extends BaseRestClient {
     params: FuturesAffiliateTradesRequest,
   ): Promise<APIResponse<any>> {
     return this.getPrivate('contract/private/affiliate/trade-list', params);
+  }
+
+  /**
+   * Get User Rebate Data (KEYED)
+   * Used for API affiliates to query contract rebate data within a certain time range
+   * Feature: Query up to 60 days of data
+   */
+  getFuturesAffiliateRebateUser(
+    params: FuturesAffiliateRebateUserRequest,
+  ): Promise<APIResponse<FuturesAffiliateRebateUserResponse>> {
+    return this.getPrivate('contract/private/affiliate/rebate-user', params);
+  }
+
+  /**
+   * Get API Rebate Data (KEYED)
+   * Used for API affiliates to query contract API rebate data within a certain time range
+   * Feature: Query up to 60 days of data
+   */
+  getFuturesAffiliateRebateApi(
+    params: FuturesAffiliateRebateApiRequest,
+  ): Promise<APIResponse<FuturesAffiliateRebateApiResponse>> {
+    return this.getPrivate('contract/private/affiliate/rebate-api', params);
+  }
+
+  /**
+   * Simulated Claim (SIGNED)
+   * Add available funds to the futures account (Only available in the Simulated-Environment)
+   *
+   * Note: This endpoint is only available in the Simulated Trading environment.
+   * To use this endpoint, create a client instance with demoTrading: true
+   * Example:
+   *   const simulatedClient = new FuturesClientV2({
+   *     apiKey: 'your-api-key',
+   *     apiSecret: 'your-api-secret',
+   *     apiMemo: 'your-api-memo',
+   *     demoTrading: true
+   *   });
+   *
+   * Alternatively, you can manually set baseUrl: 'https://demo-api-cloud-v2.bitmart.com'
+   */
+  submitFuturesSimulatedClaim(
+    params?: SubmitFuturesSimulatedClaimRequest,
+  ): Promise<APIResponse<FuturesSimulatedClaimResponse>> {
+    return this.postPrivate('contract/private/claim', params);
   }
 }

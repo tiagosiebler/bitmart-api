@@ -300,3 +300,24 @@ export interface FuturesAccountSubTransfer {
   amount: string;
   submissionTime: number;
 }
+
+export interface FuturesAffiliateRebateUserResponse {
+  cid: number;
+  back_rate: string;
+  trading_vol_total: string;
+  trading_fee_total: string;
+  rebate_total: string;
+  trading_vol: string;
+  trading_fee: string;
+  rebate: string;
+}
+
+export interface FuturesAffiliateRebateApiResponse {
+  api_trading_fee_total: string;
+  api_rebate_total: string;
+}
+
+export interface FuturesSimulatedClaimResponse {
+  currency: string;
+  amount: string;
+}
