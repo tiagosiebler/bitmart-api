@@ -120,6 +120,9 @@ export function getRestBaseUrl(
     case REST_CLIENT_TYPE_ENUM.mainV2: {
       return exchangeBaseUrls.livenetV2;
     }
+    default: {
+      return exchangeBaseUrls.livenetV1;
+    }
   }
 }
 
