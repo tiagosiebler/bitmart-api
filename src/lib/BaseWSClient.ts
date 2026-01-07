@@ -7,7 +7,11 @@ import {
 } from '../types/websockets/client.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
-import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import {
+  isCompressedMessageEvent,
+  isMessageEvent,
+  MessageEventLike,
+} from './requestUtils.js';
 import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
 import { safeTerminateWs } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
@@ -663,7 +667,11 @@ export abstract class BaseWebsocketClient<
     }
   }
 
-  private onWsMessage(event: unknown, wsKey: TWSKey) {
+  private async onWsMessage(
+    event: unknown,
+    wsKey: TWSKey,
+    didDecompress = false,
+  ): Promise<unknown> {
     try {
       // any message can clear the pong timer - wouldn't get a message if the ws wasn't working
       this.clearPongTimer(wsKey);
@@ -721,6 +729,28 @@ export abstract class BaseWebsocketClient<
         return;
       }
 
+      if (isCompressedMessageEvent(event) && !didDecompress) {
+        try {
+          const decompressed = await decompressMessageEvent(event);
+          // this.logger.trace('Decompressed message event', {
+          //   ...WS_LOGGER_CATEGORY,
+          //   wsKey,
+          //   decompressed,
+          // });
+
+          return this.onWsMessage(decompressed, wsKey, true);
+        } catch (e) {
+          this.logger.error('Failed to decompress ws message event', {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+            exception: e,
+            message: event || 'no message',
+            event,
+          });
+          return;
+        }
+      }
+
       this.logger.error(
         'Unhandled/unrecognised ws event message - unexpected message format',
         {
@@ -769,4 +799,37 @@ export abstract class BaseWebsocketClient<
   private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum) {
     this.wsStore.setConnectionState(wsKey, state);
   }
+}
+
+async function decompressMessageEvent(
+  event: MessageEventLike<Buffer<ArrayBufferLike>>,
+): Promise<MessageEventLike<any>> {
+  const data = event.data;
+  if (typeof data === 'string') {
+    return { ...event, data };
+  }
+
+  const ds = new DecompressionStream('deflate-raw');
+
+  const dataStream = new Response(data).body;
+
+  let decompressedStream: ReadableStream;
+  if (!dataStream) {
+    const uint8 = new Uint8Array(data);
+    const rs = new ReadableStream({
+      start(controller) {
+        controller.enqueue(uint8);
+        controller.close();
+      },
+    });
+    decompressedStream = rs.pipeThrough(ds);
+  } else {
+    decompressedStream = (dataStream as ReadableStream).pipeThrough(ds);
+  }
+
+  return {
+    ...event,
+    type: 'message',
+    data: await new Response(decompressedStream).text(),
+  };
 }
