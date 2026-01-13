@@ -56,6 +56,8 @@ Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
   - [Configuration Options](#configuration-options)
     - [Recv Window](#recv-window)
     - [Custom Sign](#custom-sign)
+- [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Webpack](#webpack)
 - [Related Projects](#related-projects)
 - [Structure](#structure)
 - [LLMs & AI](#use-with-llms--ai)
@@ -398,6 +400,18 @@ client.getAccountBalancesV1({ recvWindow: 5000 }); // 5 seconds for this call
 Authentication involves HMAC signing on requests using API credentials. Internally, this SDK uses the Web Crypto API for browser compatibility. The REST client also supports injecting a custom sign function if you wish to use an alternative (such as Node.js's native & faster `createHmac`).
 
 Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a complete demonstration.
+
+## Browser/Frontend Usage
+
+### Webpack
+
+Build a bundle using webpack:
+
+- `npm install`
+- `npm run build`
+- `npm run pack`
+
+The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
 
 ## Use with LLMs & AI
 
