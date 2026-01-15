@@ -151,7 +151,8 @@ export class WebsocketClient extends BaseWebsocketClient<
       const responseEvents = ['subscribe', 'unsubscribe'];
       const authenticatedEvents = ['login', 'access'];
 
-      const eventAction = parsed.event || parsed.action;
+      const spotEventAction = parsed.table; // e.g. table: 'spot/user/order'
+      const eventAction = parsed.event || parsed.action || spotEventAction;
       if (typeof eventAction === 'string') {
         if (parsed.success === false) {
           results.push({
@@ -179,11 +180,32 @@ export class WebsocketClient extends BaseWebsocketClient<
           return results;
         }
 
+        // spot events
+        if (parsed.table) {
+          results.push({
+            eventType: 'update',
+            event: parsed,
+          });
+          return results;
+        }
+
         this.logger.error(
-          `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
+          `!! Unhandled string event type "${eventAction}". Defaulting to "update" channel...`,
           parsed,
         );
+
+        // Fallback to update/data channel for everything else
+        results.push({
+          eventType: 'update',
+          event: parsed,
+        });
+        return results;
       }
+
+      this.logger.error(
+        `!! Unhandled NON-STRING event type "${eventAction}" (type: ${typeof eventAction}). Defaulting to "update" channel...`,
+        parsed,
+      );
 
       results.push({
         eventType: 'update',
