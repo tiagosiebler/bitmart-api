@@ -128,10 +128,21 @@ export function getRestBaseUrl(
 
 export const APIID = 'bitmartapinode1';
 
-export interface MessageEventLike {
+export interface MessageEventLike<TDataType = string> {
   target: WebSocket;
   type: 'message';
-  data: string;
+  data: TDataType;
+}
+
+export function isCompressedMessageEvent(
+  msg: unknown,
+): msg is MessageEventLike<Buffer> {
+  if (typeof msg !== 'object' || !msg) {
+    return false;
+  }
+
+  const message = msg as MessageEventLike;
+  return message['type'] === 'message' && Buffer.isBuffer(message['data']);
 }
 
 export function isMessageEvent(msg: unknown): msg is MessageEventLike {
