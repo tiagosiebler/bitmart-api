@@ -1,3 +1,6 @@
+import type { ClientRequestArgs } from 'http';
+import WebSocket from 'isomorphic-ws';
+
 /**
  * Event args for subscribing/unsubscribing
  */
@@ -34,6 +37,11 @@ export interface WSClientConfigurableOptions {
   reconnectTimeout?: number;
 
   requestOptions?: {};
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
 
   wsUrl?: string;
 
