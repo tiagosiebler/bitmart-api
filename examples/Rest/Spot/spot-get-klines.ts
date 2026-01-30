@@ -1,4 +1,4 @@
-import { RestClient } from '../src';
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 
@@ -10,7 +10,7 @@ async function getKlines() {
 
     console.log('Tickers: ', JSON.stringify(klines, null, 2));
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

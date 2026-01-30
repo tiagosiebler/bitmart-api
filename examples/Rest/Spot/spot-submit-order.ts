@@ -1,4 +1,4 @@
-import { RestClient } from '../src';
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 
@@ -43,7 +43,7 @@ async function start() {
     });
     console.log('res ', JSON.stringify(res, null, 2));
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

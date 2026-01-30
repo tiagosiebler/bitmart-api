@@ -1,30 +1,43 @@
-import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+import { LogParams, WebsocketClient } from '../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
-// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
+// import { LogParams, WebsocketClient } from 'bitmart-api';
 
-/** Optional, implement a custom logger */
-const customLogger: typeof DefaultLogger = {
+const account = {
+  key: process.env.API_KEY || 'apiKeyHere',
+  secret: process.env.API_SECRET || 'apiSecretHere',
+  memo: process.env.API_MEMO || 'apiMemoHere',
+};
+
+const customLogger = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   trace: (...params: LogParams): void => {
-    console.log('silly', ...params);
+    console.log('trace', ...params);
   },
   info: (...params: LogParams): void => {
-    console.info(params);
+    console.log('info', ...params);
   },
   error: (...params: LogParams): void => {
-    console.error(params);
+    console.error('error', ...params);
   },
 };
 
 async function start() {
-  const client = new WebsocketClient(undefined, customLogger);
+  const client = new WebsocketClient(
+    {
+      apiKey: account.key,
+      apiSecret: account.secret,
+      apiMemo: account.memo,
+    },
+    customLogger,
+  );
 
   client.on('open', (data) => {
-    console.log('open: ', data?.wsKey);
+    console.log('connected ', data?.wsKey);
   });
 
   // Data received
   client.on('update', (data) => {
-    console.info('update: ', data);
+    console.info('data received: ', JSON.stringify(data));
   });
 
   // Something happened, attempting to reconenct
@@ -56,10 +69,13 @@ async function start() {
   });
 
   try {
-    client.subscribe('spot/ticker:BTC_USDT', 'spot');
-    //
+    // order progress
+    client.subscribe('spot/user/order:BTC_USDT', 'spot');
+
+    // balance updates
+    // client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 
