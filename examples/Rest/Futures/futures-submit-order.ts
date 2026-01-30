@@ -1,4 +1,4 @@
-import { FuturesClientV2 } from '../src/index.js';
+import { FuturesClientV2 } from '../../../src/index.js';
 // // import from npm, after installing via npm `npm install bitmart-api`
 // import { FuturesClientV2 } from 'bitmart-api';
 
@@ -21,12 +21,13 @@ async function SumbitFuturesOrder() {
       type: 'market',
       side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
       size: 1,
+      leverage: '1',
       open_type: 'cross',
     });
 
     console.log('Order: ', JSON.stringify(order, null, 2));
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

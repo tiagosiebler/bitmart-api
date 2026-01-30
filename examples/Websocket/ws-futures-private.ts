@@ -1,6 +1,7 @@
-import { LogParams, WebsocketClient } from '../src';
+import { DefaultLogger, LogParams, WebsocketClient } from '../../src/index.js';
+
 // import from npm, after installing via npm `npm install bitmart-api`
-// import { LogParams, WebsocketClient } from 'bitmart-api';
+// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
@@ -8,28 +9,16 @@ const account = {
   memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
-const customLogger = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  trace: (...params: LogParams): void => {
-    console.log('trace', ...params);
-  },
-  info: (...params: LogParams): void => {
-    console.log('info', ...params);
-  },
-  error: (...params: LogParams): void => {
-    console.error('error', ...params);
-  },
+DefaultLogger.trace = (...params: LogParams): void => {
+  console.log('silly', ...params);
 };
 
 async function start() {
-  const client = new WebsocketClient(
-    {
-      apiKey: account.key,
-      apiSecret: account.secret,
-      apiMemo: account.memo,
-    },
-    customLogger,
-  );
+  const client = new WebsocketClient({
+    apiKey: account.key,
+    apiSecret: account.secret,
+    apiMemo: account.memo,
+  });
 
   client.on('open', (data) => {
     console.log('connected ', data?.wsKey);
@@ -69,13 +58,19 @@ async function start() {
   });
 
   try {
-    // order progress
-    client.subscribe('spot/user/order:BTC_USDT', 'spot');
+    // Assets Channel
+    client.subscribe(
+      ['futures/asset:USDT', 'futures/asset:BTC', 'futures/asset:ETH'],
+      'futures',
+    );
 
-    // balance updates
-    // client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
+    // Position Channel
+    // client.subscribe('futures/position', 'futures');
+
+    // Order Channel
+    // client.subscribe('futures/order', 'futures');
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

@@ -1,4 +1,4 @@
-import { WebsocketClient } from '../src';
+import { WebsocketClient } from '../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { WebsocketClient } from 'bitmart-api';
 
@@ -63,7 +63,7 @@ async function start() {
       'futures',
     );
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 
