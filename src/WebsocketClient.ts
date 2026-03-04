@@ -1,5 +1,3 @@
-import WebSocket from 'isomorphic-ws';
-
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
 import { MessageEventLike } from './lib/requestUtils.js';
@@ -9,6 +7,7 @@ import {
   WS_KEY_MAP,
   WsKey,
 } from './lib/websocket/websocket-util.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import { WsMarket } from './types/websockets/client.js';
 import {
   WsFuturesOperation,
@@ -46,7 +45,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  public connectAll(): Promise<WebSocket | undefined>[] {
+  public connectAll(): Promise<WSConnectedResult | undefined>[] {
     return [
       this.connect(WS_KEY_MAP.spotPublicV1),
       this.connect(WS_KEY_MAP.spotPrivateV1),
