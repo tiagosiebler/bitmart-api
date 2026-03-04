@@ -151,8 +151,13 @@ export class WebsocketClient extends BaseWebsocketClient<
       const responseEvents = ['subscribe', 'unsubscribe'];
       const authenticatedEvents = ['login', 'access'];
 
+      const generalEventAction = parsed.event || parsed.action;
       const spotEventAction = parsed.table; // e.g. table: 'spot/user/order'
-      const eventAction = parsed.event || parsed.action || spotEventAction;
+      const futuresEventAction = parsed.group; // e.g.     group: 'futures/klineBin1m:ETHUSDT'
+
+      const eventAction =
+        generalEventAction || spotEventAction || futuresEventAction;
+
       if (typeof eventAction === 'string') {
         if (parsed.success === false) {
           results.push({
@@ -182,6 +187,15 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         // spot events
         if (parsed.table) {
+          results.push({
+            eventType: 'update',
+            event: parsed,
+          });
+          return results;
+        }
+
+        // futures events
+        if (parsed.group) {
           results.push({
             eventType: 'update',
             event: parsed,
