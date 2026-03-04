@@ -1,5 +1,7 @@
 export type LogParams = null | any;
 
+export type DefaultLogger = typeof DefaultLogger;
+
 export const DefaultLogger = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   trace: (..._params: LogParams): void => {

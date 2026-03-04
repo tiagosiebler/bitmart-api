@@ -6,7 +6,18 @@ export enum WsConnectionStateEnum {
   CONNECTED = 2,
   CLOSING = 3,
   RECONNECTING = 4,
-  // ERROR = 5,
+  ERROR = 5,
+}
+
+export interface DeferredPromise<TSuccess = any, TError = any> {
+  resolve?: (value: TSuccess) => TSuccess;
+  reject?: (value: TError) => TError;
+  promise?: Promise<TSuccess>;
+}
+
+export interface WSConnectedResult {
+  wsKey: string;
+  ws: WebSocket;
 }
 
 export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
@@ -14,12 +25,20 @@ export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
   ws?: WebSocket;
   /** The current lifecycle state of the connection (enum) */
   connectionState?: WsConnectionStateEnum;
+  connectionStateChangedAt?: Date;
+
   /** A timer that will send an upstream heartbeat (ping) when it expires */
   activePingTimer?: ReturnType<typeof setTimeout> | undefined;
   /** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */
   activePongTimer?: ReturnType<typeof setTimeout> | undefined;
   /** If a reconnection is in progress, this will have the timer for the delayed reconnect */
   activeReconnectTimer?: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * When a connection attempt is in progress (even for reconnect), a promise is stored here.
+   *
+   * This promise will resolve once connected (and will then get removed);
+   */
+  deferredPromiseStore: Record<string, DeferredPromise>;
   /**
    * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)
    *
