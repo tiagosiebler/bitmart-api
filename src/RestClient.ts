@@ -7,9 +7,10 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  CancelFuturesOrderRequest,
+  CancelFuturesPlanOrderRequest,
   FuturesAccountHistoricOrderRequest,
   FuturesAccountOpenOrdersRequest,
-  FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
@@ -18,6 +19,7 @@ import {
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
   FuturesSubWalletRequest,
+  GetFuturesOrderRequest,
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
@@ -694,7 +696,7 @@ export class RestClient extends BaseRestClient {
    * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
   getFuturesAccountOrder(
-    params: FuturesAccountOrderRequest,
+    params: GetFuturesOrderRequest,
   ): Promise<APIResponse<FuturesAccountOrder>> {
     return this.getPrivate('contract/private/order', params);
   }
@@ -776,7 +778,7 @@ export class RestClient extends BaseRestClient {
   /**
    * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */ cancelFuturesOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-order', params);
   }
@@ -805,7 +807,7 @@ export class RestClient extends BaseRestClient {
    * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
   cancelFuturesPlanOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesPlanOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-plan-order', params);
   }
