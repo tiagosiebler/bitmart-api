@@ -22,7 +22,7 @@
 > [!TIP]
 > Upcoming change: As part of the [Siebly.io](https://siebly.io/?ref=ghbitmart) brand, this SDK will soon be hosted under the [Siebly.io GitHub organisation](https://github.com/sieblyio). The migration is seamless and requires no user changes.
 
-Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
+Complete JavaScript, TypeScript & Node.js SDK for BitMart REST APIs & WebSockets:
 
 - Professional, robust & performant BitMart SDK with extensive production use in live trading environments.
 - Complete integration with all BitMart APIs and domains.
@@ -43,6 +43,7 @@ Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
 - Custom HMAC signing support for enhanced performance.
 - Heavy automated end-to-end testing with real API calls.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+- QuickStart Guide: https://siebly.io/sdk/bitmart/javascript
 
 ## Table of Contents
 
