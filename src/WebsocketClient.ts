@@ -647,47 +647,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     return PRIVATE_WS_KEYS;
   }
 
-  // TODO: is auth mechn for bitmart, auth after connect?
   protected isAuthOnConnectWsKey(wsKey: WsKey): boolean {
     return PRIVATE_WS_KEYS.includes(wsKey);
-  }
-
-  /**
-   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
-   */
-  protected getWsSubscribeEventsForTopics(
-    topics: WsTopic[],
-    wsKey: WsKey,
-  ): string[] {
-    if (!topics.length) {
-      return [];
-    }
-
-    const market = this.getWsMarketForWsKey(wsKey);
-
-    const subscribeEvents: string[] = [];
-
-    const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
-    if (
-      maxTopicsPerEvent &&
-      maxTopicsPerEvent !== null &&
-      topics.length > maxTopicsPerEvent
-    ) {
-      for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
-        const batch = topics.slice(i, i + maxTopicsPerEvent);
-        const subscribeEvent = this.getWsRequestEvent(
-          market,
-          'subscribe',
-          batch,
-        );
-        subscribeEvents.push(JSON.stringify(subscribeEvent));
-      }
-
-      return subscribeEvents;
-    }
-
-    const subscribeEvent = this.getWsRequestEvent(market, 'subscribe', topics);
-    return [JSON.stringify(subscribeEvent)];
   }
 
   /**

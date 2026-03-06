@@ -198,7 +198,6 @@ export abstract class BaseWebsocketClient<
       reconnectTimeout: 500,
       recvWindow: 0,
 
-      // TODO: what's the setting for these on bitmart?
       // Requires a confirmation "response" from the ws connection before assuming it is ready
       requireConnectionReadyConfirmation: false,
 
@@ -210,7 +209,7 @@ export abstract class BaseWebsocketClient<
       authPrivateRequests: false,
 
       // Automatically re-auth WS API, if we were auth'd before and get reconnected
-      reauthWSAPIOnReconnect: true, // TODO: not in use?
+      reauthWSAPIOnReconnect: true,
 
       // Whether to use native heartbeats (depends on the exchange)
       useNativeHeartbeats: false,
@@ -287,23 +286,6 @@ export abstract class BaseWebsocketClient<
     wsKey: TWSKey,
   ): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]>;
 
-  // TODO: deprecate these two
-  // /**
-  //  * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
-  //  */
-  // protected abstract getWsSubscribeEventsForTopics(
-  //   topics: WsTopic[],
-  //   wsKey: TWSKey,
-  // ): string[];
-
-  // /**
-  //  * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
-  //  */
-  // protected abstract getWsUnsubscribeEventsForTopics(
-  //   topics: WsTopic[],
-  //   wsKey: TWSKey,
-  // ): string[];
-
   /**
    * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
    */
@@ -316,10 +298,6 @@ export abstract class BaseWebsocketClient<
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
   abstract connectAll(): Promise<WSConnectedResult | undefined>[];
-
-  protected isPrivateWsKey(wsKey: TWSKey): boolean {
-    return this.getPrivateWSKeys().includes(wsKey);
-  }
 
   /** Returns auto-incrementing request ID, used to track promise references for async requests */
   protected getNewRequestId(): number {
@@ -388,7 +366,7 @@ export abstract class BaseWebsocketClient<
     }
 
     // We're connected. Check if auth is needed and if already authenticated
-    const isPrivateConnection = this.isPrivateWsKey(wsKey);
+    const isPrivateConnection = this.isAuthOnConnectWsKey(wsKey);
     const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
     if (isPrivateConnection && !isAuthenticated) {
       /**
@@ -429,7 +407,7 @@ export abstract class BaseWebsocketClient<
     }
 
     // We're connected. Check if auth is needed and if already authenticated
-    const isPrivateConnection = this.isPrivateWsKey(wsKey);
+    const isPrivateConnection = this.isAuthOnConnectWsKey(wsKey);
     const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
     if (isPrivateConnection && !isAuthenticated) {
       /**
@@ -1080,7 +1058,7 @@ export abstract class BaseWebsocketClient<
 
     // Some websockets require an auth packet to be sent after opening the connection
     if (
-      this.isAuthOnConnectWsKey(wsKey) && // same as isPrivateWsKey << deprecate isPrivateWsKey TODO:
+      this.isAuthOnConnectWsKey(wsKey) &&
       this.authPrivateConnectionsOnConnect(wsKey)
     ) {
       await this.assertIsAuthenticated(wsKey);
