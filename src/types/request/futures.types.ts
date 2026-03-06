@@ -5,11 +5,31 @@ export interface FuturesKlinesRequest {
   step?: number;
 }
 
-export interface FuturesAccountOrderRequest {
+/** Get Order Detail - symbol and order_id required. */
+export interface GetFuturesOrderRequest {
   symbol: string;
   order_id: string;
+  account?: 'futures' | 'copy_trading';
+}
+
+/** Cancel Order - symbol required. order_id or client_order_id for specific cancel; omit both to cancel all under symbol. */
+export interface CancelFuturesOrderRequest {
+  symbol: string;
+  order_id?: string;
   client_order_id?: string;
-  account?: string;
+}
+
+/** Cancel Plan Order - symbol required, order_id or client_order_id for specific cancel. */
+export interface CancelFuturesPlanOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+}
+
+/** Cancel Trail Order - symbol required, order_id for specific cancel. No client_order_id. */
+export interface CancelFuturesTrailOrderRequest {
+  symbol: string;
+  order_id?: string;
 }
 
 export interface FuturesAccountHistoricOrderRequest {
@@ -66,8 +86,8 @@ export interface SubmitFuturesOrderRequest {
   side: 1 | 2 | 3 | 4;
   mode?: 1 | 2 | 3 | 4;
   type?: 'limit' | 'market';
-  leverage: string;
-  open_type: 'cross' | 'isolated';
+  leverage?: string;
+  open_type?: 'cross' | 'isolated';
   size: number;
   price?: string;
   preset_take_profit_price_type?: 1 | 2;

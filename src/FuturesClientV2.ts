@@ -7,10 +7,12 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  CancelFuturesOrderRequest,
+  CancelFuturesPlanOrderRequest,
+  CancelFuturesTrailOrderRequest,
   FuturesAccountHistoricOrderRequest,
   FuturesAccountHistoricTransactionRequest,
   FuturesAccountOpenOrdersRequest,
-  FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
@@ -21,6 +23,7 @@ import {
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
   FuturesSubWalletRequest,
+  GetFuturesOrderRequest,
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
@@ -210,7 +213,7 @@ export class FuturesClientV2 extends BaseRestClient {
   }
 
   getFuturesAccountOrder(
-    params: FuturesAccountOrderRequest,
+    params: GetFuturesOrderRequest,
   ): Promise<APIResponse<FuturesAccountOrder>> {
     return this.getPrivate('contract/private/order', params);
   }
@@ -293,7 +296,7 @@ export class FuturesClientV2 extends BaseRestClient {
   }
 
   cancelFuturesOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-order', params);
   }
@@ -320,7 +323,7 @@ export class FuturesClientV2 extends BaseRestClient {
   }
 
   cancelFuturesPlanOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesPlanOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-plan-order', params);
   }
@@ -384,7 +387,7 @@ export class FuturesClientV2 extends BaseRestClient {
   }
 
   cancelFuturesTrailOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesTrailOrderRequest,
   ): Promise<APIResponse<any>> {
     return this.postPrivate('contract/private/cancel-trail-order', params);
   }
