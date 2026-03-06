@@ -1,5 +1,31 @@
 import WebSocket from 'isomorphic-ws';
 
+import { WsTopic } from '../../types/websockets/client.js';
+import { MessageEventLike } from '../requestUtils.js';
+
+/**
+ * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
+ *
+ * - Topic: the topic this event is for
+ * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
+ * - Category: required for bybit, since different categories have different public endpoints
+ */
+export interface WsTopicRequest<
+  TWSTopic extends string = string,
+  TWSPayload = unknown,
+> {
+  topic: TWSTopic;
+  payload?: TWSPayload;
+}
+
+/**
+ * Conveniently allow users to request a topic either as string topics or objects (containing string topic + params)
+ */
+export type WsTopicRequestOrStringTopic<
+  TWSTopic extends string,
+  TWSPayload = unknown,
+> = WsTopicRequest<TWSTopic, TWSPayload> | string;
+
 /** Should be one WS key per unique URL */
 export const WS_KEY_MAP = {
   spotPublicV1: 'spotPublicV1',
@@ -83,4 +109,80 @@ export function safeTerminateWs(
   }
 
   return false;
+}
+
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+export function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<WsTopic>[] {
+  const normalisedTopicRequests: WsTopicRequest<WsTopic>[] = [];
+
+  for (const wsTopicRequest of wsTopicRequests) {
+    // passed as string, convert to object
+    if (typeof wsTopicRequest === 'string') {
+      const topicRequest: WsTopicRequest<WsTopic> = {
+        topic: wsTopicRequest,
+        payload: undefined,
+      };
+      normalisedTopicRequests.push(topicRequest);
+      continue;
+    }
+
+    // already a normalised object, thanks to user
+    normalisedTopicRequests.push(wsTopicRequest);
+  }
+  return normalisedTopicRequests;
+}
+
+/**
+ * WebSocket.ping() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPingFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['ping'] === 'function';
+}
+
+/**
+ * WebSocket.pong() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPongFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['pong'] === 'function';
+}
+
+export async function decompressMessageEvent(
+  event: MessageEventLike<Buffer<ArrayBufferLike>>,
+): Promise<MessageEventLike<any>> {
+  const data = event.data;
+  if (typeof data === 'string') {
+    return { ...event, data };
+  }
+
+  const ds = new DecompressionStream('deflate-raw');
+
+  const dataStream = new Response(data).body;
+
+  let decompressedStream: ReadableStream;
+  if (!dataStream) {
+    const uint8 = new Uint8Array(data);
+    const rs = new ReadableStream({
+      start(controller) {
+        controller.enqueue(uint8);
+        controller.close();
+      },
+    });
+    decompressedStream = rs.pipeThrough(ds);
+  } else {
+    decompressedStream = (dataStream as ReadableStream).pipeThrough(ds);
+  }
+
+  return {
+    ...event,
+    type: 'message',
+    data: await new Response(decompressedStream).text(),
+  };
 }
