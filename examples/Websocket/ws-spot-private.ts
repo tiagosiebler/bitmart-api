@@ -28,7 +28,7 @@ async function start() {
       apiSecret: account.secret,
       apiMemo: account.memo,
     },
-    customLogger,
+    customLogger, // optional: inject a custom logger with all levels enabled (trace is disabled by default)
   );
 
   client.on('open', (data) => {

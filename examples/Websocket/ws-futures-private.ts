@@ -1,7 +1,7 @@
-import { DefaultLogger, LogParams, WebsocketClient } from '../../src/index.js';
+import { LogParams, WebsocketClient } from '../../src/index.js';
 
 // import from npm, after installing via npm `npm install bitmart-api`
-// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
+// import { LogParams, WebsocketClient } from 'bitmart-api';
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
@@ -9,16 +9,28 @@ const account = {
   memo: process.env.API_MEMO || 'apiMemoHere',
 };
 
-DefaultLogger.trace = (...params: LogParams): void => {
-  console.log('silly', ...params);
+const customLogger = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  trace: (...params: LogParams): void => {
+    console.log('trace', ...params);
+  },
+  info: (...params: LogParams): void => {
+    console.log('info', ...params);
+  },
+  error: (...params: LogParams): void => {
+    console.error('error', ...params);
+  },
 };
 
 async function start() {
-  const client = new WebsocketClient({
-    apiKey: account.key,
-    apiSecret: account.secret,
-    apiMemo: account.memo,
-  });
+  const client = new WebsocketClient(
+    {
+      apiKey: account.key,
+      apiSecret: account.secret,
+      apiMemo: account.memo,
+    },
+    customLogger, // optional: inject a custom logger with all levels enabled (trace is disabled by default)
+  );
 
   client.on('open', (data) => {
     console.log('connected ', data?.wsKey);

@@ -2,6 +2,11 @@ import type { ClientRequestArgs } from 'http';
 import WebSocket from 'isomorphic-ws';
 
 /**
+ * WS topics are always a string for bitmart. Some exchanges use complex objects
+ */
+export type WsTopic = string;
+
+/**
  * Event args for subscribing/unsubscribing
  */
 
@@ -69,6 +74,30 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   pongTimeout: number;
   reconnectTimeout: number;
   recvWindow: number;
+
+  /**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+  requireConnectionReadyConfirmation: boolean;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+  reauthWSAPIOnReconnect: boolean;
+
+  /**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+  useNativeHeartbeats: boolean;
 }
 
 export type WsMarket = 'spot' | 'futures';
+
+/**
+ * A midflight WS request event (e.g. subscribe to these topics).
+ *
+ * - requestKey: unique identifier for this request, if available. Can be anything as a string.
+ * - requestEvent: the raw request, as an object, that will be sent on the ws connection. This may contain multiple topics/requests in one object, if the exchange supports it.
+ */
+export interface MidflightWsRequestEvent<TEvent = object> {
+  requestKey: string;
+  requestEvent: TEvent;
+}

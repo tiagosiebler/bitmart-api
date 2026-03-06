@@ -1,22 +1,31 @@
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
+import { DefaultLogger } from './lib/logger.js';
 import { neverGuard } from './lib/misc-util.js';
 import { MessageEventLike } from './lib/requestUtils.js';
-import { signMessage } from './lib/webCryptoAPI.js';
+import {
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
 import {
   WS_BASE_URL_MAP,
   WS_KEY_MAP,
   WsKey,
+  WsTopicRequest,
 } from './lib/websocket/websocket-util.js';
 import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
-import { WsMarket } from './types/websockets/client.js';
+import {
+  MidflightWsRequestEvent,
+  WSClientConfigurableOptions,
+  WsMarket,
+  WsTopic,
+} from './types/websockets/client.js';
 import {
   WsFuturesOperation,
   WsOperation,
   WsRequestOperation,
   WsSpotOperation,
 } from './types/websockets/requests.js';
-
-export const WS_LOGGER_CATEGORY = { category: 'bitmart-ws' };
 
 /** Any WS keys in this list will trigger auth on connect, if credentials are available */
 const PRIVATE_WS_KEYS: WsKey[] = [
@@ -32,17 +41,27 @@ export const PUBLIC_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.futuresPublicV2,
 ];
 
-/**
- * WS topics are always a string for bitmart. Some exchanges use complex objects
- */
-type WsTopic = string;
+const WS_LOGGER_CATEGORY_ID = 'bitmart-ws';
+const WS_LOGGER_CATEGORY = {
+  category: WS_LOGGER_CATEGORY_ID,
+};
+
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
 
 export class WebsocketClient extends BaseWebsocketClient<
   WsMarket,
   WsKey,
-  WsTopic
+  WsRequestOperation<WsTopic>
 > {
+  constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
+    super({ ...options, wsLoggerCategory: WS_LOGGER_CATEGORY_ID }, logger);
+  }
+
   /**
+   *
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
   public connectAll(): Promise<WSConnectedResult | undefined>[] {
@@ -96,10 +115,205 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
+   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+  public subscribe(
+    wsTopics: WsTopic[] | WsTopic,
+    market: WsMarket,
+    isPrivate?: boolean,
+  ) {
+    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
+
+    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(
+      topics,
+      market,
+      isPrivate,
+    );
+
+    const promises: Promise<unknown>[] = [];
+    for (const untypedWsKey in topicsByWsKey) {
+      const typedWsKey = untypedWsKey as WsKey;
+      const topics = topicsByWsKey[typedWsKey];
+
+      if (topics.length) {
+        promises.push(this.subscribeTopicsForWsKey(topics, typedWsKey));
+      }
+    }
+
+    return promises;
+  }
+
+  /**
+   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+  public unsubscribe(
+    wsTopics: WsTopic[] | WsTopic,
+    market: WsMarket,
+    isPrivate?: boolean,
+  ) {
+    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
+
+    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(
+      topics,
+      market,
+      isPrivate,
+    );
+
+    const promises: Promise<unknown>[] = [];
+    for (const untypedWsKey in topicsByWsKey) {
+      const typedWsKey = untypedWsKey as WsKey;
+      const topics = topicsByWsKey[typedWsKey];
+
+      if (topics.length) {
+        promises.push(this.unsubscribeTopicsForWsKey(topics, typedWsKey));
+      }
+    }
+
+    return promises;
+  }
+
+  /**
    *
-   * Internal methods
+   *
+   * Internal methods - not intended for public use
+   *
    *
    */
+
+  /**
+   * Note: implementing this method will wipe the WsStore state for this WsKey, once this method returns
+   */
+  protected isCustomReconnectionNeeded(): boolean {
+    return false;
+  }
+
+  protected async triggerCustomReconnectionWorkflow(): Promise<void> {
+    return;
+  }
+
+  /**
+   * @returns The WS URL to connect to for this WS key
+   */
+  protected async getWsUrl(wsKey: WsKey): Promise<string> {
+    if (this.options.wsUrl) {
+      return this.options.wsUrl;
+    }
+
+    // Demo environment is only available for V2 Futures
+    const networkKey =
+      this.options.demoTrading &&
+      (wsKey === WS_KEY_MAP.futuresPublicV2 ||
+        wsKey === WS_KEY_MAP.futuresPrivateV2)
+        ? 'demo'
+        : 'livenet';
+
+    const url = WS_BASE_URL_MAP[wsKey][networkKey];
+    if (!url) {
+      // Fallback to livenet if demo is not available for this wsKey
+      return WS_BASE_URL_MAP[wsKey].livenet;
+    }
+
+    return url;
+  }
+
+  private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method?: SignEncodeMethod,
+    algorithm: SignAlgorithm = 'SHA-256',
+  ): Promise<string> {
+    if (typeof this.options.customSignMessageFn === 'function') {
+      return this.options.customSignMessageFn(paramsStr, secret);
+    }
+    return await signMessage(paramsStr, secret, method, algorithm);
+  }
+
+  protected async getWsAuthRequestEvent(
+    wsKey: WsKey,
+  ): Promise<WsRequestOperation<string>> {
+    try {
+      const { signature, expiresAt } = await this.getWsAuthSignature(wsKey);
+
+      const authArgs = [this.options.apiKey!, `${expiresAt}`, signature];
+
+      const market = this.getWsMarketForWsKey(wsKey);
+      if (market === 'futures') {
+        authArgs.push('web');
+      }
+
+      switch (market) {
+        case 'spot': {
+          const wsRequestEvent: WsSpotOperation<string> = {
+            op: 'login',
+            args: authArgs,
+          };
+
+          return wsRequestEvent;
+        }
+        case 'futures': {
+          // https://developer-pro.bitmart.com/en/futuresv2/#private-login
+          const wsRequestEvent: WsFuturesOperation<string> = {
+            action: 'access',
+            args: authArgs,
+          };
+          return wsRequestEvent;
+        }
+        default: {
+          throw neverGuard(market, `Unhandled market "${market}"`);
+        }
+      }
+    } catch (e) {
+      this.logger.error(e, { ...WS_LOGGER_CATEGORY, wsKey });
+      throw e;
+    }
+  }
+
+  private async getWsAuthSignature(
+    wsKey: WsKey,
+  ): Promise<{ expiresAt: number; signature: string }> {
+    const { apiKey, apiSecret, apiMemo } = this.options;
+
+    if (!apiKey || !apiSecret || !apiMemo) {
+      this.logger.error(
+        'Cannot authenticate websocket, either api key, secret or memo are missing.',
+        { ...WS_LOGGER_CATEGORY, wsKey },
+      );
+      throw new Error(
+        'Cannot auth - missing api key, secret or memo in config',
+      );
+    }
+
+    this.logger.trace("Getting auth'd request params", {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+    });
+
+    const recvWindow = this.options.recvWindow || 5000;
+
+    const signatureExpiresAt = Date.now() + this.getTimeOffsetMs() + recvWindow;
+
+    const signMessageInput =
+      signatureExpiresAt +
+      '#' +
+      this.options.apiMemo +
+      '#' +
+      'bitmart.WebSocket';
+
+    const signature = await this.signMessage(
+      signMessageInput,
+      apiSecret,
+      'hex',
+    );
+
+    return {
+      expiresAt: signatureExpiresAt,
+      signature,
+    };
+  }
 
   protected sendPingEvent(wsKey: WsKey) {
     switch (wsKey) {
@@ -119,16 +333,163 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
+  protected sendPongEvent(wsKey: WsKey) {
+    this.tryWsSend(wsKey, JSON.stringify({ op: 'pong' }));
+  }
+
+  /** Force subscription requests to be sent in smaller batches, if a number is returned */
+  protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
+    switch (wsKey) {
+      case 'futuresPrivateV1':
+      case 'futuresPublicV1':
+      case 'spotPrivateV1':
+      case 'spotPublicV1':
+      case 'futuresPrivateV2':
+      case 'futuresPublicV2': {
+        // Return a number if there's a limit on the number of sub topics per rq
+        return 20;
+      }
+      default: {
+        throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled wsKey');
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected authPrivateConnectionsOnConnect(_wsKey: WsKey): boolean {
+    return this.options.authPrivateConnectionsOnConnect;
+  }
+
+  /**
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
+   */
+  protected async getWsRequestEvents(
+    market: WsMarket,
+    operation: WsOperation,
+    requests: WsTopicRequest<WsTopic>[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    _wsKey: WsKey,
+  ): Promise<MidflightWsRequestEvent<WsRequestOperation<WsTopic>>[]> {
+    const wsRequestEvents: MidflightWsRequestEvent<
+      WsRequestOperation<WsTopic>
+    >[] = [];
+    const wsRequestBuildingErrors: unknown[] = [];
+
+    switch (market) {
+      case 'futures':
+      case 'spot': {
+        const topics = requests.map((r) => r.topic);
+
+        // Previously used to track topics in a request. Keeping this for subscribe/unsubscribe requests, no need for incremental values
+        const req_id =
+          ['subscribe', 'unsubscribe'].includes(operation) && topics.length
+            ? topics.join(',')
+            : this.getNewRequestId() + '';
+
+        // handles differences in spot vs futures
+        const wsEvent = this.getWsRequestEvent(market, operation, topics);
+
+        const midflightWsEvent: MidflightWsRequestEvent<
+          WsRequestOperation<WsTopic>
+        > = {
+          requestKey: req_id,
+          requestEvent: wsEvent,
+        };
+
+        wsRequestEvents.push({
+          ...midflightWsEvent,
+        });
+        break;
+      }
+      default: {
+        throw neverGuard(market, `Unhandled market "${market}"`);
+      }
+    }
+
+    if (wsRequestBuildingErrors.length) {
+      const label =
+        wsRequestBuildingErrors.length === requests.length ? 'all' : 'some';
+
+      this.logger.error(
+        `Failed to build/send ${wsRequestBuildingErrors.length} event(s) for ${label} WS requests due to exceptions`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsRequestBuildingErrors,
+          wsRequestBuildingErrorsStringified: JSON.stringify(
+            wsRequestBuildingErrors,
+            null,
+            2,
+          ),
+        },
+      );
+    }
+
+    return wsRequestEvents;
+  }
+
+  /**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+  protected isPrivateTopicRequest(request: WsTopicRequest<WsTopic>): boolean {
+    const rawTopicName = request?.topic?.toLowerCase();
+    if (!rawTopicName) {
+      return false;
+    }
+
+    const splitTopic = rawTopicName.toLowerCase().split('/');
+    if (!splitTopic.length) {
+      return false;
+    }
+
+    const topicName = splitTopic[1];
+    return this.isPrivateTopic(topicName);
+  }
+
+  private isPrivateTopic(topicName?: WsTopic): boolean {
+    if (!topicName) {
+      // console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
+      return false;
+    }
+
+    if (
+      /** Spot */
+      topicName.startsWith('user') ||
+      /** Futures */
+      topicName.startsWith('asset') ||
+      topicName.startsWith('position') ||
+      topicName.startsWith('order') ||
+      topicName.startsWith('position')
+    ) {
+      return true;
+    }
+
+    // spot/user/order:BTC_USDT -> user/order:BTC_USDT
+    // ^ will pass the above check, or fall back to the next level:
+    // user/order:BTC_USDT -> order:BTC_USDT
+    const splitTopic = topicName.toLowerCase().split('/');
+    if (splitTopic.length) {
+      const splitTopicName = splitTopic[1];
+      return this.isPrivateTopic(splitTopicName);
+    }
+
+    return false;
+  }
+
+  // No pings expected from Bitmart
+  protected isWsPing(msg: any): boolean {
+    if (!msg) {
+      return false;
+    }
+
+    return false;
+  }
+
   protected isWsPong(msg: any): boolean {
     // bitmart spot
     if (msg?.data === 'pong') {
       return true;
     }
 
-    // bitmart futures
-    // if (typeof event?.data === 'string') {
-    //   return true;
-    // }
     if (
       typeof msg?.event?.data === 'string' &&
       msg.event.data.startsWith('pong')
@@ -141,7 +502,10 @@ export class WebsocketClient extends BaseWebsocketClient<
     return false;
   }
 
-  protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
+  protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+  ): EmittableEvent[] {
     const results: EmittableEvent[] = [];
 
     try {
@@ -237,41 +601,11 @@ export class WebsocketClient extends BaseWebsocketClient<
       this.logger.error('Failed to parse event data due to exception: ', {
         exception: e,
         eventData: event.data,
+        wsKey,
       });
     }
 
     return results;
-  }
-
-  /**
-   * Determines if a topic is for a private channel, using a hardcoded list of strings
-   */
-  protected isPrivateChannel(topic: WsTopic): boolean {
-    const splitTopic = topic.toLowerCase().split('/');
-    if (!splitTopic.length) {
-      return false;
-    }
-
-    const topicName = splitTopic[1];
-
-    if (!topicName) {
-      // console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
-      return false;
-    }
-
-    if (
-      /** Spot */
-      topicName.startsWith('user') ||
-      /** Futures */
-      topicName.startsWith('asset') ||
-      topicName.startsWith('position') ||
-      topicName.startsWith('order') ||
-      topicName.startsWith('position')
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey {
@@ -304,7 +638,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   protected getWsKeyForTopic(topic: WsTopic): WsKey {
     const market = this.getMarketForTopic(topic);
-    const isPrivateTopic = this.isPrivateChannel(topic);
+    const isPrivateTopic = this.isPrivateTopic(topic);
 
     return this.getWsKeyForMarket(market, isPrivateTopic);
   }
@@ -313,44 +647,9 @@ export class WebsocketClient extends BaseWebsocketClient<
     return PRIVATE_WS_KEYS;
   }
 
-  protected getWsUrl(wsKey: WsKey): string {
-    if (this.options.wsUrl) {
-      return this.options.wsUrl;
-    }
-
-    // Demo environment is only available for V2 Futures
-    const networkKey =
-      this.options.demoTrading &&
-      (wsKey === WS_KEY_MAP.futuresPublicV2 ||
-        wsKey === WS_KEY_MAP.futuresPrivateV2)
-        ? 'demo'
-        : 'livenet';
-
-    const url = WS_BASE_URL_MAP[wsKey][networkKey];
-    if (!url) {
-      // Fallback to livenet if demo is not available for this wsKey
-      return WS_BASE_URL_MAP[wsKey].livenet;
-    }
-
-    return url;
-  }
-
-  /** Force subscription requests to be sent in smaller batches, if a number is returned */
-  protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
-    switch (wsKey) {
-      case 'futuresPrivateV1':
-      case 'futuresPublicV1':
-      case 'spotPrivateV1':
-      case 'spotPublicV1':
-      case 'futuresPrivateV2':
-      case 'futuresPublicV2': {
-        // Return a number if there's a limit on the number of sub topics per rq
-        return 20;
-      }
-      default: {
-        throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled wsKey');
-      }
-    }
+  // TODO: is auth mechn for bitmart, auth after connect?
+  protected isAuthOnConnectWsKey(wsKey: WsKey): boolean {
+    return PRIVATE_WS_KEYS.includes(wsKey);
   }
 
   /**
@@ -459,65 +758,6 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
-  protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
-    const market = this.getWsMarketForWsKey(wsKey);
-    if (
-      !this.options.apiKey ||
-      !this.options.apiSecret ||
-      !this.options.apiMemo
-    ) {
-      throw new Error(
-        'Cannot auth - missing api key, secret or memo in config',
-      );
-    }
-
-    const signTimestamp = Date.now() + this.options.recvWindow;
-
-    const signMessageInput =
-      signTimestamp + '#' + this.options.apiMemo + '#' + 'bitmart.WebSocket';
-
-    let signature: string;
-    if (typeof this.options.customSignMessageFn === 'function') {
-      signature = await this.options.customSignMessageFn(
-        signMessageInput,
-        this.options.apiSecret,
-      );
-    } else {
-      signature = await signMessage(
-        signMessageInput,
-        this.options.apiSecret,
-        'hex',
-      );
-    }
-
-    const authArgs = [this.options.apiKey, `${signTimestamp}`, signature];
-    if (market === 'futures') {
-      authArgs.push('web');
-    }
-
-    switch (market) {
-      case 'spot': {
-        const wsRequestEvent: WsSpotOperation<string> = {
-          op: 'login',
-          args: authArgs,
-        };
-
-        return wsRequestEvent;
-      }
-      case 'futures': {
-        // https://developer-pro.bitmart.com/en/futuresv2/#private-login
-        const wsRequestEvent: WsFuturesOperation<string> = {
-          action: 'access',
-          args: authArgs,
-        };
-        return wsRequestEvent;
-      }
-      default: {
-        throw neverGuard(market, `Unhandled market "${market}"`);
-      }
-    }
-  }
-
   /**
    * This exchange API is split into "markets" that behave differently (different base URLs).
    * The market can easily be resolved using the topic name.
@@ -538,6 +778,8 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   private arrangeTopicsIntoWsKeyGroups(
     topics: WsTopic[],
+    byMarket?: WsMarket,
+    isPrivate?: boolean,
   ): Record<WsKey, WsTopic[]> {
     const topicsByWsKey: Record<WsKey, WsTopic[]> = {
       futuresPrivateV1: [],
@@ -548,12 +790,23 @@ export class WebsocketClient extends BaseWebsocketClient<
       spotPublicV1: [],
     };
 
-    for (const topic in topics) {
-      const wsKeyForTopic = this.getWsKeyForTopic(topic);
+    // array of string topics
+    for (const topic of topics) {
+      // Backwards comaptibility with how old subscribe method worked:
+      if (byMarket) {
+        const isPrivateTopic = isPrivate || this.isPrivateTopic(topic);
+        const wsKeyForTopic = this.getWsKeyForMarket(byMarket, isPrivateTopic);
+        const wsKeyTopicList = topicsByWsKey[wsKeyForTopic];
+        if (!wsKeyTopicList.includes(topic)) {
+          wsKeyTopicList.push(topic);
+        }
+      } else {
+        const wsKeyForTopic = this.getWsKeyForTopic(topic);
 
-      const wsKeyTopicList = topicsByWsKey[wsKeyForTopic];
-      if (!wsKeyTopicList.includes(topic)) {
-        wsKeyTopicList.push(topic);
+        const wsKeyTopicList = topicsByWsKey[wsKeyForTopic];
+        if (!wsKeyTopicList.includes(topic)) {
+          wsKeyTopicList.push(topic);
+        }
       }
     }
 

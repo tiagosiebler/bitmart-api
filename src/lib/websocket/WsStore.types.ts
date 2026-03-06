@@ -47,4 +47,11 @@ export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
   subscribedTopics: Set<TWSTopicSubscribeEvent>;
   /** Whether this connection has completed authentication (only applies to private connections) */
   isAuthenticated?: boolean;
+  /**
+   * Whether this connection has completed authentication before for the Websocket API, so it k
+   * nows to automatically reauth if reconnected
+   */
+  didAuthWSAPI?: boolean;
+  /** To reauthenticate on the WS API, which channel do we send to? */
+  WSAPIAuthChannel?: string;
 }
