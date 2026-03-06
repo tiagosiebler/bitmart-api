@@ -38,7 +38,7 @@ Notes:
 ------
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Files matching these patterns are excluded: .github/, examples/apidoc/, docs/images/, docs/endpointFunctionList.md, test/, src/util/
+- Files matching these patterns are excluded: .github/, examples/apidoc/, docs/images/, docs/endpointFunctionList.md, test/, src/util/, dist/, lib/
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Content has been compressed - code blocks are separated by ⋮---- delimiter
@@ -49,22 +49,27 @@ Notes:
 Directory Structure
 ================================================================
 examples/
-  fasterHmacSign.ts
-  futures-get-balances.ts
-  futures-get-klines.ts
-  futures-get-tickers.ts
-  futures-submit-order.ts
+  Auth/
+    fasterHmacSign.ts
+  Rest/
+    Futures/
+      futures-get-balances.ts
+      futures-get-klines.ts
+      futures-get-tickers.ts
+      futures-submit-order.ts
+    Spot/
+      spot-get-balances.ts
+      spot-get-klines.ts
+      spot-get-symbols.ts
+      spot-submit-order.ts
+  Websocket/
+    ws-custom-logger.ts
+    ws-futures-private.ts
+    ws-futures-public.ts
+    ws-spot-private.ts
+    ws-spot-public.ts
   README.md
-  spot-get-balances.ts
-  spot-get-klines.ts
-  spot-get-symbols.ts
-  spot-submit-order.ts
   tsconfig.examples.json
-  ws-custom-logger.ts
-  ws-futures-private.ts
-  ws-futures-public.ts
-  ws-spot-private.ts
-  ws-spot-public.ts
 src/
   lib/
     websocket/
@@ -93,6 +98,8 @@ src/
   index.ts
   RestClient.ts
   WebsocketClient.ts
+webpack/
+  webpack.config.cjs
 .eslintrc.cjs
 .gitignore
 .nvmrc
@@ -101,7 +108,6 @@ jest.config.ts
 LICENSE.md
 package.json
 postBuild.sh
-PR_SUMMARY.md
 README.md
 tea.yaml
 tsconfig.cjs.json
@@ -112,49 +118,6 @@ tsconfig.linting.json
 ================================================================
 Files
 ================================================================
-
-================
-File: examples/fasterHmacSign.ts
-================
-import { createHmac } from 'crypto';
-⋮----
-import { RestClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { RestClient } from 'bitmart-api';
-⋮----
-/**
-   * Overkill in almost every case, but if you need any optimisation available,
-   * you can inject a faster sign mechanism such as node's native createHmac:
-   */
-⋮----
-async function getSpotBalances()
-
-================
-File: examples/futures-get-balances.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
-⋮----
-async function getFuturesAssets()
-
-================
-File: examples/futures-get-klines.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
-⋮----
-async function getFuturesKlines()
-
-================
-File: examples/futures-get-tickers.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
-⋮----
-async function getFuturesTickers()
 
 ================
 File: examples/README.md
@@ -178,36 +141,237 @@ API_KEY="apiKeyHere" API_SECRET="secretHere" API_MEMO="memoHere" ts-node example
 ```
 
 ================
-File: examples/spot-get-balances.ts
+File: examples/tsconfig.examples.json
 ================
-import { RestClient } from '../src';
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext",
+    "rootDir": "../"
+  },
+  "include": ["../src/**/*.*", "../examples/**/*.*"]
+}
+
+================
+File: src/lib/misc-util.ts
+================
+export function neverGuard(x: never, msg: string): Error
+
+================
+File: src/types/response/shared.types.ts
+================
+export interface APIResponse<TData = {}, TCode = number> {
+  message: string;
+  code: TCode;
+  trace: string;
+  data: TData;
+}
+⋮----
+export type OrderSide = 'buy' | 'sell';
+⋮----
+/**
+ * Spot & Futures uses this
+ */
+export interface AccountCurrencyBalanceV1 {
+  currency: string;
+  name: string;
+  available: string;
+  available_usd_valuation: string;
+  frozen: string;
+}
+
+================
+File: src/types/websockets/events.ts
+================
+export interface WsDataEvent<TData = any, TWSKey = string> {
+  data: TData;
+  table: string;
+  wsKey: TWSKey;
+}
+
+================
+File: src/types/websockets/requests.ts
+================
+export type WsOperation =
+  | 'subscribe'
+  | 'unsubscribe'
+  | 'login'
+  | 'access'
+  | 'request';
+⋮----
+export interface WsSpotOperation<TWSTopic extends string = string> {
+  op: WsOperation;
+  args: TWSTopic[];
+}
+⋮----
+export interface WsFuturesOperation<TWSTopic extends string> {
+  action: WsOperation;
+  args: TWSTopic[];
+}
+⋮----
+export type WsRequestOperation<TWSTopic extends string> =
+  | WsSpotOperation<TWSTopic>
+  | WsFuturesOperation<TWSTopic>;
+
+================
+File: src/index.ts
+================
+
+
+================
+File: .prettierrc
+================
+{
+  "tabWidth": 2,
+  "singleQuote": true,
+  "trailingComma": "all"
+}
+
+================
+File: postBuild.sh
+================
+#!/bin/bash
+#
+#   Add package.json files to cjs/mjs subtrees
+#
+
+cat >dist/cjs/package.json <<!EOF
+{
+    "type": "commonjs"
+}
+!EOF
+
+cat >dist/mjs/package.json <<!EOF
+{
+    "type": "module"
+}
+!EOF
+
+find src -name '*.d.ts' -exec cp {} dist/mjs \;
+find src -name '*.d.ts' -exec cp {} dist/cjs \;
+
+================
+File: tea.yaml
+================
+---
+version: 1.0.0
+codeOwners:
+  - '0xeb1a7BF44a801e33a339705A266Afc0Cba3D6D54'
+quorum: 1
+
+================
+File: tsconfig.cjs.json
+================
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext"
+  },
+  "include": ["src/**/*.*"]
+}
+
+================
+File: tsconfig.esm.json
+================
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "outDir": "dist/mjs",
+    "target": "esnext"
+  },
+  "include": ["src/**/*.*"]
+}
+
+================
+File: examples/Auth/fasterHmacSign.ts
+================
+import { createHmac } from 'crypto';
+⋮----
+import { RestClient } from '../../src/index.js';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { RestClient } from 'bitmart-api';
+⋮----
+/**
+   * Overkill in almost every case, but if you need any optimisation available,
+   * you can inject a faster sign mechanism such as node's native createHmac:
+   */
+⋮----
+async function getSpotBalances()
+
+================
+File: examples/Rest/Futures/futures-get-balances.ts
+================
+import { FuturesClientV2 } from '../../../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesAssets()
+
+================
+File: examples/Rest/Futures/futures-get-klines.ts
+================
+import { FuturesClientV2 } from '../../../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesKlines()
+
+================
+File: examples/Rest/Futures/futures-get-tickers.ts
+================
+import { FuturesClientV2 } from '../../../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function getFuturesTickers()
+
+================
+File: examples/Rest/Futures/futures-submit-order.ts
+================
+import { FuturesClientV2 } from '../../../src/index.js';
+// // import from npm, after installing via npm `npm install bitmart-api`
+// import { FuturesClientV2 } from 'bitmart-api';
+⋮----
+async function SumbitFuturesOrder()
+⋮----
+side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
+
+================
+File: examples/Rest/Spot/spot-get-balances.ts
+================
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 ⋮----
 async function getSpotBalances()
 
 ================
-File: examples/spot-get-klines.ts
+File: examples/Rest/Spot/spot-get-klines.ts
 ================
-import { RestClient } from '../src';
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 ⋮----
 async function getKlines()
 
 ================
-File: examples/spot-get-symbols.ts
+File: examples/Rest/Spot/spot-get-symbols.ts
 ================
-import { RestClient } from '../src';
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 ⋮----
 async function getTickers()
 
 ================
-File: examples/spot-submit-order.ts
+File: examples/Rest/Spot/spot-submit-order.ts
 ================
-import { RestClient } from '../src';
+import { RestClient } from '../../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { RestClient } from 'bitmart-api';
 ⋮----
@@ -233,23 +397,9 @@ async function start()
 // });
 
 ================
-File: examples/tsconfig.examples.json
+File: examples/Websocket/ws-custom-logger.ts
 ================
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-    "target": "esnext",
-    "rootDir": "../"
-  },
-  "include": ["../src/**/*.*", "../examples/**/*.*"]
-}
-
-================
-File: examples/ws-custom-logger.ts
-================
-import { DefaultLogger, LogParams, WebsocketClient } from '../src';
+import { DefaultLogger, LogParams, WebsocketClient } from '../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
 ⋮----
@@ -270,37 +420,9 @@ async function start()
 //
 
 ================
-File: examples/ws-futures-private.ts
+File: examples/Websocket/ws-futures-public.ts
 ================
-import { DefaultLogger, LogParams, WebsocketClient } from '../src/index.js';
-⋮----
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { DefaultLogger, LogParams, WebsocketClient } from 'bitmart-api';
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// Assets Channel
-⋮----
-// Position Channel
-// client.subscribe('futures/position', 'futures');
-⋮----
-// Order Channel
-// client.subscribe('futures/order', 'futures');
-
-================
-File: examples/ws-futures-public.ts
-================
-import { WebsocketClient } from '../src';
+import { WebsocketClient } from '../../src/index.js';
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { WebsocketClient } from 'bitmart-api';
 ⋮----
@@ -331,40 +453,9 @@ async function start()
 // Or have multiple topics in one array:
 
 ================
-File: examples/ws-spot-private.ts
+File: examples/Websocket/ws-spot-public.ts
 ================
-import { LogParams, WebsocketClient } from '../src';
-// import from npm, after installing via npm `npm install bitmart-api`
-// import { LogParams, WebsocketClient } from 'bitmart-api';
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-async function start()
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// order progress
-⋮----
-// balance updates
-// client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
-
-================
-File: examples/ws-spot-public.ts
-================
-import {
-  WebsocketClient,
-  // WsSpotOperation,
-} from '../src';
-⋮----
-// WsSpotOperation,
+import { WebsocketClient } from '../../src/index.js';
 ⋮----
 // import from npm, after installing via npm `npm install bitmart-api`
 // import { WebsocketClient } from 'bitmart-api';
@@ -421,948 +512,15 @@ async function start()
      */
 
 ================
-File: src/lib/websocket/WsStore.types.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-export enum WsConnectionStateEnum {
-  INITIAL = 0,
-  CONNECTING = 1,
-  CONNECTED = 2,
-  CLOSING = 3,
-  RECONNECTING = 4,
-  // ERROR = 5,
-}
-⋮----
-// ERROR = 5,
-⋮----
-export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
-  /** The currently active websocket connection */
-  ws?: WebSocket;
-  /** The current lifecycle state of the connection (enum) */
-  connectionState?: WsConnectionStateEnum;
-  /** A timer that will send an upstream heartbeat (ping) when it expires */
-  activePingTimer?: ReturnType<typeof setTimeout> | undefined;
-  /** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */
-  activePongTimer?: ReturnType<typeof setTimeout> | undefined;
-  /** If a reconnection is in progress, this will have the timer for the delayed reconnect */
-  activeReconnectTimer?: ReturnType<typeof setTimeout> | undefined;
-  /**
-   * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)
-   *
-   * A "Set" and a deep-object-match are used to ensure we only subscribe to a topic once (tracking a list of unique topics we're expected to be connected to)
-   */
-  subscribedTopics: Set<TWSTopicSubscribeEvent>;
-  /** Whether this connection has completed authentication (only applies to private connections) */
-  isAuthenticated?: boolean;
-}
-⋮----
-/** The currently active websocket connection */
-⋮----
-/** The current lifecycle state of the connection (enum) */
-⋮----
-/** A timer that will send an upstream heartbeat (ping) when it expires */
-⋮----
-/** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */
-⋮----
-/** If a reconnection is in progress, this will have the timer for the delayed reconnect */
-⋮----
-/**
-   * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)
-   *
-   * A "Set" and a deep-object-match are used to ensure we only subscribe to a topic once (tracking a list of unique topics we're expected to be connected to)
-   */
-⋮----
-/** Whether this connection has completed authentication (only applies to private connections) */
-
-================
 File: src/lib/logger.ts
 ================
 export type LogParams = null | any;
 ⋮----
+export type DefaultLogger = typeof DefaultLogger;
+⋮----
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 ⋮----
 // console.log(_params);
-
-================
-File: src/lib/misc-util.ts
-================
-export function neverGuard(x: never, msg: string): Error
-
-================
-File: src/types/websockets/client.ts
-================
-/**
- * Event args for subscribing/unsubscribing
- */
-⋮----
-// export type WsTopicSubscribePrivateArgsV2 =
-//   | WsTopicSubscribePrivateInstIdArgsV2
-//   | WsTopicSubscribePrivateCoinArgsV2;
-⋮----
-// export type WsTopicSubscribeEventArgsV2 =
-//   | WsTopicSubscribePublicArgsV2
-//   | WsTopicSubscribePrivateArgsV2;
-⋮----
-/** General configuration for the WebsocketClient */
-export interface WSClientConfigurableOptions {
-  /** Your API key */
-  apiKey?: string;
-
-  /** Your API secret */
-  apiSecret?: string;
-
-  /** Your API memo (can be anything) that you included when creating this API key */
-  apiMemo?: string;
-
-  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-  recvWindow?: number;
-
-  /** How often to check if the connection is alive */
-  pingInterval?: number;
-
-  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-  pongTimeout?: number;
-
-  /** Delay in milliseconds before respawning the connection */
-  reconnectTimeout?: number;
-
-  requestOptions?: {};
-
-  wsUrl?: string;
-
-  /**
-   * Default: false. If true, use the simulated trading demo environment.
-   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
-   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
-   */
-  useDemo?: boolean;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-}
-⋮----
-/** Your API key */
-⋮----
-/** Your API secret */
-⋮----
-/** Your API memo (can be anything) that you included when creating this API key */
-⋮----
-/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-⋮----
-/** How often to check if the connection is alive */
-⋮----
-/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-⋮----
-/** Delay in milliseconds before respawning the connection */
-⋮----
-/**
-   * Default: false. If true, use the simulated trading demo environment.
-   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
-   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
-   */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-/**
- * WS configuration that's always defined, regardless of user configuration
- * (usually comes from defaults if there's no user-provided values)
- */
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pingInterval: number;
-  pongTimeout: number;
-  reconnectTimeout: number;
-  recvWindow: number;
-}
-⋮----
-export type WsMarket = 'spot' | 'futures';
-
-================
-File: src/types/websockets/events.ts
-================
-export interface WsDataEvent<TData = any, TWSKey = string> {
-  data: TData;
-  table: string;
-  wsKey: TWSKey;
-}
-
-================
-File: src/types/websockets/requests.ts
-================
-export type WsOperation =
-  | 'subscribe'
-  | 'unsubscribe'
-  | 'login'
-  | 'access'
-  | 'request';
-⋮----
-export interface WsSpotOperation<TWSTopic extends string = string> {
-  op: WsOperation;
-  args: TWSTopic[];
-}
-⋮----
-export interface WsFuturesOperation<TWSTopic extends string> {
-  action: WsOperation;
-  args: TWSTopic[];
-}
-⋮----
-export type WsRequestOperation<TWSTopic extends string> =
-  | WsSpotOperation<TWSTopic>
-  | WsFuturesOperation<TWSTopic>;
-
-================
-File: src/index.ts
-================
-
-
-================
-File: .prettierrc
-================
-{
-  "tabWidth": 2,
-  "singleQuote": true,
-  "trailingComma": "all"
-}
-
-================
-File: jest.config.ts
-================
-/**
- * For a detailed explanation regarding each configuration property, visit:
- * https://jestjs.io/docs/configuration
- */
-⋮----
-import type { Config } from 'jest';
-⋮----
-// All imported modules in your tests should be mocked automatically
-// automock: false,
-⋮----
-// Stop running tests after `n` failures
-// bail: 0,
-bail: false, // enable to stop test when an error occur,
-⋮----
-// The directory where Jest should store its cached dependency information
-// cacheDirectory: "/private/var/folders/kf/2k3sz4px6c9cbyzj1h_b192h0000gn/T/jest_dx",
-⋮----
-// Automatically clear mock calls, instances, contexts and results before every test
-⋮----
-// Indicates whether the coverage information should be collected while executing the test
-⋮----
-// An array of glob patterns indicating a set of files for which coverage information should be collected
-⋮----
-// The directory where Jest should output its coverage files
-⋮----
-// An array of regexp pattern strings used to skip coverage collection
-// coveragePathIgnorePatterns: [
-//   "/node_modules/"
-// ],
-⋮----
-// Indicates which provider should be used to instrument code for coverage
-⋮----
-// A list of reporter names that Jest uses when writing coverage reports
-// coverageReporters: [
-//   "json",
-//   "text",
-//   "lcov",
-//   "clover"
-// ],
-⋮----
-// An object that configures minimum threshold enforcement for coverage results
-// coverageThreshold: undefined,
-⋮----
-// A path to a custom dependency extractor
-// dependencyExtractor: undefined,
-⋮----
-// Make calling deprecated APIs throw helpful error messages
-// errorOnDeprecated: false,
-⋮----
-// The default configuration for fake timers
-// fakeTimers: {
-//   "enableGlobally": false
-// },
-⋮----
-// Force coverage collection from ignored files using an array of glob patterns
-// forceCoverageMatch: [],
-⋮----
-// A path to a module which exports an async function that is triggered once before all test suites
-// globalSetup: undefined,
-⋮----
-// A path to a module which exports an async function that is triggered once after all test suites
-// globalTeardown: undefined,
-⋮----
-// A set of global variables that need to be available in all test environments
-// globals: {},
-⋮----
-// The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-// maxWorkers: "50%",
-⋮----
-// An array of directory names to be searched recursively up from the requiring module's location
-// moduleDirectories: [
-//   "node_modules"
-// ],
-⋮----
-// An array of file extensions your modules use
-// moduleFileExtensions: [
-//   "js",
-//   "mjs",
-//   "cjs",
-//   "jsx",
-//   "ts",
-//   "tsx",
-//   "json",
-//   "node"
-// ],
-⋮----
-// A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-// moduleNameMapper: {},
-⋮----
-// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-// modulePathIgnorePatterns: [],
-⋮----
-// Activates notifications for test results
-// notify: false,
-⋮----
-// An enum that specifies notification mode. Requires { notify: true }
-// notifyMode: "failure-change",
-⋮----
-// A preset that is used as a base for Jest's configuration
-// preset: undefined,
-⋮----
-// Run tests from one or more projects
-// projects: undefined,
-⋮----
-// Use this configuration option to add custom reporters to Jest
-// reporters: undefined,
-⋮----
-// Automatically reset mock state before every test
-// resetMocks: false,
-⋮----
-// Reset the module registry before running each individual test
-// resetModules: false,
-⋮----
-// A path to a custom resolver
-// resolver: undefined,
-⋮----
-// Automatically restore mock state and implementation before every test
-// restoreMocks: false,
-⋮----
-// The root directory that Jest should scan for tests and modules within
-// rootDir: undefined,
-⋮----
-// A list of paths to directories that Jest should use to search for files in
-// roots: [
-//   "<rootDir>"
-// ],
-⋮----
-// Allows you to use a custom runner instead of Jest's default test runner
-// runner: "jest-runner",
-⋮----
-// The paths to modules that run some code to configure or set up the testing environment before each test
-// setupFiles: [],
-⋮----
-// A list of paths to modules that run some code to configure or set up the testing framework before each test
-// setupFilesAfterEnv: [],
-⋮----
-// The number of seconds after which a test is considered as slow and reported as such in the results.
-// slowTestThreshold: 5,
-⋮----
-// A list of paths to snapshot serializer modules Jest should use for snapshot testing
-// snapshotSerializers: [],
-⋮----
-// The test environment that will be used for testing
-// testEnvironment: "jest-environment-node",
-⋮----
-// Options that will be passed to the testEnvironment
-// testEnvironmentOptions: {},
-⋮----
-// Adds a location field to test results
-// testLocationInResults: false,
-⋮----
-// The glob patterns Jest uses to detect test files
-⋮----
-// "**/__tests__/**/*.[jt]s?(x)",
-⋮----
-// An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-// testPathIgnorePatterns: [
-//   "/node_modules/"
-// ],
-⋮----
-// The regexp pattern or array of patterns that Jest uses to detect test files
-// testRegex: [],
-⋮----
-// This option allows the use of a custom results processor
-// testResultsProcessor: undefined,
-⋮----
-// This option allows use of a custom test runner
-// testRunner: "jest-circus/runner",
-⋮----
-// A map from regular expressions to paths to transformers
-// transform: undefined,
-⋮----
-// An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-// transformIgnorePatterns: [
-//   "/node_modules/",
-//   "\\.pnp\\.[^\\/]+$"
-// ],
-⋮----
-// Prevents import esm module error from v1 axios release, issue #5026
-⋮----
-// An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
-// unmockedModulePathPatterns: undefined,
-⋮----
-// Indicates whether each individual test should be reported during the run
-// verbose: undefined,
-verbose: true, // report individual test
-⋮----
-// An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
-// watchPathIgnorePatterns: [],
-⋮----
-// Whether to use watchman for file crawling
-// watchman: true,
-
-================
-File: postBuild.sh
-================
-#!/bin/bash
-#
-#   Add package.json files to cjs/mjs subtrees
-#
-
-cat >dist/cjs/package.json <<!EOF
-{
-    "type": "commonjs"
-}
-!EOF
-
-cat >dist/mjs/package.json <<!EOF
-{
-    "type": "module"
-}
-!EOF
-
-find src -name '*.d.ts' -exec cp {} dist/mjs \;
-find src -name '*.d.ts' -exec cp {} dist/cjs \;
-
-================
-File: PR_SUMMARY.md
-================
-# PR Summary: BitMart API Updates - New Endpoints & Demo Trading Support
-
-## Overview
-This PR implements updates from BitMart's API changelog (2025-11-18 to 2025-12-11), adding new endpoints, updating existing ones, and introducing demo/simulated trading environment support.
-
-## Changes
-
-### 1. Updated `/contract/private/trades` Endpoint (2025-12-02)
-**Files Modified:**
-- `src/types/request/futures.types.ts`
-
-**Changes:**
-- Added optional `order_id` and `client_order_id` fields to `FuturesAccountTradesRequest`
-- Made `symbol` field optional to support querying by order ID or client order ID
-- Enables querying order trades by order ID or client order ID in addition to symbol
-
-### 2. New Affiliate Rebate Endpoints (2025-12-11)
-**Files Modified:**
-- `src/types/request/futures.types.ts`
-- `src/types/response/futures.types.ts`
-- `src/FuturesClientV2.ts`
-
-**New Endpoints:**
-- `getFuturesAffiliateRebateUser()` - `/contract/private/affiliate/rebate-user`
-  - Query contract rebate data for users (up to 60 days)
-- `getFuturesAffiliateRebateApi()` - `/contract/private/affiliate/rebate-api`
-  - Query contract API rebate data (up to 60 days)
-
-**New Types:**
-- `FuturesAffiliateRebateUserRequest` - Request type for user rebate data
-- `FuturesAffiliateRebateApiRequest` - Request type for API rebate data
-- `FuturesAffiliateRebateUserResponse` - Response type for user rebate data
-- `FuturesAffiliateRebateApiResponse` - Response type for API rebate data
-
-### 3. Simulated Trading / Demo Environment Support (2025-11-18)
-**Files Modified:**
-- `src/types/request/futures.types.ts`
-- `src/types/response/futures.types.ts`
-- `src/lib/requestUtils.ts`
-- `src/lib/websocket/websocket-util.ts`
-- `src/types/websockets/client.ts`
-- `src/FuturesClientV2.ts`
-- `src/WebsocketClient.ts`
-- `README.md`
-
-**REST API Changes:**
-- Added `useDemo` option to `RestClientOptions` interface
-- Updated `getRestBaseUrl()` to support demo environment
-- Demo REST endpoint: `https://demo-api-cloud-v2.bitmart.com`
-- Added `submitFuturesSimulatedClaim()` method for simulated account claim
-- New types: `SubmitFuturesSimulatedClaimRequest`, `FuturesSimulatedClaimResponse`
-
-**WebSocket Changes:**
-- Added `useDemo` option to `WSClientConfigurableOptions` interface
-- Updated `WS_BASE_URL_MAP` to include demo URLs for V2 Futures
-- Updated `getWsUrl()` method to support demo environment
-- Demo WebSocket endpoints:
-  - Public: `wss://openapi-wsdemo-v2.bitmart.com/api?protocol=1.1`
-  - Private: `wss://openapi-wsdemo-v2.bitmart.com/user?protocol=1.1`
-
-**Documentation:**
-- Added demo trading section to README.md
-- Included examples for both REST and WebSocket clients
-- Clarified that demo environment is only available for V2 Futures
-
-## Usage Examples
-
-### New Affiliate Rebate Endpoints
-```typescript
-// Get user rebate data
-const userRebate = await futuresClient.getFuturesAffiliateRebateUser({
-  cid: 1000000,
-  start_time: 1000000000,
-  end_time: 2000000000,
-});
-
-// Get API rebate data
-const apiRebate = await futuresClient.getFuturesAffiliateRebateApi({
-  cid: 1000000,
-  start_time: 1000000000,
-  end_time: 2000000000,
-});
-```
-
-### Updated Trades Endpoint
-```typescript
-// Query by order ID
-const trades = await futuresClient.getFuturesAccountTrades({
-  order_id: 123456789,
-});
-
-// Query by client order ID
-const trades = await futuresClient.getFuturesAccountTrades({
-  client_order_id: 'my-order-id',
-});
-```
-
-### Demo Trading Environment
-```typescript
-// REST API
-const demoClient = new FuturesClientV2({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  useDemo: true,
-});
-
-// WebSocket
-const demoWsClient = new WebsocketClient({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  useDemo: true, // V2 Futures only
-});
-
-// Simulated claim
-await demoClient.submitFuturesSimulatedClaim({
-  currency: 'USDT',
-  amount: '10',
-});
-```
-
-## Breaking Changes
-None - all changes are backward compatible.
-
-## Notes
-- Demo environment is only available for V2 Futures (not Spot or V1 Futures)
-- The same API keys work for both production and demo environments
-- Manual `baseUrl`/`wsUrl` override still takes precedence over `useDemo` flag
-- All new endpoints follow existing code patterns and conventions
-
-## Testing
-- All TypeScript types are properly defined
-- Linter checks pass
-- Code follows existing patterns and conventions
-- Documentation updated with examples
-
-================
-File: tea.yaml
-================
----
-version: 1.0.0
-codeOwners:
-  - '0xeb1a7BF44a801e33a339705A266Afc0Cba3D6D54'
-quorum: 1
-
-================
-File: tsconfig.cjs.json
-================
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-    "target": "esnext"
-  },
-  "include": ["src/**/*.*"]
-}
-
-================
-File: tsconfig.esm.json
-================
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "esnext",
-    "outDir": "dist/mjs",
-    "target": "esnext"
-  },
-  "include": ["src/**/*.*"]
-}
-
-================
-File: tsconfig.linting.json
-================
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-    "target": "esnext",
-    "rootDir": "../"
-  },
-  "include": ["src/**/*.*", "test/**/*.*", "examples/**/*.*", ".eslintrc.cjs"]
-}
-
-================
-File: examples/futures-submit-order.ts
-================
-import { FuturesClientV2 } from '../src/index.js';
-// // import from npm, after installing via npm `npm install bitmart-api`
-// import { FuturesClientV2 } from 'bitmart-api';
-⋮----
-async function SumbitFuturesOrder()
-⋮----
-side: 1, // Order side - 1=buy_open_long  -2=buy_close_short  -3=sell_close_long  -4=sell_open_short
-
-================
-File: src/lib/websocket/WsStore.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-import { DefaultLogger } from '../logger.js';
-import { WsConnectionStateEnum, WsStoredState } from './WsStore.types.js';
-⋮----
-/**
- * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
- */
-function isDeepObjectMatch(object1: unknown, object2: unknown)
-⋮----
-export class WsStore<
-WsKey extends string,
-⋮----
-constructor(logger: typeof DefaultLogger)
-⋮----
-/** Get WS stored state for key, optionally create if missing */
-get(
-    key: WsKey,
-    createIfMissing?: true,
-  ): WsStoredState<TWSTopicSubscribeEventArgs>;
-⋮----
-get(
-    key: WsKey,
-    createIfMissing?: false,
-  ): WsStoredState<TWSTopicSubscribeEventArgs> | undefined;
-⋮----
-get(
-    key: WsKey,
-    createIfMissing?: boolean,
-): WsStoredState<TWSTopicSubscribeEventArgs> | undefined
-⋮----
-getKeys(): WsKey[]
-⋮----
-create(key: WsKey): WsStoredState<TWSTopicSubscribeEventArgs> | undefined
-⋮----
-delete(key: WsKey): void
-⋮----
-// TODO: should we allow this at all? Perhaps block this from happening...
-⋮----
-/* connection websocket */
-⋮----
-hasExistingActiveConnection(key: WsKey): boolean
-⋮----
-getWs(key: WsKey): WebSocket | undefined
-⋮----
-setWs(key: WsKey, wsConnection: WebSocket): WebSocket
-⋮----
-/* connection state */
-⋮----
-isWsOpen(key: WsKey): boolean
-⋮----
-getConnectionState(key: WsKey): WsConnectionStateEnum
-⋮----
-setConnectionState(key: WsKey, state: WsConnectionStateEnum)
-⋮----
-isConnectionState(key: WsKey, state: WsConnectionStateEnum): boolean
-⋮----
-/* subscribed topics */
-⋮----
-getTopics(key: WsKey): Set<TWSTopicSubscribeEventArgs>
-⋮----
-getTopicsByKey(): Record<string, Set<TWSTopicSubscribeEventArgs>>
-⋮----
-// Since topics are objects we can't rely on the set to detect duplicates
-getMatchingTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
-⋮----
-// if (typeof topic === 'string') {
-//   return this.getMatchingTopic(key, { channel: topic });
-// }
-⋮----
-addTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
-⋮----
-// if (typeof topic === 'string') {
-//   return this.addTopic(key, {
-//     instType: 'sp',
-//     channel: topic,
-//     instId: 'default',
-//   };
-// }
-// Check for duplicate topic. If already tracked, don't store this one
-⋮----
-deleteTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
-⋮----
-// Check if we're subscribed to a topic like this
-
-================
-File: src/lib/requestUtils.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-import { REST_CLIENT_TYPE_ENUM, RestClientType } from './BaseRestClient.js';
-⋮----
-export interface RestClientOptions {
-  /** Your API key */
-  apiKey?: string;
-
-  /** Your API secret */
-  apiSecret?: string;
-
-  /** Your API memo (can be anything) that you included when creating this API key */
-  apiMemo?: string;
-
-  /**
-   * Override the default/global max size of the request window (in ms) for signed api calls.
-   * If you don't include a recv window when making an API call, this value will be used as default
-   */
-  recvWindow?: number;
-
-  /** Default: false. If true, we'll throw errors if any params are undefined */
-  strictParamValidation?: boolean;
-
-  /**
-   * Optionally override API protocol + domain
-   * e.g baseUrl: 'https://api.bitmart.com'
-   **/
-  baseUrl?: string;
-
-  /**
-   * Default: false. If true, use the simulated trading demo environment.
-   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
-   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
-   */
-  useDemo?: boolean;
-
-  /** Default: true. whether to try and post-process request exceptions (and throw them). */
-  parseExceptions?: boolean;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-
-  /**
-   * Enable keep alive for REST API requests (via axios).
-   */
-  keepAlive?: boolean;
-
-  /**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-  keepAliveMsecs?: number;
-}
-⋮----
-/** Your API key */
-⋮----
-/** Your API secret */
-⋮----
-/** Your API memo (can be anything) that you included when creating this API key */
-⋮----
-/**
-   * Override the default/global max size of the request window (in ms) for signed api calls.
-   * If you don't include a recv window when making an API call, this value will be used as default
-   */
-⋮----
-/** Default: false. If true, we'll throw errors if any params are undefined */
-⋮----
-/**
-   * Optionally override API protocol + domain
-   * e.g baseUrl: 'https://api.bitmart.com'
-   **/
-⋮----
-/**
-   * Default: false. If true, use the simulated trading demo environment.
-   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
-   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
-   */
-⋮----
-/** Default: true. whether to try and post-process request exceptions (and throw them). */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-/**
-   * Enable keep alive for REST API requests (via axios).
-   */
-⋮----
-/**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-⋮----
-export function serializeParams<T extends Record<string, any> | undefined = {}>(
-  params: T,
-  strict_validation: boolean | undefined,
-  encodeValues: boolean,
-  prefixWith: string,
-): string
-⋮----
-// Only prefix if there's a value
-⋮----
-export function getRestBaseUrl(
-  useTestnet: boolean,
-  restInverseOptions: RestClientOptions,
-  restClientType: RestClientType,
-): string
-⋮----
-// Demo environment is only available for V2 Futures
-⋮----
-// For V1, fall back to production
-⋮----
-export interface MessageEventLike {
-  target: WebSocket;
-  type: 'message';
-  data: string;
-}
-⋮----
-export function isMessageEvent(msg: unknown): msg is MessageEventLike
-
-================
-File: src/lib/webCryptoAPI.ts
-================
-import { neverGuard } from './misc-util.js';
-⋮----
-function bufferToB64(buffer: ArrayBuffer): string
-⋮----
-/**
- * Sign a message, with a secret, using the Web Crypto API
- */
-export async function signMessage(
-  message: string,
-  secret: string,
-  method: 'hex' | 'base64',
-): Promise<string>
-⋮----
-export function checkWebCryptoAPISupported()
-
-================
-File: src/types/response/shared.types.ts
-================
-export interface APIResponse<TData = {}, TCode = number> {
-  message: string;
-  code: TCode;
-  trace: string;
-  data: TData;
-}
-⋮----
-export type OrderSide = 'buy' | 'sell';
-⋮----
-/**
- * Spot & Futures uses this
- */
-export interface AccountCurrencyBalanceV1 {
-  currency: string;
-  name: string;
-  available: string;
-  available_usd_valuation: string;
-  frozen: string;
-}
-
-================
-File: .nvmrc
-================
-v22.17.1
-
-================
-File: LICENSE.md
-================
-Copyright 2025 Tiago Siebler
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-================
-File: src/lib/websocket/websocket-util.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-/** Should be one WS key per unique URL */
-⋮----
-/** This is used to differentiate between each of the available websocket streams */
-export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
-⋮----
-/**
- * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
- * Examples:
- *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
- *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
- *  - Only one livenet, no other networks: NetworkMap<'livenet'>
- */
-type NetworkMap<
-  TRequiredKeys extends string,
-  TOptionalKeys extends string | undefined = undefined,
-> = Record<TRequiredKeys, string> &
-  (TOptionalKeys extends string
-    ? Record<TOptionalKeys, string | undefined>
-    : Record<TRequiredKeys, string>);
-⋮----
-export function neverGuard(x: never, msg: string): Error
-⋮----
-/**
- * ws.terminate() is undefined in browsers.
- * This only works in node.js, not in browsers.
- * Does nothing if `ws` is undefined. Does nothing in browsers.
- */
-export function safeTerminateWs(
-  ws?: WebSocket | any,
-  fallbackToClose?: boolean,
-): boolean
 
 ================
 File: src/types/request/spot.types.ts
@@ -1557,380 +715,825 @@ export interface SpotBrokerRebateRequest {
 }
 
 ================
-File: src/WebsocketClient.ts
+File: webpack/webpack.config.cjs
+================
+function generateConfig(name)
+⋮----
+// Add '.ts' and '.tsx' as resolvable extensions.
+⋮----
+// Node.js core modules not available in browsers
+// The REST client's https.Agent (for keepAlive) is Node.js-only and won't work in browsers
+⋮----
+// Code is already transpiled from TypeScript, no additional loaders needed
+
+================
+File: .nvmrc
+================
+v22.17.1
+
+================
+File: jest.config.ts
+================
+/**
+ * For a detailed explanation regarding each configuration property, visit:
+ * https://jestjs.io/docs/configuration
+ */
+⋮----
+import type { Config } from 'jest';
+⋮----
+// All imported modules in your tests should be mocked automatically
+// automock: false,
+⋮----
+// Stop running tests after `n` failures
+// bail: 0,
+bail: false, // enable to stop test when an error occur,
+⋮----
+// The directory where Jest should store its cached dependency information
+// cacheDirectory: "/private/var/folders/kf/2k3sz4px6c9cbyzj1h_b192h0000gn/T/jest_dx",
+⋮----
+// Automatically clear mock calls, instances, contexts and results before every test
+⋮----
+// Indicates whether the coverage information should be collected while executing the test
+⋮----
+// An array of glob patterns indicating a set of files for which coverage information should be collected
+⋮----
+// The directory where Jest should output its coverage files
+⋮----
+// An array of regexp pattern strings used to skip coverage collection
+// coveragePathIgnorePatterns: [
+//   "/node_modules/"
+// ],
+⋮----
+// Indicates which provider should be used to instrument code for coverage
+⋮----
+// A list of reporter names that Jest uses when writing coverage reports
+// coverageReporters: [
+//   "json",
+//   "text",
+//   "lcov",
+//   "clover"
+// ],
+⋮----
+// An object that configures minimum threshold enforcement for coverage results
+// coverageThreshold: undefined,
+⋮----
+// A path to a custom dependency extractor
+// dependencyExtractor: undefined,
+⋮----
+// Make calling deprecated APIs throw helpful error messages
+// errorOnDeprecated: false,
+⋮----
+// The default configuration for fake timers
+// fakeTimers: {
+//   "enableGlobally": false
+// },
+⋮----
+// Force coverage collection from ignored files using an array of glob patterns
+// forceCoverageMatch: [],
+⋮----
+// A path to a module which exports an async function that is triggered once before all test suites
+// globalSetup: undefined,
+⋮----
+// A path to a module which exports an async function that is triggered once after all test suites
+// globalTeardown: undefined,
+⋮----
+// A set of global variables that need to be available in all test environments
+// globals: {},
+⋮----
+// The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
+// maxWorkers: "50%",
+⋮----
+// An array of directory names to be searched recursively up from the requiring module's location
+// moduleDirectories: [
+//   "node_modules"
+// ],
+⋮----
+// An array of file extensions your modules use
+// moduleFileExtensions: [
+//   "js",
+//   "mjs",
+//   "cjs",
+//   "jsx",
+//   "ts",
+//   "tsx",
+//   "json",
+//   "node"
+// ],
+⋮----
+// A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
+⋮----
+// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
+// modulePathIgnorePatterns: [],
+⋮----
+// Activates notifications for test results
+// notify: false,
+⋮----
+// An enum that specifies notification mode. Requires { notify: true }
+// notifyMode: "failure-change",
+⋮----
+// A preset that is used as a base for Jest's configuration
+// preset: undefined,
+⋮----
+// Run tests from one or more projects
+// projects: undefined,
+⋮----
+// Use this configuration option to add custom reporters to Jest
+// reporters: undefined,
+⋮----
+// Automatically reset mock state before every test
+// resetMocks: false,
+⋮----
+// Reset the module registry before running each individual test
+// resetModules: false,
+⋮----
+// A path to a custom resolver
+// resolver: undefined,
+⋮----
+// Automatically restore mock state and implementation before every test
+// restoreMocks: false,
+⋮----
+// The root directory that Jest should scan for tests and modules within
+// rootDir: undefined,
+⋮----
+// A list of paths to directories that Jest should use to search for files in
+// roots: [
+//   "<rootDir>"
+// ],
+⋮----
+// Allows you to use a custom runner instead of Jest's default test runner
+// runner: "jest-runner",
+⋮----
+// The paths to modules that run some code to configure or set up the testing environment before each test
+// setupFiles: [],
+⋮----
+// A list of paths to modules that run some code to configure or set up the testing framework before each test
+// setupFilesAfterEnv: [],
+⋮----
+// The number of seconds after which a test is considered as slow and reported as such in the results.
+// slowTestThreshold: 5,
+⋮----
+// A list of paths to snapshot serializer modules Jest should use for snapshot testing
+// snapshotSerializers: [],
+⋮----
+// The test environment that will be used for testing
+// testEnvironment: "jest-environment-node",
+⋮----
+// Options that will be passed to the testEnvironment
+// testEnvironmentOptions: {},
+⋮----
+// Adds a location field to test results
+// testLocationInResults: false,
+⋮----
+// The glob patterns Jest uses to detect test files
+⋮----
+// "**/__tests__/**/*.[jt]s?(x)",
+⋮----
+// An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
+// testPathIgnorePatterns: [
+//   "/node_modules/"
+// ],
+⋮----
+// The regexp pattern or array of patterns that Jest uses to detect test files
+// testRegex: [],
+⋮----
+// This option allows the use of a custom results processor
+// testResultsProcessor: undefined,
+⋮----
+// This option allows use of a custom test runner
+// testRunner: "jest-circus/runner",
+⋮----
+// A map from regular expressions to paths to transformers
+// transform: undefined,
+⋮----
+// An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
+// transformIgnorePatterns: [
+//   "/node_modules/",
+//   "\\.pnp\\.[^\\/]+$"
+// ],
+⋮----
+// Prevents import esm module error from v1 axios release, issue #5026
+⋮----
+// An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
+// unmockedModulePathPatterns: undefined,
+⋮----
+// Indicates whether each individual test should be reported during the run
+// verbose: undefined,
+verbose: true, // report individual test
+⋮----
+// An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
+// watchPathIgnorePatterns: [],
+⋮----
+// Whether to use watchman for file crawling
+// watchman: true,
+
+================
+File: LICENSE.md
+================
+Copyright 2025 Tiago Siebler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+================
+File: tsconfig.linting.json
+================
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext",
+    "rootDir": "../"
+  },
+  "include": ["src/**/*.*", "test/**/*.*", "examples/**/*.*", ".eslintrc.cjs", "jest.config.ts"]
+}
+
+================
+File: examples/Websocket/ws-futures-private.ts
+================
+import { LogParams, WebsocketClient } from '../../src/index.js';
+⋮----
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { LogParams, WebsocketClient } from 'bitmart-api';
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+async function start()
+⋮----
+customLogger, // optional: inject a custom logger with all levels enabled (trace is disabled by default)
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// Assets Channel
+⋮----
+// Position Channel
+// client.subscribe('futures/position', 'futures');
+⋮----
+// Order Channel
+// client.subscribe('futures/order', 'futures');
+
+================
+File: examples/Websocket/ws-spot-private.ts
+================
+import { LogParams, WebsocketClient } from '../../src/index.js';
+// import from npm, after installing via npm `npm install bitmart-api`
+// import { LogParams, WebsocketClient } from 'bitmart-api';
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+async function start()
+⋮----
+customLogger, // optional: inject a custom logger with all levels enabled (trace is disabled by default)
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// order progress
+⋮----
+// balance updates
+// client.subscribe('spot/user/balance:BALANCE_UPDATE', 'spot');
+
+================
+File: src/lib/websocket/websocket-util.ts
 ================
 import WebSocket from 'isomorphic-ws';
 ⋮----
-import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
-import { neverGuard } from './lib/misc-util.js';
-import { MessageEventLike } from './lib/requestUtils.js';
-import { signMessage } from './lib/webCryptoAPI.js';
-import {
-  WS_BASE_URL_MAP,
-  WS_KEY_MAP,
-  WsKey,
-} from './lib/websocket/websocket-util.js';
-import { WsMarket } from './types/websockets/client.js';
-import {
-  WsFuturesOperation,
-  WsOperation,
-  WsRequestOperation,
-  WsSpotOperation,
-} from './types/websockets/requests.js';
-⋮----
-/** Any WS keys in this list will trigger auth on connect, if credentials are available */
-⋮----
-/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
+import { WsTopic } from '../../types/websockets/client.js';
+import { MessageEventLike } from '../requestUtils.js';
 ⋮----
 /**
- * WS topics are always a string for bitmart. Some exchanges use complex objects
+ * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
+ *
+ * - Topic: the topic this event is for
+ * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
+ * - Category: required for bybit, since different categories have different public endpoints
  */
-type WsTopic = string;
-⋮----
-export class WebsocketClient extends BaseWebsocketClient<
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-public connectAll(): Promise<WebSocket | undefined>[]
-⋮----
-/**
-   * Request subscription to one or more topics.
-   *
-   * - Subscriptions are automatically routed to the correct websocket connection.
-   * - Authentication/connection is automatic.
-   * - Resubscribe after network issues is automatic.
-   *
-   * Call `unsubscribeTopics(topics)` to remove topics
-   */
-public subscribeTopics(topics: WsTopic[])
+export interface WsTopicRequest<
+  TWSTopic extends string = string,
+  TWSPayload = unknown,
+> {
+  topic: TWSTopic;
+  payload?: TWSPayload;
+}
 ⋮----
 /**
-   * Unsubscribe from one or more topics.
-   *
-   * - Requests are automatically routed to the correct websocket connection.
-   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
-   */
-public unsubscribeTopics(topics: WsTopic[])
+ * Conveniently allow users to request a topic either as string topics or objects (containing string topic + params)
+ */
+export type WsTopicRequestOrStringTopic<
+  TWSTopic extends string,
+  TWSPayload = unknown,
+> = WsTopicRequest<TWSTopic, TWSPayload> | string;
+⋮----
+/** Should be one WS key per unique URL */
+⋮----
+/** This is used to differentiate between each of the available websocket streams */
+export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 ⋮----
 /**
-   *
-   * Internal methods
-   *
-   */
+ * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
+ * Examples:
+ *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
+ *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
+ *  - Only one livenet, no other networks: NetworkMap<'livenet'>
+ */
+type NetworkMap<
+  TRequiredKeys extends string,
+  TOptionalKeys extends string | undefined = undefined,
+> = Record<TRequiredKeys, string> &
+  (TOptionalKeys extends string
+    ? Record<TOptionalKeys, string | undefined>
+    : Record<TRequiredKeys, string>);
 ⋮----
-protected sendPingEvent(wsKey: WsKey)
-⋮----
-protected isWsPong(msg: any): boolean
-⋮----
-// bitmart spot
-⋮----
-// bitmart futures
-// if (typeof event?.data === 'string') {
-//   return true;
-// }
-⋮----
-// this.logger.info(`Not a pong: `, msg);
-⋮----
-protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[]
-⋮----
-// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-⋮----
-// Request/reply pattern for authentication success
+export function neverGuard(x: never, msg: string): Error
 ⋮----
 /**
-   * Determines if a topic is for a private channel, using a hardcoded list of strings
-   */
-protected isPrivateChannel(topic: WsTopic): boolean
-⋮----
-// console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
-⋮----
-/** Spot */
-⋮----
-/** Futures */
-⋮----
-protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
-⋮----
-protected getWsMarketForWsKey(key: WsKey): WsMarket
-⋮----
-protected getWsKeyForTopic(topic: WsTopic): WsKey
-⋮----
-protected getPrivateWSKeys(): WsKey[]
-⋮----
-protected getWsUrl(wsKey: WsKey): string
-⋮----
-// Demo environment is only available for V2 Futures
-⋮----
-// Fallback to livenet if demo is not available for this wsKey
-⋮----
-/** Force subscription requests to be sent in smaller batches, if a number is returned */
-protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
-⋮----
-// Return a number if there's a limit on the number of sub topics per rq
+ * ws.terminate() is undefined in browsers.
+ * This only works in node.js, not in browsers.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
+ */
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean
 ⋮----
 /**
-   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
-   */
-protected getWsSubscribeEventsForTopics(
-    topics: WsTopic[],
-    wsKey: WsKey,
-): string[]
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+export function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<WsTopic>[]
+⋮----
+// passed as string, convert to object
+⋮----
+// already a normalised object, thanks to user
 ⋮----
 /**
-   * Map one or more topics into fully prepared "unsubscribe request" events (already stringified and ready to send)
-   */
-protected getWsUnsubscribeEventsForTopics(
-    topics: WsTopic[],
-    wsKey: WsKey,
-): string[]
+ * WebSocket.ping() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPingFrameAvailable(): boolean
 ⋮----
 /**
-   * @returns a correctly structured events for performing an operation over WS. This can vary per exchange spec.
-   */
-private getWsRequestEvent(
-    market: WsMarket,
-    operation: WsOperation,
-    args: WsTopic[],
-): WsRequestOperation<WsTopic>
+ * WebSocket.pong() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPongFrameAvailable(): boolean
 ⋮----
-protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
+export async function decompressMessageEvent(
+  event: MessageEventLike<Buffer<ArrayBufferLike>>,
+): Promise<MessageEventLike<any>>
 ⋮----
-// https://developer-pro.bitmart.com/en/futuresv2/#private-login
-⋮----
-/**
-   * This exchange API is split into "markets" that behave differently (different base URLs).
-   * The market can easily be resolved using the topic name.
-   */
-private getMarketForTopic(topic: string): WsMarket
-⋮----
-/**
-   * Used to split sub/unsub logic by websocket connection
-   */
-private arrangeTopicsIntoWsKeyGroups(
-    topics: WsTopic[],
-): Record<WsKey, WsTopic[]>
+start(controller)
 
 ================
-File: .eslintrc.cjs
+File: src/lib/websocket/WsStore.types.ts
 ================
-// 'no-unused-vars': ['warn'],
+import WebSocket from 'isomorphic-ws';
+⋮----
+export enum WsConnectionStateEnum {
+  INITIAL = 0,
+  CONNECTING = 1,
+  CONNECTED = 2,
+  CLOSING = 3,
+  RECONNECTING = 4,
+  ERROR = 5,
+}
+⋮----
+export interface DeferredPromise<TSuccess = any, TError = any> {
+  resolve?: (value: TSuccess) => TSuccess;
+  reject?: (value: TError) => TError;
+  promise?: Promise<TSuccess>;
+}
+⋮----
+export interface WSConnectedResult {
+  wsKey: string;
+  ws: WebSocket;
+}
+⋮----
+export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
+  /** The currently active websocket connection */
+  ws?: WebSocket;
+  /** The current lifecycle state of the connection (enum) */
+  connectionState?: WsConnectionStateEnum;
+  connectionStateChangedAt?: Date;
+
+  /** A timer that will send an upstream heartbeat (ping) when it expires */
+  activePingTimer?: ReturnType<typeof setTimeout> | undefined;
+  /** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */
+  activePongTimer?: ReturnType<typeof setTimeout> | undefined;
+  /** If a reconnection is in progress, this will have the timer for the delayed reconnect */
+  activeReconnectTimer?: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * When a connection attempt is in progress (even for reconnect), a promise is stored here.
+   *
+   * This promise will resolve once connected (and will then get removed);
+   */
+  deferredPromiseStore: Record<string, DeferredPromise>;
+  /**
+   * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)
+   *
+   * A "Set" and a deep-object-match are used to ensure we only subscribe to a topic once (tracking a list of unique topics we're expected to be connected to)
+   */
+  subscribedTopics: Set<TWSTopicSubscribeEvent>;
+  /** Whether this connection has completed authentication (only applies to private connections) */
+  isAuthenticated?: boolean;
+  /**
+   * Whether this connection has completed authentication before for the Websocket API, so it k
+   * nows to automatically reauth if reconnected
+   */
+  didAuthWSAPI?: boolean;
+  /** To reauthenticate on the WS API, which channel do we send to? */
+  WSAPIAuthChannel?: string;
+}
+⋮----
+/** The currently active websocket connection */
+⋮----
+/** The current lifecycle state of the connection (enum) */
+⋮----
+/** A timer that will send an upstream heartbeat (ping) when it expires */
+⋮----
+/** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */
+⋮----
+/** If a reconnection is in progress, this will have the timer for the delayed reconnect */
+⋮----
+/**
+   * When a connection attempt is in progress (even for reconnect), a promise is stored here.
+   *
+   * This promise will resolve once connected (and will then get removed);
+   */
+⋮----
+/**
+   * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)
+   *
+   * A "Set" and a deep-object-match are used to ensure we only subscribe to a topic once (tracking a list of unique topics we're expected to be connected to)
+   */
+⋮----
+/** Whether this connection has completed authentication (only applies to private connections) */
+⋮----
+/**
+   * Whether this connection has completed authentication before for the Websocket API, so it k
+   * nows to automatically reauth if reconnected
+   */
+⋮----
+/** To reauthenticate on the WS API, which channel do we send to? */
 
 ================
-File: src/lib/BaseRestClient.ts
+File: src/lib/webCryptoAPI.ts
 ================
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import https from 'https';
-⋮----
 import { neverGuard } from './misc-util.js';
-import {
-  APIID,
-  getRestBaseUrl,
-  RestClientOptions,
-  serializeParams,
-} from './requestUtils.js';
-import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
 ⋮----
-/**
- * Used to switch how authentication/requests work under the hood
- */
+function bufferToB64(buffer: ArrayBuffer): string
 ⋮----
-export type RestClientType =
-  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
+export type SignEncodeMethod = 'hex' | 'base64';
+export type SignAlgorithm = 'SHA-256' | 'SHA-512';
 ⋮----
-interface SignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign?: T & { sign: string };
-  serializedParams: string;
-  sign: string;
-  queryParamsWithSign: string;
-  timestamp: number;
-  recvWindow: number;
+interface UTF8Encoder {
+  encode(input?: string): Uint8Array;
 }
 ⋮----
-interface UnsignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign: T;
-}
+encode(input?: string): Uint8Array;
 ⋮----
-type SignMethod = 'bitmart';
+export type SignKeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
+⋮----
+export function getSignKeyType(secret: string): SignKeyType
+⋮----
+// Sometimes, not always, RSA keys include "RSA" in the header. That's a definite RSA key.
+⋮----
+// RSA keys are significantly longer than Ed25519 keys. 150 accounts for length of header & footer
 ⋮----
 /**
- * Enables:
- * - Detailed request/response logging
- * - Full request dump in any exceptions thrown from API responses
+ * Import a key for signing based on its type
  */
+async function importKey(
+  pem: string,
+  type: SignKeyType,
+  algorithm: SignAlgorithm,
+  encoder: UTF8Encoder,
+): ReturnType<typeof globalThis.crypto.subtle.importKey>
 ⋮----
-// request: {
-//   url: response.config.url,
-//   method: response.config.method,
-//   data: response.config.data,
-//   headers: response.config.headers,
-// },
+// const prefixRSA = /-----BEGIN RSA PRIVATE KEY-----/;
+// const prefixEd25519 = /-----BEGIN PRIVATE KEY-----/;
 ⋮----
-export abstract class BaseRestClient
+// const suffixRSA = /-----END RSA PRIVATE KEY-----/;
+// const suffixEd25519 = /-----END PRIVATE KEY-----/;
 ⋮----
-/** Defines the client type (affecting how requests & signatures behave) */
-abstract getClientType(): RestClientType;
-⋮----
-/**
-   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
-   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
-   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
-   */
-constructor(
-    restClientOptions: RestClientOptions = {},
-    networkOptions: AxiosRequestConfig = {},
-)
-⋮----
-/** Throw errors if any request params are empty */
-⋮----
-/** in ms == 5 minutes by default */
-⋮----
-/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
-⋮----
-// If enabled, configure a https agent with keepAlive enabled
-⋮----
-// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
-⋮----
-// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
-// parameter to define a custom httpsAgent with the desired properties
-⋮----
-// Throw if one of the 3 values is missing, but at least one of them is set
-⋮----
-// Check Web Crypto API support when credentials are provided and no custom sign function is used
-⋮----
-// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
-// A few users have been caught out by using the end-of-life Node.js v18 release.
+// const base64Key = pem
+//   .replace(prefixEd25519, '')
+//   .replace(prefixRSA, '')
+//   .replace(suffixEd25519, '')
+//   .replace(suffixRSA, '')
+//   .replace(/\s+/g, ''); // Remove spaces and newlines
 ⋮----
 /**
-   * Timestamp used to sign the request. Override this method to implement your own timestamp/sync mechanism
-   */
-getSignTimestampMs(): number
+ * Sign a message, with a secret, using the Web Crypto API
+ */
+export async function signMessage(
+  message: string,
+  secret: string,
+  method?: SignEncodeMethod,
+  algorithm: SignAlgorithm = 'SHA-256',
+): Promise<string>
 ⋮----
-get(endpoint: string, params?: any)
+// Automatically determine encoding method based on key type if not specified
 ⋮----
-post(endpoint: string, params?: any)
-⋮----
-getPrivate(endpoint: string, params?: any)
-⋮----
-postPrivate(endpoint: string, params?: any)
-⋮----
-deletePrivate(endpoint: string, params?: any)
-⋮----
-/**
-   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
-   */
-private async _call(
-    method: Method,
-    endpoint: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<any>
-⋮----
-// Sanity check to make sure it's only ever prefixed by one forward slash
-⋮----
-// Build a request and handle signature process
-⋮----
-// Dispatch request
-⋮----
-// Throw API rejections by parsing the response code from the body
-⋮----
-/**
-   * @private generic handler to parse request exceptions
-   */
-parseException(e: any, request: AxiosRequestConfig<any>): unknown
-⋮----
-// Something happened in setting up the request that triggered an error
-⋮----
-// request made but no response received
-⋮----
-// The request was made and the server responded with a status code
-// that falls out of the range of 2xx
-⋮----
-// console.error('err: ', response?.data);
-⋮----
-// Prevent credentials from leaking into error messages
-⋮----
-/**
-   * @private sign request and set recv window
-   */
-private async signRequest<T extends object | undefined = {}>(
-    data: T,
-    _endpoint: string,
-    method: Method,
-    signMethod: SignMethod,
-): Promise<SignedRequest<T>>
-⋮----
-// It's possible to override the recv window on a per rquest level
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: true,
-  ): Promise<UnsignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: false | undefined,
-  ): Promise<SignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: boolean,
-)
-⋮----
-/** Returns an axios request object. Handles signing process automatically if this is a private API call */
-private async buildRequest(
-    method: Method,
-    endpoint: string,
-    url: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<AxiosRequestConfig>
+export function checkWebCryptoAPISupported()
 
 ================
-File: tsconfig.json
+File: src/types/request/futures.types.ts
 ================
-{
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "noEmitOnError": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": false,
-    "inlineSourceMap": false,
-    "lib": ["esnext"],
-    "listEmittedFiles": false,
-    "listFiles": false,
-    "moduleResolution": "node",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noUnusedParameters": true,
-    "pretty": true,
-    "removeComments": false,
-    "resolveJsonModule": true,
-    "rootDir": "src",
-    "skipLibCheck": false,
-    "sourceMap": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "types": ["node", "jest"],
-    "module": "commonjs",
-    "outDir": "dist/cjs",
-    "target": "esnext"
-  },
-  "compileOnSave": true,
-  "exclude": ["node_modules", "dist", "test"],
-  "include": ["src/**/*.*", ".eslintrc.cjs"]
+export interface FuturesKlinesRequest {
+  symbol: string;
+  start_time: number;
+  end_time: number;
+  step?: number;
+}
+⋮----
+/** Get Order Detail - symbol and order_id required. */
+export interface GetFuturesOrderRequest {
+  symbol: string;
+  order_id: string;
+  account?: 'futures' | 'copy_trading';
+}
+⋮----
+/** Cancel Order - symbol required. order_id or client_order_id for specific cancel; omit both to cancel all under symbol. */
+export interface CancelFuturesOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+}
+⋮----
+/** Cancel Plan Order - symbol required, order_id or client_order_id for specific cancel. */
+export interface CancelFuturesPlanOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+}
+⋮----
+/** Cancel Trail Order - symbol required, order_id for specific cancel. No client_order_id. */
+export interface CancelFuturesTrailOrderRequest {
+  symbol: string;
+  order_id?: string;
+}
+⋮----
+export interface FuturesAccountHistoricOrderRequest {
+  symbol: string;
+  start_time?: number;
+  end_time?: number;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountOpenOrdersRequest {
+  symbol?: string;
+  type?: 'limit' | 'market' | 'trailing';
+  order_state?: 'all' | 'partially_filled';
+  limit?: number;
+}
+⋮----
+export interface FuturesAccountPlanOrdersRequest {
+  symbol?: string;
+  type?: 'limit' | 'market';
+  limit?: number;
+  plan_type?: 'plan' | 'profit_loss';
+}
+⋮----
+export interface FuturesAccountTradesRequest {
+  symbol?: string;
+  start_time?: number;
+  end_time?: number;
+  account?: string;
+  order_id?: number;
+  client_order_id?: string;
+}
+⋮----
+export interface FuturesAccountHistoricTransactionRequest {
+  symbol?: string;
+  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
+  start_time?: number;
+  end_time?: number;
+  page_size?: number;
+  account?: string;
+}
+⋮----
+export interface FuturesAccountTransfersRequest {
+  currency?: string;
+  time_start?: number;
+  time_end?: number;
+  page: number;
+  limit: number;
+  recvWindow?: number;
+}
+⋮----
+export interface SubmitFuturesOrderRequest {
+  symbol: string;
+  client_order_id?: string;
+  side: 1 | 2 | 3 | 4;
+  mode?: 1 | 2 | 3 | 4;
+  type?: 'limit' | 'market';
+  leverage?: string;
+  open_type?: 'cross' | 'isolated';
+  size: number;
+  price?: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+  stp_mode?: number;
+}
+⋮----
+export interface UpdateFuturesLimitOrderRequest {
+  symbol: string;
+  order_id?: number;
+  client_order_id?: string;
+  price?: string;
+  size?: string;
+}
+⋮----
+export interface SubmitFuturesPlanOrderRequest {
+  symbol: string;
+  type?: 'limit' | 'market' | 'take_profit' | 'stop_loss';
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  mode?: 1 | 2 | 3 | 4;
+  size: number;
+  trigger_price: string;
+  executive_price?: string;
+  price_way: 1 | 2;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+⋮----
+export interface SubmitFuturesTransferRequest {
+  currency: string; // Only USDT is supported
+  amount: string; // Transfer amount, allowed range[0.01,10000000000]
+  type: 'spot_to_contract' | 'contract_to_spot';
+  recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
+}
+⋮----
+currency: string; // Only USDT is supported
+amount: string; // Transfer amount, allowed range[0.01,10000000000]
+⋮----
+recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
+⋮----
+export interface SetFuturesLeverageRequest {
+  symbol: string; // Symbol of the contract(like BTCUSDT)
+  leverage?: string; // Order leverage
+  open_type: 'cross' | 'isolated'; // Open type, required at close position
+}
+⋮----
+symbol: string; // Symbol of the contract(like BTCUSDT)
+leverage?: string; // Order leverage
+open_type: 'cross' | 'isolated'; // Open type, required at close position
+⋮----
+export interface TransferFuturesAssetsRequest {
+  requestNo: string; // UUID, unique identifier, max length 64
+  amount: string; // Transfer amount
+  currency: 'USDT'; // Currently only USDT is supported
+  subAccount: string; // Sub-Account username
+}
+⋮----
+requestNo: string; // UUID, unique identifier, max length 64
+amount: string; // Transfer amount
+currency: 'USDT'; // Currently only USDT is supported
+subAccount: string; // Sub-Account username
+⋮----
+export interface SubmitFuturesSubToMainSubFromSubRequest {
+  requestNo: string; // UUID, unique identifier, max length 64
+  amount: string; // Transfer amount
+  currency: 'USDT'; // Currently only USDT is supported
+}
+⋮----
+requestNo: string; // UUID, unique identifier, max length 64
+amount: string; // Transfer amount
+currency: 'USDT'; // Currently only USDT is supported
+⋮----
+export interface FuturesSubWalletRequest {
+  subAccount: string; // Sub-Account username
+  currency?: string; // Currency is optional
+}
+⋮----
+subAccount: string; // Sub-Account username
+currency?: string; // Currency is optional
+⋮----
+export interface FuturesSubTransfersRequest {
+  subAccount: string;
+  limit: number; // Range [1,100]
+}
+⋮----
+limit: number; // Range [1,100]
+⋮----
+export interface FuturesAffiliateRebatesRequest {
+  user_id?: number;
+  page: number;
+  size: number;
+  currency: string;
+  rebate_start_time?: number;
+  rebate_end_time?: number;
+  register_start_time?: number;
+  register_end_time?: number;
+}
+⋮----
+export interface FuturesAffiliateTradesRequest {
+  user_id?: number;
+  page: number;
+  type: 1 | 2;
+  size: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface SubmitFuturesTPSLOrderRequest {
+  symbol: string;
+  type: 'take_profit' | 'stop_loss';
+  side: 2 | 3;
+  size?: number;
+  trigger_price: string;
+  executive_price: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  client_order_id?: string;
+  category?: 'limit' | 'market';
+}
+⋮----
+export interface UpdateFuturesPlanOrderRequest {
+  symbol: string;
+  order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  type: 'limit' | 'market';
+}
+⋮----
+export interface UpdateFuturesPresetPlanOrderRequest {
+  order_id: string;
+  symbol: string;
+  preset_take_profit_price_type?: 1 | 2;
+  preset_stop_loss_price_type?: 1 | 2;
+  preset_take_profit_price?: string;
+  preset_stop_loss_price?: string;
+}
+⋮----
+export interface UpdateFuturesTPSLOrderRequest {
+  symbol: string;
+  order_id?: string;
+  client_order_id?: string;
+  trigger_price: string;
+  executive_price?: string;
+  price_type: 1 | 2;
+  plan_category?: 1 | 2;
+  category?: 'limit' | 'market';
+}
+⋮----
+export interface SubmitFuturesTrailOrderRequest {
+  symbol: string;
+  side: 1 | 2 | 3 | 4;
+  leverage: string;
+  open_type: 'cross' | 'isolated';
+  size: number;
+  activation_price: string;
+  callback_rate: string;
+  activation_price_type: 1 | 2;
+}
+⋮----
+export interface FuturesAffiliateRebateUserRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface FuturesAffiliateRebateApiRequest {
+  cid: number;
+  start_time: number;
+  end_time: number;
+}
+⋮----
+export interface SubmitFuturesSimulatedClaimRequest {
+  currency?: string;
+  amount?: string;
 }
 
 ================
@@ -2364,6 +1967,222 @@ export interface SpotBrokerRebateResult {
 }
 
 ================
+File: .eslintrc.cjs
+================
+// 'no-unused-vars': ['warn'],
+
+================
+File: tsconfig.json
+================
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "noEmitOnError": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": false,
+    "inlineSourceMap": false,
+    "lib": ["esnext"],
+    "listEmittedFiles": false,
+    "listFiles": false,
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "removeComments": false,
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "skipLibCheck": false,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "types": ["node", "jest"],
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext"
+  },
+  "compileOnSave": true,
+  "exclude": ["node_modules", "dist", "test"],
+  "include": ["src/**/*.*", ".eslintrc.cjs"]
+}
+
+================
+File: src/lib/websocket/WsStore.ts
+================
+import WebSocket from 'isomorphic-ws';
+⋮----
+import { DefaultLogger } from '../logger.js';
+import {
+  DeferredPromise,
+  WSConnectedResult,
+  WsConnectionStateEnum,
+  WsStoredState,
+} from './WsStore.types.js';
+⋮----
+/**
+ * Simple comparison of two objects, recursive for nested objects
+ */
+export function isDeepObjectMatch(object1: unknown, object2: unknown)
+⋮----
+type DeferredPromiseRef =
+  (typeof DEFERRED_PROMISE_REF)[keyof typeof DEFERRED_PROMISE_REF];
+⋮----
+export class WsStore<
+WsKey extends string,
+⋮----
+constructor(logger: DefaultLogger)
+⋮----
+/** Get WS stored state for key, optionally create if missing */
+get(
+    key: WsKey,
+    createIfMissing?: true,
+  ): WsStoredState<TWSTopicSubscribeEventArgs>;
+⋮----
+get(
+    key: WsKey,
+    createIfMissing?: false,
+  ): WsStoredState<TWSTopicSubscribeEventArgs> | undefined;
+⋮----
+get(
+    key: WsKey,
+    createIfMissing?: boolean,
+): WsStoredState<TWSTopicSubscribeEventArgs> | undefined
+⋮----
+getKeys(): WsKey[]
+⋮----
+create(key: WsKey): WsStoredState<TWSTopicSubscribeEventArgs> | undefined
+⋮----
+delete(key: WsKey): void
+⋮----
+// TODO: should we allow this at all? Perhaps block this from happening...
+⋮----
+/* connection websocket */
+⋮----
+hasExistingActiveConnection(key: WsKey): boolean
+⋮----
+getWs(key: WsKey): WebSocket | undefined
+⋮----
+setWs(key: WsKey, wsConnection: WebSocket): WebSocket
+⋮----
+/**
+   * deferred promises
+   */
+⋮----
+getDeferredPromise<TSuccessResult = any>(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+): DeferredPromise<TSuccessResult> | undefined
+⋮----
+createDeferredPromise<TSuccessResult = any>(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    throwIfExists: boolean,
+): DeferredPromise<TSuccessResult>
+⋮----
+// console.log('existing promise');
+⋮----
+// console.log('create promise');
+⋮----
+// TODO: Once stable, use Promise.withResolvers in future
+⋮----
+resolveDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    value: unknown,
+    removeAfter: boolean,
+): void
+⋮----
+rejectDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    value: unknown,
+    removeAfter: boolean,
+): void
+⋮----
+removeDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+): void
+⋮----
+// Just in case it's pending
+⋮----
+rejectAllDeferredPromises(wsKey: WsKey, reason: string): void
+⋮----
+// Skip reserved keys, such as the connection promise
+⋮----
+/** Get promise designed to track a connection attempt in progress. Resolves once connected. */
+getConnectionInProgressPromise(
+    wsKey: WsKey,
+): DeferredPromise<WSConnectedResult> | undefined
+⋮----
+getAuthenticationInProgressPromise(
+    wsKey: WsKey,
+): DeferredPromise<WSConnectedResult &
+⋮----
+/**
+   * Create a deferred promise designed to track a connection attempt in progress.
+   *
+   * Will throw if existing promise is found.
+   */
+createConnectionInProgressPromise(
+    wsKey: WsKey,
+    throwIfExists: boolean,
+): DeferredPromise<WSConnectedResult>
+⋮----
+createAuthenticationInProgressPromise(
+    wsKey: WsKey,
+    throwIfExists: boolean,
+): DeferredPromise<WSConnectedResult &
+⋮----
+/** Remove promise designed to track a connection attempt in progress */
+removeConnectingInProgressPromise(wsKey: WsKey): void
+⋮----
+removeAuthenticationInProgressPromise(wsKey: WsKey): void
+⋮----
+/* connection state */
+⋮----
+isWsOpen(key: WsKey): boolean
+⋮----
+getConnectionState(key: WsKey): WsConnectionStateEnum
+⋮----
+setConnectionState(key: WsKey, state: WsConnectionStateEnum)
+⋮----
+isConnectionState(key: WsKey, state: WsConnectionStateEnum): boolean
+⋮----
+/**
+   * Check if we're currently in the process of opening a connection for any reason. Safer than only checking "CONNECTING" as the state
+   * @param key
+   * @returns
+   */
+isConnectionAttemptInProgress(key: WsKey): boolean
+⋮----
+const stateChangeTimeout = 15000; // allow a max 15 second timeout since the last state change before assuming stuck;
+⋮----
+/* subscribed topics */
+⋮----
+getTopics(key: WsKey): Set<TWSTopicSubscribeEventArgs>
+⋮----
+getTopicsByKey(): Record<string, Set<TWSTopicSubscribeEventArgs>>
+⋮----
+/**
+   * Find matching "topic" request from the store
+   * @param key
+   * @param topic
+   * @returns
+   */
+getMatchingTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
+⋮----
+addTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
+⋮----
+// Check for duplicate topic. If already tracked, don't store this one
+⋮----
+deleteTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
+⋮----
+// Check if we're subscribed to a topic like this
+
+================
 File: src/RestClient.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -2375,9 +2194,10 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  CancelFuturesOrderRequest,
+  CancelFuturesPlanOrderRequest,
   FuturesAccountHistoricOrderRequest,
   FuturesAccountOpenOrdersRequest,
-  FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
@@ -2386,6 +2206,7 @@ import {
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
   FuturesSubWalletRequest,
+  GetFuturesOrderRequest,
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
@@ -2893,7 +2714,7 @@ getFuturesAccountAssets(): Promise<APIResponse<FuturesAccountAsset[]>>
    * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
 getFuturesAccountOrder(
-    params: FuturesAccountOrderRequest,
+    params: GetFuturesOrderRequest,
 ): Promise<APIResponse<FuturesAccountOrder>>
 ⋮----
 /**
@@ -2960,7 +2781,7 @@ submitFuturesOrder(
    */ cancelFuturesOrder(
 ⋮----
 */ cancelFuturesOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesOrderRequest,
 ): Promise<APIResponse<any>>
 ⋮----
 /**
@@ -2984,7 +2805,7 @@ submitFuturesPlanOrder(params: SubmitFuturesPlanOrderRequest): Promise<
    * @deprecated Use the FuturesClientV2 instead, it uses the new V2 domain & endpoint
    */
 cancelFuturesPlanOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesPlanOrderRequest,
 ): Promise<APIResponse<any>>
 ⋮----
 /**
@@ -3099,1069 +2920,328 @@ restClientRegex.ts
 testfile.ts
 dist
 repomix.sh
+doc
 
 ================
-File: src/lib/BaseWSClient.ts
+File: src/lib/BaseRestClient.ts
 ================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+// NOTE: https.Agent is Node.js-only and not available in browser environments
+// Browser builds (via webpack) exclude this module - see webpack.config.js fallback settings
+import https from 'https';
 ⋮----
+import { neverGuard } from './misc-util.js';
 import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-} from '../types/websockets/client.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { DefaultLogger } from './logger.js';
-import { isMessageEvent, MessageEventLike } from './requestUtils.js';
-import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
-import { safeTerminateWs } from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
-}
-⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-/** Reconnecting a dropped connection */
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType: 'response' | 'update' | 'exception' | 'authenticated';
-  event: TEvent;
-}
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSMarket extends string,
-  TWSKey extends string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSTopic = any,
-> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-}
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-TWSMarket extends string,
+  APIID,
+  getRestBaseUrl,
+  RestClientOptions,
+  serializeParams,
+} from './requestUtils.js';
+import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
 ⋮----
 /**
-   * The "topic" being subscribed to, not the event sent to subscribe to one or more topics
-   */
+ * Used to switch how authentication/requests work under the hood
+ */
 ⋮----
+export type RestClientType =
+  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
+⋮----
+interface SignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign?: T & { sign: string };
+  serializedParams: string;
+  sign: string;
+  queryParamsWithSign: string;
+  timestamp: number;
+  recvWindow: number;
+}
+⋮----
+interface UnsignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign: T;
+}
+⋮----
+type SignMethod = 'bitmart';
+⋮----
+/**
+ * Enables:
+ * - Detailed request/response logging
+ * - Full request dump in any exceptions thrown from API responses
+ */
+⋮----
+// request: {
+//   url: response.config.url,
+//   method: response.config.method,
+//   data: response.config.data,
+//   headers: response.config.headers,
+// },
+⋮----
+export abstract class BaseRestClient
+⋮----
+/** Defines the client type (affecting how requests & signatures behave) */
+abstract getClientType(): RestClientType;
+⋮----
+/**
+   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
+   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
+   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
+   */
 constructor(
-    options?: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
+    restClientOptions: RestClientOptions = {},
+    networkOptions: AxiosRequestConfig = {},
 )
+⋮----
+/** Throw errors if any request params are empty */
+⋮----
+/** in ms == 5 minutes by default */
+⋮----
+/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
+⋮----
+// If enabled, configure a https agent with keepAlive enabled
+// NOTE: This is Node.js-only functionality. In browser environments, this code is skipped
+// as the 'https' module is excluded via webpack fallback configuration.
+// Browser connection pooling is handled automatically by the browser itself.
+⋮----
+// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
+⋮----
+// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
+// parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Throw if one of the 3 values is missing, but at least one of them is set
 ⋮----
 // Check Web Crypto API support when credentials are provided and no custom sign function is used
 ⋮----
 // Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
 // A few users have been caught out by using the end-of-life Node.js v18 release.
 ⋮----
-protected abstract getWsKeyForMarket(
-    market: TWSMarket,
-    isPrivate?: boolean,
-  ): TWSKey;
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
-⋮----
-protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
-⋮----
-protected abstract isPrivateChannel(subscribeEvent: TWSTopic): boolean;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): string;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
 /**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
+   * Timestamp used to sign the request. Override this method to implement your own timestamp/sync mechanism
    */
-protected abstract getWsSubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
+getSignTimestampMs(): number
+⋮----
+get(endpoint: string, params?: any)
+⋮----
+post(endpoint: string, params?: any)
+⋮----
+getPrivate(endpoint: string, params?: any)
+⋮----
+postPrivate(endpoint: string, params?: any)
+⋮----
+deletePrivate(endpoint: string, params?: any)
 ⋮----
 /**
-   * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
+   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
    */
-protected abstract getWsUnsubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
+private async _call(
+    method: Method,
+    endpoint: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<any>
+⋮----
+// Sanity check to make sure it's only ever prefixed by one forward slash
+⋮----
+// Build a request and handle signature process
+⋮----
+// Dispatch request
+⋮----
+// Throw API rejections by parsing the response code from the body
 ⋮----
 /**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   * @private generic handler to parse request exceptions
    */
-protected abstract resolveEmittableEvents(
-    event: MessageEventLike,
-  ): EmittableEvent[];
+parseException(e: any, request: AxiosRequestConfig<any>): unknown
+⋮----
+// Something happened in setting up the request that triggered an error
+⋮----
+// request made but no response received
+⋮----
+// The request was made and the server responded with a status code
+// that falls out of the range of 2xx
+⋮----
+// console.error('err: ', response?.data);
+⋮----
+// Prevent credentials from leaking into error messages
 ⋮----
 /**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   * @private sign request and set recv window
    */
-abstract connectAll(): Promise<WebSocket | undefined>[];
+private async signRequest<T extends object | undefined = {}>(
+    data: T,
+    _endpoint: string,
+    method: Method,
+    signMethod: SignMethod,
+): Promise<SignedRequest<T>>
 ⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
+// It's possible to override the recv window on a per rquest level
 ⋮----
-/**
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsTopics array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-public subscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: true,
+  ): Promise<UnsignedRequest<TParams>>;
 ⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: false | undefined,
+  ): Promise<SignedRequest<TParams>>;
 ⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       * Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-public unsubscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-   */
-public subscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivate?: boolean,
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: boolean,
 )
 ⋮----
-// Persist this topic to the expected topics list
-⋮----
-// if connected, send subscription request
-⋮----
-// if not authenticated, dont sub to private topics yet.
-// This'll happen automatically once authenticated
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-/**
-   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-   */
-public unsubscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivateTopic?: boolean,
-)
-⋮----
-// unsubscribe request only necessary if active connection exists
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, TWSTopic>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-protected async connect(wsKey: TWSKey): Promise<WebSocket | undefined>
-⋮----
-const url = this.getWsUrl(wsKey); // + authParams;
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(wsKey: TWSKey): Promise<void>
-⋮----
-// console.log('ws auth req', request);
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private requestSubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private requestUnsubscribeTopics(wsKey: TWSKey, topics: TWSTopic[])
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(wsKey: TWSKey, wsMessage: string)
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-private async onWsOpen(event: any, wsKey: TWSKey)
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-// Private topics will be resubscribed to once reconnected
-⋮----
-/** Handle subscription to private topics _after_ authentication successfully completes asynchronously */
-private onWsAuthenticated(wsKey: TWSKey)
-⋮----
-private onWsMessage(event: unknown, wsKey: TWSKey)
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-// intentional close - clean up
-⋮----
-// This was an intentional close, delete all state for this connection, as if it never existed:
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+/** Returns an axios request object. Handles signing process automatically if this is a private API call */
+private async buildRequest(
+    method: Method,
+    endpoint: string,
+    url: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<AxiosRequestConfig>
 
 ================
-File: src/types/request/futures.types.ts
+File: src/lib/requestUtils.ts
 ================
-export interface FuturesKlinesRequest {
-  symbol: string;
-  start_time: number;
-  end_time: number;
-  step?: number;
-}
+import WebSocket from 'isomorphic-ws';
 ⋮----
-export interface FuturesAccountOrderRequest {
-  symbol: string;
-  order_id: string;
-  client_order_id?: string;
-  account?: string;
-}
+import { REST_CLIENT_TYPE_ENUM, RestClientType } from './BaseRestClient.js';
 ⋮----
-export interface FuturesAccountHistoricOrderRequest {
-  symbol: string;
-  start_time?: number;
-  end_time?: number;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountOpenOrdersRequest {
-  symbol?: string;
-  type?: 'limit' | 'market' | 'trailing';
-  order_state?: 'all' | 'partially_filled';
-  limit?: number;
-}
-⋮----
-export interface FuturesAccountPlanOrdersRequest {
-  symbol?: string;
-  type?: 'limit' | 'market';
-  limit?: number;
-  plan_type?: 'plan' | 'profit_loss';
-}
-⋮----
-export interface FuturesAccountTradesRequest {
-  symbol?: string;
-  start_time?: number;
-  end_time?: number;
-  account?: string;
-  order_id?: number;
-  client_order_id?: string;
-}
-⋮----
-export interface FuturesAccountHistoricTransactionRequest {
-  symbol?: string;
-  flow_type?: 0 | 1 | 2 | 3 | 4 | 5;
-  start_time?: number;
-  end_time?: number;
-  page_size?: number;
-  account?: string;
-}
-⋮----
-export interface FuturesAccountTransfersRequest {
-  currency?: string;
-  time_start?: number;
-  time_end?: number;
-  page: number;
-  limit: number;
+export interface RestClientOptions {
+  /** Your API key */
+  apiKey?: string;
+
+  /** Your API secret */
+  apiSecret?: string;
+
+  /** Your API memo (can be anything) that you included when creating this API key */
+  apiMemo?: string;
+
+  /**
+   * Override the default/global max size of the request window (in ms) for signed api calls.
+   * If you don't include a recv window when making an API call, this value will be used as default
+   */
   recvWindow?: number;
+
+  /** Default: false. If true, we'll throw errors if any params are undefined */
+  strictParamValidation?: boolean;
+
+  /**
+   * Optionally override API protocol + domain
+   * e.g baseUrl: 'https://api.bitmart.com'
+   **/
+  baseUrl?: string;
+
+  /**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+  demoTrading?: boolean;
+
+  /** Default: true. whether to try and post-process request exceptions (and throw them). */
+  parseExceptions?: boolean;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
 }
 ⋮----
-export interface SubmitFuturesOrderRequest {
-  symbol: string;
-  client_order_id?: string;
-  side: 1 | 2 | 3 | 4;
-  mode?: 1 | 2 | 3 | 4;
-  type?: 'limit' | 'market';
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  size: number;
-  price?: string;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-  stp_mode?: number;
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/** Your API memo (can be anything) that you included when creating this API key */
+⋮----
+/**
+   * Override the default/global max size of the request window (in ms) for signed api calls.
+   * If you don't include a recv window when making an API call, this value will be used as default
+   */
+⋮----
+/** Default: false. If true, we'll throw errors if any params are undefined */
+⋮----
+/**
+   * Optionally override API protocol + domain
+   * e.g baseUrl: 'https://api.bitmart.com'
+   **/
+⋮----
+/**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures: https://demo-api-cloud-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+⋮----
+/** Default: true. whether to try and post-process request exceptions (and throw them). */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+/**
+   * Enable keep alive for REST API requests (via axios).
+   */
+⋮----
+/**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+⋮----
+export function serializeParams<T extends Record<string, any> | undefined = {}>(
+  params: T,
+  strict_validation: boolean | undefined,
+  encodeValues: boolean,
+  prefixWith: string,
+): string
+⋮----
+// Only prefix if there's a value
+⋮----
+export function getRestBaseUrl(
+  useTestnet: boolean,
+  restInverseOptions: RestClientOptions,
+  restClientType: RestClientType,
+): string
+⋮----
+// Demo environment is only available for V2 Futures
+⋮----
+// For V1, fall back to production
+⋮----
+export interface MessageEventLike<TDataType = string> {
+  target: WebSocket;
+  type: 'message';
+  data: TDataType;
 }
 ⋮----
-export interface UpdateFuturesLimitOrderRequest {
-  symbol: string;
-  order_id?: number;
-  client_order_id?: string;
-  price?: string;
-  size?: string;
-}
+export function isCompressedMessageEvent(
+  msg: unknown,
+): msg is MessageEventLike<Buffer>
 ⋮----
-export interface SubmitFuturesPlanOrderRequest {
-  symbol: string;
-  type?: 'limit' | 'market' | 'take_profit' | 'stop_loss';
-  side: 1 | 2 | 3 | 4;
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  mode?: 1 | 2 | 3 | 4;
-  size: number;
-  trigger_price: string;
-  executive_price?: string;
-  price_way: 1 | 2;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-}
-⋮----
-export interface SubmitFuturesTransferRequest {
-  currency: string; // Only USDT is supported
-  amount: string; // Transfer amount, allowed range[0.01,10000000000]
-  type: 'spot_to_contract' | 'contract_to_spot';
-  recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
-}
-⋮----
-currency: string; // Only USDT is supported
-amount: string; // Transfer amount, allowed range[0.01,10000000000]
-⋮----
-recvWindow?: number; // Trade time limit, allowed range (0,60000], default: 5000 milliseconds
-⋮----
-export interface SetFuturesLeverageRequest {
-  symbol: string; // Symbol of the contract(like BTCUSDT)
-  leverage?: string; // Order leverage
-  open_type: 'cross' | 'isolated'; // Open type, required at close position
-}
-⋮----
-symbol: string; // Symbol of the contract(like BTCUSDT)
-leverage?: string; // Order leverage
-open_type: 'cross' | 'isolated'; // Open type, required at close position
-⋮----
-export interface TransferFuturesAssetsRequest {
-  requestNo: string; // UUID, unique identifier, max length 64
-  amount: string; // Transfer amount
-  currency: 'USDT'; // Currently only USDT is supported
-  subAccount: string; // Sub-Account username
-}
-⋮----
-requestNo: string; // UUID, unique identifier, max length 64
-amount: string; // Transfer amount
-currency: 'USDT'; // Currently only USDT is supported
-subAccount: string; // Sub-Account username
-⋮----
-export interface SubmitFuturesSubToMainSubFromSubRequest {
-  requestNo: string; // UUID, unique identifier, max length 64
-  amount: string; // Transfer amount
-  currency: 'USDT'; // Currently only USDT is supported
-}
-⋮----
-requestNo: string; // UUID, unique identifier, max length 64
-amount: string; // Transfer amount
-currency: 'USDT'; // Currently only USDT is supported
-⋮----
-export interface FuturesSubWalletRequest {
-  subAccount: string; // Sub-Account username
-  currency?: string; // Currency is optional
-}
-⋮----
-subAccount: string; // Sub-Account username
-currency?: string; // Currency is optional
-⋮----
-export interface FuturesSubTransfersRequest {
-  subAccount: string;
-  limit: number; // Range [1,100]
-}
-⋮----
-limit: number; // Range [1,100]
-⋮----
-export interface FuturesAffiliateRebatesRequest {
-  user_id?: number;
-  page: number;
-  size: number;
-  currency: string;
-  rebate_start_time?: number;
-  rebate_end_time?: number;
-  register_start_time?: number;
-  register_end_time?: number;
-}
-⋮----
-export interface FuturesAffiliateTradesRequest {
-  user_id?: number;
-  page: number;
-  type: 1 | 2;
-  size: number;
-  start_time: number;
-  end_time: number;
-}
-⋮----
-export interface SubmitFuturesTPSLOrderRequest {
-  symbol: string;
-  type: 'take_profit' | 'stop_loss';
-  side: 2 | 3;
-  size?: number;
-  trigger_price: string;
-  executive_price: string;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  client_order_id?: string;
-  category?: 'limit' | 'market';
-}
-⋮----
-export interface UpdateFuturesPlanOrderRequest {
-  symbol: string;
-  order_id?: string;
-  trigger_price: string;
-  executive_price?: string;
-  price_type: 1 | 2;
-  type: 'limit' | 'market';
-}
-⋮----
-export interface UpdateFuturesPresetPlanOrderRequest {
-  order_id: string;
-  symbol: string;
-  preset_take_profit_price_type?: 1 | 2;
-  preset_stop_loss_price_type?: 1 | 2;
-  preset_take_profit_price?: string;
-  preset_stop_loss_price?: string;
-}
-⋮----
-export interface UpdateFuturesTPSLOrderRequest {
-  symbol: string;
-  order_id?: string;
-  client_order_id?: string;
-  trigger_price: string;
-  executive_price?: string;
-  price_type: 1 | 2;
-  plan_category?: 1 | 2;
-  category?: 'limit' | 'market';
-}
-⋮----
-export interface SubmitFuturesTrailOrderRequest {
-  symbol: string;
-  side: 1 | 2 | 3 | 4;
-  leverage: string;
-  open_type: 'cross' | 'isolated';
-  size: number;
-  activation_price: string;
-  callback_rate: string;
-  activation_price_type: 1 | 2;
-}
-⋮----
-export interface FuturesAffiliateRebateUserRequest {
-  cid: number;
-  start_time: number;
-  end_time: number;
-}
-⋮----
-export interface FuturesAffiliateRebateApiRequest {
-  cid: number;
-  start_time: number;
-  end_time: number;
-}
-⋮----
-export interface SubmitFuturesSimulatedClaimRequest {
-  currency?: string;
-  amount?: string;
-}
-
-================
-File: README.md
-================
-# Node.js & JavaScript SDK for BitMart REST API & WebSockets
-
-[![npm version](https://img.shields.io/npm/v/bitmart-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/bitmart-api)][1]
-[![Build & Test](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml)
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/bitmart-api)][1]
-[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api)
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/bitmart-api">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-      <img alt="SDK Logo" src="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
-    </picture>
-  </a>
-</p>
-
-[1]: https://www.npmjs.com/package/bitmart-api
-
-Complete JavaScript & Node.js SDK for BitMart REST APIs & WebSockets:
-
-- Professional, robust & performant BitMart SDK with extensive production use in live trading environments.
-- Complete integration with all BitMart APIs and domains.
-  - Spot trading APIs via RestClient
-  - Full support for Futures V2 domain via FuturesClientV2
-  - Unified WebSocket client for all markets
-- Complete TypeScript support (with type declarations for most API requests & responses).
-  - Strongly typed requests and responses.
-  - Automated end-to-end tests ensuring reliability.
-- Actively maintained with a modern, promise-driven interface.
-- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
-  - Event driven messaging.
-  - Smart WebSocket persistence with automatic reconnection handling.
-  - Emit `reconnected` event when dropped connection is restored.
-  - Support for both public and private WebSocket streams.
-- Browser-friendly HMAC signature mechanism with Web Crypto API support.
-- Automatically supports both ESM and CJS projects.
-- Custom HMAC signing support for enhanced performance.
-- Heavy automated end-to-end testing with real API calls.
-- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Examples](#examples)
-- [Issues & Discussion](#issues--discussion)
-- [Usage](#usage)
-  - [REST API Clients](#rest-apis)
-    - [Spot & Margin APIs](#spot--margin-apis)
-    - [Futures V2 APIs](#futures-v2-apis)
-  - [WebSocket Client](#websocket)
-    - [Public Streams](#public-websocket-streams)
-    - [Private Streams](#private-websocket-streams)
-  - [Configuration Options](#configuration-options)
-    - [Recv Window](#recv-window)
-    - [Custom Sign](#custom-sign)
-- [Related Projects](#related-projects)
-- [Structure](#structure)
-- [LLMs & AI](#use-with-llms--ai)
-- [Used By](#used-by)
-- [Contributions & Thanks](#contributions--thanks)
-
-## Installation
-
-`npm install --save bitmart-api`
-
-## Examples
-
-Refer to the [examples](./examples) folder for implementation demos, including:
-
-- **REST API Examples**: spot trading, futures trading, account management
-- **WebSocket Examples**: public data streams, private account streams, custom logging
-- **Advanced Features**: custom HMAC signing, error handling
-
-## Issues & Discussion
-
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/bitmart-api/issues).
-- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
-
-## Usage
-
-Create API credentials on BitMart's website if you plan to use private endpoints or place trades.
-
-Most methods accept JS objects. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
-
-### Documentation Links
-
-- [BitMart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
-- [BitMart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
-- [REST Endpoint Function List](./docs/endpointFunctionList.md)
-
-## REST APIs
-
-There are two main REST API clients depending on the market you're trading:
-
-1. `RestClient` - for spot trading, margin, and general account operations
-2. `FuturesClientV2` - dedicated client for USD-M futures trading (uses V2 domain)
-
-### Spot & Margin APIs
-
-Use the `RestClient` for spot trading, margin trading, and general account operations.
-
-```typescript
-import { RestClient } from 'bitmart-api';
-// or if you prefer require:
-// const { RestClient } = require('bitmart-api');
-
-const API_KEY = 'yourAPIKeyHere';
-const API_SECRET = 'yourAPISecretHere';
-const API_MEMO = 'yourAPIMemoHere';
-
-const client = new RestClient({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-});
-
-// For public endpoints, API credentials are optional
-// const client = new RestClient();
-
-// Get account balances
-client
-  .getAccountBalancesV1()
-  .then((result) => {
-    console.log('Account balances: ', result);
-  })
-  .catch((err) => {
-    console.error('Error: ', err);
-  });
-
-// Submit a spot order
-client
-  .submitSpotOrderV2({
-    symbol: 'BTC_USDT',
-    side: 'buy',
-    type: 'limit',
-    size: '0.001',
-    price: '30000',
-  })
-  .then((result) => {
-    console.log('Order submitted: ', result);
-  })
-  .catch((err) => {
-    console.error('Order error: ', err);
-  });
-
-// Get spot candlestick data
-client
-  .getSpotHistoryKlineV3({
-    symbol: 'BTC_USDT',
-    step: 60, // 1 minute
-    from: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
-    to: Math.floor(Date.now() / 1000),
-  })
-  .then((result) => {
-    console.log('Klines: ', result);
-  })
-  .catch((err) => {
-    console.error('Klines error: ', err);
-  });
-```
-
-### Futures V2 APIs
-
-Use the `FuturesClientV2` for USD-M futures trading. This client connects to BitMart's V2 futures domain.
-
-```typescript
-import { FuturesClientV2 } from 'bitmart-api';
-// or if you prefer require:
-// const { FuturesClientV2 } = require('bitmart-api');
-
-const futuresClient = new FuturesClientV2({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-});
-
-// Enable demo/simulated trading environment (optional)
-const demoFuturesClient = new FuturesClientV2({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  useDemo: true, // Connect to simulated trading environment
-});
-
-// Get futures account assets
-try {
-  const balances = await futuresClient.getFuturesAccountAssets();
-  console.log('Futures balances: ', JSON.stringify(balances, null, 2));
-} catch (error) {
-  console.error('Error getting balances: ', error);
-}
-
-// Submit a futures order
-futuresClient
-  .submitFuturesOrder({
-    symbol: 'BTCUSDT',
-    side: 'buy',
-    type: 'limit',
-    size: '0.001',
-    price: '30000',
-    leverage: '10',
-  })
-  .then((result) => {
-    console.log('Futures order submitted: ', result);
-  })
-  .catch((err) => {
-    console.error('Futures order error: ', err);
-  });
-```
-
-## WebSocket
-
-All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams, with automatic connection management and reconnection.
-
-Key WebSocket features:
-
-- Event driven messaging
-- Smart WebSocket persistence with automatic reconnection
-- Heartbeat mechanisms to detect disconnections
-- Automatic resubscription after reconnection
-- Support for both public and private data streams
-- Unified client for spot and futures markets
-
-### Public WebSocket Streams
-
-For public data streams, API credentials are not required:
-
-```typescript
-import { WebsocketClient } from 'bitmart-api';
-// or if you prefer require:
-// const { WebsocketClient } = require('bitmart-api');
-
-// Create WebSocket client for public streams
-const wsClient = new WebsocketClient();
-
-// Set up event handlers
-wsClient.on('open', (data) => {
-  console.log('WebSocket connected: ', data?.wsKey);
-});
-
-wsClient.on('update', (data) => {
-  console.log('Data received: ', JSON.stringify(data, null, 2));
-});
-
-wsClient.on('reconnected', (data) => {
-  console.log('WebSocket reconnected: ', data);
-});
-
-wsClient.on('exception', (data) => {
-  console.error('WebSocket error: ', data);
-});
-
-// Subscribe to public data streams
-
-// Spot market ticker
-wsClient.subscribe('spot/ticker:BTC_USDT', 'spot');
-
-// Spot market depth
-wsClient.subscribe('spot/depth20:BTC_USDT', 'spot');
-
-// Futures market ticker
-wsClient.subscribe('futures/ticker', 'futures');
-
-// Futures market depth
-wsClient.subscribe('futures/depth20:BTCUSDT', 'futures');
-
-// Futures trades
-wsClient.subscribe('futures/trade:BTCUSDT', 'futures');
-
-// Multiple futures kline subscriptions
-wsClient.subscribe(
-  [
-    'futures/klineBin1m:BTCUSDT',
-    'futures/klineBin1m:ETHUSDT',
-    'futures/klineBin5m:BTCUSDT',
-    'futures/klineBin1h:ETHUSDT',
-  ],
-  'futures',
-);
-```
-
-### Private WebSocket Streams
-
-For private account data streams, API credentials are required:
-
-```typescript
-import { WebsocketClient } from 'bitmart-api';
-
-// Create WebSocket client with API credentials for private streams
-const wsClient = new WebsocketClient({
-  apiKey: 'yourAPIKeyHere',
-  apiSecret: 'yourAPISecretHere',
-  apiMemo: 'yourAPIMemoHere',
-});
-
-// Enable demo/simulated trading environment for V2 Futures WebSocket (optional)
-const demoWsClient = new WebsocketClient({
-  apiKey: 'yourAPIKeyHere',
-  apiSecret: 'yourAPISecretHere',
-  apiMemo: 'yourAPIMemoHere',
-  useDemo: true, // Connect to simulated trading environment (V2 Futures only)
-});
-
-// Set up event handlers
-wsClient.on('open', (data) => {
-  console.log('Private WebSocket connected: ', data?.wsKey);
-});
-
-wsClient.on('update', (data) => {
-  console.log('Private data received: ', JSON.stringify(data, null, 2));
-});
-
-wsClient.on('authenticated', (data) => {
-  console.log('WebSocket authenticated: ', data);
-});
-
-wsClient.on('response', (data) => {
-  console.log('WebSocket response: ', data);
-});
-
-wsClient.on('exception', (data) => {
-  console.error('WebSocket error: ', data);
-});
-
-// Subscribe to private data streams
-
-// Spot account orders
-wsClient.subscribe('spot/user/order:BTC_USDT', 'spot');
-
-// Spot account balance updates
-wsClient.subscribe('spot/user/balance:USDT', 'spot');
-
-// Futures account orders
-wsClient.subscribe('futures/user/order:BTCUSDT', 'futures');
-
-// Futures account positions
-wsClient.subscribe('futures/user/position:BTCUSDT', 'futures');
-```
-
-For more comprehensive examples, including custom logging and error handling, check the [examples](./examples) folder.
-
-## Configuration Options
-
-### Demo Trading
-
-BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `useDemo: true` to your client configuration:
-
-**REST API (Futures V2 only):**
-
-```typescript
-const demoClient = new FuturesClientV2({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  useDemo: true, // Uses https://demo-api-cloud-v2.bitmart.com
-});
-```
-
-**WebSocket (V2 Futures only):**
-
-```typescript
-const demoWsClient = new WebsocketClient({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  useDemo: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
-});
-```
-
-**Note:** Demo environment is only available for V2 Futures. Spot trading and V1 Futures will continue using production endpoints. The same API keys work for both production and demo environments.
-
-### Recv Window
-
-The receive window parameter determines how long an API request is valid. This can be configured at two levels:
-
-- **Per method**: If provided in a method call, will be used instead of the global default
-- **Global default**: Applied by default to any API call that supports recvWindow, if no recvWindow is provided in the method call
-
-```typescript
-// Set global receive window during client initialization
-const client = new RestClient({
-  apiKey: API_KEY,
-  apiSecret: API_SECRET,
-  apiMemo: API_MEMO,
-  recvWindow: 10000, // 10 seconds global default
-});
-
-// Override receive window for specific method calls
-client.getAccountBalancesV1({ recvWindow: 5000 }); // 5 seconds for this call
-```
-
-### Custom Sign
-
-Authentication involves HMAC signing on requests using API credentials. Internally, this SDK uses the Web Crypto API for browser compatibility. The REST client also supports injecting a custom sign function if you wish to use an alternative (such as Node.js's native & faster `createHmac`).
-
-Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a complete demonstration.
-
-## Use with LLMs & AI
-
-This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
-
-This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
-
----
-
-## Used By
-
-[![Repository Users Preview Image](https://dependents.info/tiagosiebler/bitmart-api/image)](https://github.com/tiagosiebler/bitmart-api/network/dependents)
-
----
-
-<!-- template_related_projects -->
-
-## Related projects
-
-Check out my related JavaScript/TypeScript/Node.js projects:
-
-- Try my REST API & WebSocket SDKs:
-  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
-  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
-  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
-
-## Structure
-
-This connector is fully compatible with both TypeScript and pure JavaScript projects, while the connector is written in TypeScript. A pure JavaScript version can be built using `npm run build`, which is also the version published to [npm](https://www.npmjs.com/package/bitmart-api).
-
-The version on npm is the output from the `build` command and can be used in projects without TypeScript (although TypeScript is definitely recommended).
-
-Note: The build will output both ESM and CJS, although node should automatically import the correct entrypoint for your environment.
-
-- [src](./src) - the whole SDK written in TypeScript
-- [dist](./dist) - ESM & CJS builds of the SDK in JavaScript (this is published to npm)
-- [examples](./examples) - some implementation examples & demonstrations.
-
----
-
-<!-- template_contributions -->
-
-### Contributions & Thanks
-
-Have my projects helped you? Share the love, there are many ways you can show your thanks:
-
-- Star & share my projects.
-- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
-- Have an interesting project? Get in touch & invite me to it.
-- Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
-
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
--->
-<!-- template_contributions_end -->
-
-### Contributions & Pull Requests
-
-Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-<!-- template_star_history -->
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
+export function isMessageEvent(msg: unknown): msg is MessageEventLike
 
 ================
 File: src/types/response/futures.types.ts
@@ -4493,6 +3573,147 @@ export interface FuturesSimulatedClaimResponse {
 }
 
 ================
+File: src/types/websockets/client.ts
+================
+import type { ClientRequestArgs } from 'http';
+import WebSocket from 'isomorphic-ws';
+⋮----
+/**
+ * WS topics are always a string for bitmart. Some exchanges use complex objects
+ */
+export type WsTopic = string;
+⋮----
+/**
+ * Event args for subscribing/unsubscribing
+ */
+⋮----
+// export type WsTopicSubscribePrivateArgsV2 =
+//   | WsTopicSubscribePrivateInstIdArgsV2
+//   | WsTopicSubscribePrivateCoinArgsV2;
+⋮----
+// export type WsTopicSubscribeEventArgsV2 =
+//   | WsTopicSubscribePublicArgsV2
+//   | WsTopicSubscribePrivateArgsV2;
+⋮----
+/** General configuration for the WebsocketClient */
+export interface WSClientConfigurableOptions {
+  /** Your API key */
+  apiKey?: string;
+
+  /** Your API secret */
+  apiSecret?: string;
+
+  /** Your API memo (can be anything) that you included when creating this API key */
+  apiMemo?: string;
+
+  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+  recvWindow?: number;
+
+  /** How often to check if the connection is alive */
+  pingInterval?: number;
+
+  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+  pongTimeout?: number;
+
+  /** Delay in milliseconds before respawning the connection */
+  reconnectTimeout?: number;
+
+  requestOptions?: {};
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
+
+  wsUrl?: string;
+
+  /**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+  demoTrading?: boolean;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+}
+⋮----
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/** Your API memo (can be anything) that you included when creating this API key */
+⋮----
+/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+⋮----
+/** How often to check if the connection is alive */
+⋮----
+/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+⋮----
+/** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Default: false. If true, use the simulated trading demo environment.
+   * For V2 Futures WebSocket: wss://openapi-wsdemo-v2.bitmart.com
+   * Note: The API keys for Simulated-Environment and Prod-Environment are the same.
+   */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+/**
+ * WS configuration that's always defined, regardless of user configuration
+ * (usually comes from defaults if there's no user-provided values)
+ */
+export interface WebsocketClientOptions extends WSClientConfigurableOptions {
+  pingInterval: number;
+  pongTimeout: number;
+  reconnectTimeout: number;
+  recvWindow: number;
+
+  /**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+  requireConnectionReadyConfirmation: boolean;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+  reauthWSAPIOnReconnect: boolean;
+
+  /**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+  useNativeHeartbeats: boolean;
+}
+⋮----
+/**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+⋮----
+/**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+⋮----
+export type WsMarket = 'spot' | 'futures';
+⋮----
+/**
+ * A midflight WS request event (e.g. subscribe to these topics).
+ *
+ * - requestKey: unique identifier for this request, if available. Can be anything as a string.
+ * - requestEvent: the raw request, as an object, that will be sent on the ws connection. This may contain multiple topics/requests in one object, if the exchange supports it.
+ */
+export interface MidflightWsRequestEvent<TEvent = object> {
+  requestKey: string;
+  requestEvent: TEvent;
+}
+
+================
 File: src/FuturesClientV2.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -4504,10 +3725,12 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  CancelFuturesOrderRequest,
+  CancelFuturesPlanOrderRequest,
+  CancelFuturesTrailOrderRequest,
   FuturesAccountHistoricOrderRequest,
   FuturesAccountHistoricTransactionRequest,
   FuturesAccountOpenOrdersRequest,
-  FuturesAccountOrderRequest,
   FuturesAccountPlanOrdersRequest,
   FuturesAccountTradesRequest,
   FuturesAccountTransfersRequest,
@@ -4518,6 +3741,7 @@ import {
   FuturesKlinesRequest,
   FuturesSubTransfersRequest,
   FuturesSubWalletRequest,
+  GetFuturesOrderRequest,
   SetFuturesLeverageRequest,
   SubmitFuturesOrderRequest,
   SubmitFuturesPlanOrderRequest,
@@ -4682,7 +3906,7 @@ getFuturesTradeFeeRate(params: { symbol: string }): Promise<
     return this.getPrivate('contract/private/trade-fee-rate', params);
 ⋮----
 getFuturesAccountOrder(
-    params: FuturesAccountOrderRequest,
+    params: GetFuturesOrderRequest,
 ): Promise<APIResponse<FuturesAccountOrder>>
 ⋮----
 getFuturesAccountOrderHistory(
@@ -4743,7 +3967,7 @@ updateFuturesLimitOrder(params: UpdateFuturesLimitOrderRequest): Promise<
     return this.postPrivate('contract/private/modify-limit-order', params);
 ⋮----
 cancelFuturesOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesOrderRequest,
 ): Promise<APIResponse<any>>
 ⋮----
 cancelAllFuturesOrders(params: {
@@ -4763,7 +3987,7 @@ submitFuturesPlanOrder(params: SubmitFuturesPlanOrderRequest): Promise<
     return this.postPrivate('contract/private/submit-plan-order', params);
 ⋮----
 cancelFuturesPlanOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesPlanOrderRequest,
 ): Promise<APIResponse<any>>
 ⋮----
 submitFuturesTransfer(
@@ -4816,7 +4040,7 @@ submitFuturesTrailOrder(params: SubmitFuturesTrailOrderRequest): Promise<
     return this.postPrivate('contract/private/submit-trail-order', params);
 ⋮----
 cancelFuturesTrailOrder(
-    params: FuturesAccountOrderRequest,
+    params: CancelFuturesTrailOrderRequest,
 ): Promise<APIResponse<any>>
 ⋮----
 /**
@@ -4909,13 +4133,13 @@ getFuturesAffiliateRebateApi(
    * Add available funds to the futures account (Only available in the Simulated-Environment)
    *
    * Note: This endpoint is only available in the Simulated Trading environment.
-   * To use this endpoint, create a client instance with useDemo: true
+   * To use this endpoint, create a client instance with demoTrading: true
    * Example:
    *   const simulatedClient = new FuturesClientV2({
    *     apiKey: 'your-api-key',
    *     apiSecret: 'your-api-secret',
    *     apiMemo: 'your-api-memo',
-   *     useDemo: true
+   *     demoTrading: true
    *   });
    *
    * Alternatively, you can manually set baseUrl: 'https://demo-api-cloud-v2.bitmart.com'
@@ -4925,15 +4149,1360 @@ submitFuturesSimulatedClaim(
 ): Promise<APIResponse<FuturesSimulatedClaimResponse>>
 
 ================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import {
+  MidflightWsRequestEvent,
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+  WsTopic,
+} from '../types/websockets/client.js';
+import { WsOperation } from '../types/websockets/requests.js';
+import { DefaultLogger } from './logger.js';
+import {
+  isCompressedMessageEvent,
+  isMessageEvent,
+  MessageEventLike,
+} from './requestUtils.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import {
+  decompressMessageEvent,
+  getNormalisedTopicRequests,
+  safeTerminateWs,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
+} from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
+⋮----
+export type WsEventInternalSrc = 'event' | 'function' | 'frame';
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
+
+  /** Reconnecting a dropped connection */
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
+
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (
+    response: any & { wsKey: WsKey; isWSAPIResponse?: boolean },
+  ) => void;
+
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+
+  /**
+   * Exception from ws client OR custom listeners (e.g. if you throw inside your event handler)
+   */
+  exception: (
+    response: any & { wsKey: WsKey; isWSAPIResponse?: boolean },
+  ) => void;
+
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: {
+    wsKey: WsKey;
+    event: any;
+    isWSAPIResponse?: boolean;
+  }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+/** Reconnecting a dropped connection */
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/**
+   * Exception from ws client OR custom listeners (e.g. if you throw inside your event handler)
+   */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+/**
+ * Internally normalised structure for incoming WS events sorted into eventType categories
+ */
+export interface EmittableEvent<
+  TEventType extends
+    keyof WSClientEventMap<string> = keyof WSClientEventMap<string>,
+> {
+  eventType:
+    | TEventType // dynamically resolved from event map
+    | 'pong'
+    | 'connectionReady' // tied to "requireConnectionReadyConfirmation";
+    | 'connectionReadyForAuth'; // tied to specific events we need to wait for, before we can begin post-connect auth
+  event: Parameters<WSClientEventMap<string>[TEventType]>[0];
+  isWSAPIResponse?: boolean;
+}
+⋮----
+| TEventType // dynamically resolved from event map
+⋮----
+| 'connectionReady' // tied to "requireConnectionReadyConfirmation";
+| 'connectionReadyForAuth'; // tied to specific events we need to wait for, before we can begin post-connect auth
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TWSMarket extends string,
+  TWSKey extends string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+  TWSRequestEvent extends object,
+> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+/**
+ * Appends wsKey and isWSAPIResponse to all events.
+ * Some events are arrays, this handles that nested scenario too.
+ */
+function getFinalEmittable(
+  emittable: EmittableEvent | EmittableEvent[],
+  wsKey: any,
+  isWSAPIResponse?: boolean,
+): any
+⋮----
+// Some topics just emit an array.
+// This is consistent with how it was before the WS API upgrade:
+⋮----
+// const { event, ...others } = emittable;
+// return {
+//   ...others,
+//   event: event.map((subEvent) =>
+//     getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+//   ),
+// };
+⋮----
+/**
+ * Base WebSocket abstraction layer. Handles connections, tracking each connection as a unique "WS Key"
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+TWSMarket extends string,
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions & { wsLoggerCategory: string },
+    logger?: DefaultLogger,
+)
+⋮----
+// Requires a confirmation "response" from the ws connection before assuming it is ready
+⋮----
+// Automatically send an authentication op/request after a connection opens, for private connections.
+⋮----
+// Automatically include auth/sign/token with every WS request.
+// Automatically handled during getWsRequestEvents.
+⋮----
+// Automatically re-auth WS API, if we were auth'd before and get reconnected
+⋮----
+// Whether to use native heartbeats (depends on the exchange)
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+// Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
+// A few users have been caught out by using the end-of-life Node.js v18 release.
+⋮----
+protected abstract getWsKeyForMarket(
+    market: TWSMarket,
+    isPrivate?: boolean,
+  ): TWSKey;
+⋮----
+/**
+   * Return true if this wsKey connection should automatically authenticate immediately after connecting
+   */
+protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
+⋮----
+protected abstract isCustomReconnectionNeeded(wsKey: TWSKey): boolean;
+⋮----
+protected abstract triggerCustomReconnectionWorkflow(
+    wsKey: TWSKey,
+  ): Promise<void>;
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPing(data: any): boolean;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract authPrivateConnectionsOnConnect(_wsKey: TWSKey): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(
+    wsKey: TWSKey,
+    eventToAuth?: object,
+  ): Promise<object | string | 'waitForEvent' | void>;
+⋮----
+protected abstract isPrivateTopicRequest( // was isPrivateChannel before
+    request: WsTopicRequest<WsTopic>,
+    wsKey: TWSKey,
+  ): boolean;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
+   */
+protected abstract getWsRequestEvents(
+    market: TWSMarket,
+    operation: WsOperation,
+    requests: WsTopicRequest<WsTopic>[],
+    wsKey: TWSKey,
+  ): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]>;
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+abstract connectAll(): Promise<WSConnectedResult | undefined>[];
+⋮----
+/** Returns auto-incrementing request ID, used to track promise references for async requests */
+protected getNewRequestId(): number
+⋮----
+public getTimeOffsetMs()
+⋮----
+public setTimeOffsetMs(newOffset: number)
+⋮----
+/**
+   * Don't call directly! Use subscribe() instead!
+   *
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsRequests array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+protected async subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+⋮----
+/**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+protected async unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+): Promise<unknown>
+⋮----
+// Remove topics from store, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything.
+// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<WsTopic>[],
+    wsKey: TWSKey,
+):
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, WsTopicRequest<WsTopic>>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+public async connect(
+    wsKey: TWSKey,
+    customUrl?: string | undefined,
+    throwOnError?: boolean,
+): Promise<WSConnectedResult | undefined>
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey): boolean
+⋮----
+// Allow retry by default (in some places that call this). Prevent deadloop in hard failure (401)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(
+    wsKey: TWSKey,
+    eventToAuth?: object,
+): Promise<unknown>
+⋮----
+// If not required, this won't return anything
+⋮----
+// Short-circuit this for the next time it's called
+⋮----
+// console.log('ws auth req', request);
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+// Some streams need a specialist reconnection workflow.
+// E.g. the user data stream can't just be reconnected as is.
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+/**
+   * Closes a connection, if it's even open. If open, this will trigger a reconnect asynchronously.
+   * If closed, trigger a reconnect immediately
+   */
+private executeReconnectableClose(wsKey: TWSKey, reason: string)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+⋮----
+// this.logger.trace(`No active pong timer for "${wsKey}"`);
+⋮----
+private clearReconnectTimer(wsKey: TWSKey)
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   *
+   * If events are an object, these should be stringified (`return JSON.stringify(event);`)
+   * Each event returned by this will be sent one at a time
+   *
+   * Events are automatically split into smaller batches, by this method, if needed.
+   */
+protected async getWsOperationEventsForTopics(
+    topics: WsTopicRequest<WsTopic>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]>
+⋮----
+// Events that are ready to send (usually stringified JSON)
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<WsTopic>[],
+)
+⋮----
+`Subscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<WsTopic>[],
+)
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(
+    wsKey: TWSKey,
+    wsMessage: string,
+    throwExceptions?: boolean,
+)
+⋮----
+private async onWsOpen(
+    event: any,
+    wsKey: TWSKey,
+    url: string,
+    ws: WebSocket,
+)
+⋮----
+// Remove before continuing, in case there's more requests queued
+⋮----
+private resolveConnectionInProgressPromise(wsKey: TWSKey)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+/**
+   * Called automatically once a connection is ready.
+   * - Some exchanges are ready immediately after the connections open.
+   * - Some exchanges send an event to confirm the connection is ready for us.
+   *
+   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
+   */
+private async onWsReadyForEvents(wsKey: TWSKey)
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+⋮----
+// Request sub to public topics, if any
+⋮----
+// Request sub to private topics, if auth on connect isn't needed
+⋮----
+/**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
+private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// Remove before continuing, in case there's more requests queued
+⋮----
+// Can be passed by the WebsocketClient's integration layer, if necessary, to dynamically track the auth channel
+⋮----
+private onWsPing(
+    event: any,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    source: WsEventInternalSrc,
+)
+⋮----
+private onWsPong(event: any, wsKey: TWSKey, source: WsEventInternalSrc)
+⋮----
+// Necessary when native heartbeats are used
+⋮----
+private async onWsMessage(
+    event: unknown,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    didDecompress = false,
+): Promise<unknown>
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+// Not used for bitmart
+⋮----
+// this.logger.trace(
+//   `onWsMessage().emit(${emittable.eventType})`,
+//   emittableFinalEvent,
+// );
+⋮----
+// this.logger.trace(
+//   `onWsMessage().emit(${emittable.eventType}).done()`,
+//   emittableFinalEvent,
+// );
+⋮----
+// this.logger.trace('Decompressed message event', {
+//   ...this.WS_LOGGER_CATEGORY,
+//   wsKey,
+//   decompressed,
+// });
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// unintentional close, attempt recovery
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// this.clearTopicsPendingSubscriptions(wsKey, true, 'WS Closed');
+⋮----
+// intentional close - clean up
+// clean up any pending promises for this connection
+⋮----
+// This was an intentional close, delete all state for this connection, as if it never existed:
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+⋮----
+/**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+public async assertIsConnected(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// Start connection, it should automatically store/return a promise.
+⋮----
+/**
+   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
+   */
+public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// this.logger.trace('assertIsAuthenticated(): ok');
+⋮----
+// Start authentication, it should automatically store/return a promise.
+
+================
+File: src/WebsocketClient.ts
+================
+import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
+import { DefaultLogger } from './lib/logger.js';
+import { neverGuard } from './lib/misc-util.js';
+import { MessageEventLike } from './lib/requestUtils.js';
+import {
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
+import {
+  WS_BASE_URL_MAP,
+  WS_KEY_MAP,
+  WsKey,
+  WsTopicRequest,
+} from './lib/websocket/websocket-util.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
+import {
+  MidflightWsRequestEvent,
+  WSClientConfigurableOptions,
+  WsMarket,
+  WsTopic,
+} from './types/websockets/client.js';
+import {
+  WsFuturesOperation,
+  WsOperation,
+  WsRequestOperation,
+  WsSpotOperation,
+} from './types/websockets/requests.js';
+⋮----
+/** Any WS keys in this list will trigger auth on connect, if credentials are available */
+⋮----
+/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
+⋮----
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
+⋮----
+/** If true, will skip auth requirement for WS API connection */
+⋮----
+export class WebsocketClient extends BaseWebsocketClient<
+⋮----
+constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger)
+⋮----
+/**
+   *
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+public connectAll(): Promise<WSConnectedResult | undefined>[]
+⋮----
+/**
+   * Request subscription to one or more topics.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribeTopics(topics)` to remove topics
+   */
+public subscribeTopics(topics: WsTopic[])
+⋮----
+/**
+   * Unsubscribe from one or more topics.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+public unsubscribeTopics(topics: WsTopic[])
+⋮----
+/**
+   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+public subscribe(
+    wsTopics: WsTopic[] | WsTopic,
+    market: WsMarket,
+    isPrivate?: boolean,
+)
+⋮----
+/**
+   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+public unsubscribe(
+    wsTopics: WsTopic[] | WsTopic,
+    market: WsMarket,
+    isPrivate?: boolean,
+)
+⋮----
+/**
+   *
+   *
+   * Internal methods - not intended for public use
+   *
+   *
+   */
+⋮----
+/**
+   * Note: implementing this method will wipe the WsStore state for this WsKey, once this method returns
+   */
+protected isCustomReconnectionNeeded(): boolean
+⋮----
+protected async triggerCustomReconnectionWorkflow(): Promise<void>
+⋮----
+/**
+   * @returns The WS URL to connect to for this WS key
+   */
+protected async getWsUrl(wsKey: WsKey): Promise<string>
+⋮----
+// Demo environment is only available for V2 Futures
+⋮----
+// Fallback to livenet if demo is not available for this wsKey
+⋮----
+private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method?: SignEncodeMethod,
+    algorithm: SignAlgorithm = 'SHA-256',
+): Promise<string>
+⋮----
+protected async getWsAuthRequestEvent(
+    wsKey: WsKey,
+): Promise<WsRequestOperation<string>>
+⋮----
+// https://developer-pro.bitmart.com/en/futuresv2/#private-login
+⋮----
+private async getWsAuthSignature(
+    wsKey: WsKey,
+): Promise<
+⋮----
+protected sendPingEvent(wsKey: WsKey)
+⋮----
+protected sendPongEvent(wsKey: WsKey)
+⋮----
+/** Force subscription requests to be sent in smaller batches, if a number is returned */
+protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
+⋮----
+// Return a number if there's a limit on the number of sub topics per rq
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+protected authPrivateConnectionsOnConnect(_wsKey: WsKey): boolean
+⋮----
+/**
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
+   */
+protected async getWsRequestEvents(
+    market: WsMarket,
+    operation: WsOperation,
+    requests: WsTopicRequest<WsTopic>[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    _wsKey: WsKey,
+): Promise<MidflightWsRequestEvent<WsRequestOperation<WsTopic>>[]>
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+⋮----
+// Previously used to track topics in a request. Keeping this for subscribe/unsubscribe requests, no need for incremental values
+⋮----
+// handles differences in spot vs futures
+⋮----
+/**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+protected isPrivateTopicRequest(request: WsTopicRequest<WsTopic>): boolean
+⋮----
+private isPrivateTopic(topicName?: WsTopic): boolean
+⋮----
+// console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
+⋮----
+/** Spot */
+⋮----
+/** Futures */
+⋮----
+// spot/user/order:BTC_USDT -> user/order:BTC_USDT
+// ^ will pass the above check, or fall back to the next level:
+// user/order:BTC_USDT -> order:BTC_USDT
+⋮----
+// No pings expected from Bitmart
+protected isWsPing(msg: any): boolean
+⋮----
+protected isWsPong(msg: any): boolean
+⋮----
+// bitmart spot
+⋮----
+// this.logger.info(`Not a pong: `, msg);
+⋮----
+protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+): EmittableEvent[]
+⋮----
+const spotEventAction = parsed.table; // e.g. table: 'spot/user/order'
+const futuresEventAction = parsed.group; // e.g.     group: 'futures/klineBin1m:ETHUSDT'
+⋮----
+// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+⋮----
+// Request/reply pattern for authentication success
+⋮----
+// spot events
+⋮----
+// futures events
+⋮----
+// Fallback to update/data channel for everything else
+⋮----
+protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
+⋮----
+protected getWsMarketForWsKey(key: WsKey): WsMarket
+⋮----
+protected getWsKeyForTopic(topic: WsTopic): WsKey
+⋮----
+protected getPrivateWSKeys(): WsKey[]
+⋮----
+protected isAuthOnConnectWsKey(wsKey: WsKey): boolean
+⋮----
+/**
+   * Map one or more topics into fully prepared "unsubscribe request" events (already stringified and ready to send)
+   */
+protected getWsUnsubscribeEventsForTopics(
+    topics: WsTopic[],
+    wsKey: WsKey,
+): string[]
+⋮----
+/**
+   * @returns a correctly structured events for performing an operation over WS. This can vary per exchange spec.
+   */
+private getWsRequestEvent(
+    market: WsMarket,
+    operation: WsOperation,
+    args: WsTopic[],
+): WsRequestOperation<WsTopic>
+⋮----
+/**
+   * This exchange API is split into "markets" that behave differently (different base URLs).
+   * The market can easily be resolved using the topic name.
+   */
+private getMarketForTopic(topic: string): WsMarket
+⋮----
+/**
+   * Used to split sub/unsub logic by websocket connection
+   */
+private arrangeTopicsIntoWsKeyGroups(
+    topics: WsTopic[],
+    byMarket?: WsMarket,
+    isPrivate?: boolean,
+): Record<WsKey, WsTopic[]>
+⋮----
+// array of string topics
+⋮----
+// Backwards comaptibility with how old subscribe method worked:
+
+================
+File: README.md
+================
+# Node.js & JavaScript SDK for BitMart REST API & WebSockets
+
+[![npm version](https://img.shields.io/npm/v/bitmart-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/bitmart-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/bitmart-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/bitmart-api/actions/workflows/e2etest.yml)
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/bitmart-api)][1]
+[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/bitmart-api)
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/bitmart-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/bitmart-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
+
+[1]: https://www.npmjs.com/package/bitmart-api
+
+> [!TIP]
+> Upcoming change: As part of the [Siebly.io](https://siebly.io/?ref=ghbitmart) brand, this SDK will soon be hosted under the [Siebly.io GitHub organisation](https://github.com/sieblyio). The migration is seamless and requires no user changes.
+
+Complete JavaScript, TypeScript & Node.js SDK for BitMart REST APIs & WebSockets:
+
+- Professional, robust & performant BitMart SDK with extensive production use in live trading environments.
+- Complete integration with all BitMart APIs and domains.
+  - Spot trading APIs via RestClient
+  - Full support for Futures V2 domain via FuturesClientV2
+  - Unified WebSocket client for all markets
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
+- Actively maintained with a modern, promise-driven interface.
+- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
+  - Event driven messaging.
+  - Smart WebSocket persistence with automatic reconnection handling.
+  - Emit `reconnected` event when dropped connection is restored.
+  - Support for both public and private WebSocket streams.
+- Browser-friendly HMAC signature mechanism with Web Crypto API support.
+- Automatically supports both ESM and CJS projects.
+- Custom HMAC signing support for enhanced performance.
+- Heavy automated end-to-end testing with real API calls.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+- QuickStart Guide: https://siebly.io/sdk/bitmart/javascript
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Usage](#usage)
+  - [REST API Clients](#rest-apis)
+    - [Spot & Margin APIs](#spot--margin-apis)
+    - [Futures V2 APIs](#futures-v2-apis)
+  - [WebSocket Client](#websocket)
+    - [Public Streams](#public-websocket-streams)
+    - [Private Streams](#private-websocket-streams)
+  - [Configuration Options](#configuration-options)
+    - [Recv Window](#recv-window)
+    - [Custom Sign](#custom-sign)
+- [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Webpack](#webpack)
+- [Related Projects](#related-projects)
+- [Structure](#structure)
+- [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
+- [Contributions & Thanks](#contributions--thanks)
+
+## Installation
+
+`npm install --save bitmart-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos, including:
+
+- **REST API Examples**: spot trading, futures trading, account management
+- **WebSocket Examples**: public data streams, private account streams, custom logging
+- **Advanced Features**: custom HMAC signing, error handling
+
+## Issues & Discussion
+
+- Issues? Check the [issues tab](https://github.com/tiagosiebler/bitmart-api/issues).
+- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
+
+## Usage
+
+Create API credentials on BitMart's website if you plan to use private endpoints or place trades.
+
+Most methods accept JS objects. These can be populated using parameters specified by BitMart's API documentation, or check the type definition in each class within this repository.
+
+### Documentation Links
+
+- [BitMart API | Spot](https://developer-pro.bitmart.com/en/spot/#change-log)
+- [BitMart API | USD-M Futures](https://developer-pro.bitmart.com/en/spot/#change-log)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
+
+## REST APIs
+
+There are two main REST API clients depending on the market you're trading:
+
+1. `RestClient` - for spot trading, margin, and general account operations
+2. `FuturesClientV2` - dedicated client for USD-M futures trading (uses V2 domain)
+
+### Spot & Margin APIs
+
+Use the `RestClient` for spot trading, margin trading, and general account operations.
+
+```typescript
+import { RestClient } from 'bitmart-api';
+// or if you prefer require:
+// const { RestClient } = require('bitmart-api');
+
+const API_KEY = 'yourAPIKeyHere';
+const API_SECRET = 'yourAPISecretHere';
+const API_MEMO = 'yourAPIMemoHere';
+
+const client = new RestClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+});
+
+// For public endpoints, API credentials are optional
+// const client = new RestClient();
+
+// Get account balances
+client
+  .getAccountBalancesV1()
+  .then((result) => {
+    console.log('Account balances: ', result);
+  })
+  .catch((err) => {
+    console.error('Error: ', err);
+  });
+
+// Submit a spot order
+client
+  .submitSpotOrderV2({
+    symbol: 'BTC_USDT',
+    side: 'buy',
+    type: 'limit',
+    size: '0.001',
+    price: '30000',
+  })
+  .then((result) => {
+    console.log('Order submitted: ', result);
+  })
+  .catch((err) => {
+    console.error('Order error: ', err);
+  });
+
+// Get spot candlestick data
+client
+  .getSpotHistoryKlineV3({
+    symbol: 'BTC_USDT',
+    step: 60, // 1 minute
+    from: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
+    to: Math.floor(Date.now() / 1000),
+  })
+  .then((result) => {
+    console.log('Klines: ', result);
+  })
+  .catch((err) => {
+    console.error('Klines error: ', err);
+  });
+```
+
+### Futures V2 APIs
+
+Use the `FuturesClientV2` for USD-M futures trading. This client connects to BitMart's V2 futures domain.
+
+```typescript
+import { FuturesClientV2 } from 'bitmart-api';
+// or if you prefer require:
+// const { FuturesClientV2 } = require('bitmart-api');
+
+const futuresClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+});
+
+// Enable demo/simulated trading environment (optional)
+const demoFuturesClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  demoTrading: true, // Connect to simulated trading environment
+});
+
+// Get futures account assets
+try {
+  const balances = await futuresClient.getFuturesAccountAssets();
+  console.log('Futures balances: ', JSON.stringify(balances, null, 2));
+} catch (error) {
+  console.error('Error getting balances: ', error);
+}
+
+// Submit a futures order
+futuresClient
+  .submitFuturesOrder({
+    symbol: 'BTCUSDT',
+    side: 'buy',
+    type: 'limit',
+    size: '0.001',
+    price: '30000',
+    leverage: '10',
+  })
+  .then((result) => {
+    console.log('Futures order submitted: ', result);
+  })
+  .catch((err) => {
+    console.error('Futures order error: ', err);
+  });
+```
+
+## WebSocket
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams, with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for both public and private data streams
+- Unified client for spot and futures markets
+
+### Public WebSocket Streams
+
+For public data streams, API credentials are not required:
+
+```typescript
+import { WebsocketClient } from 'bitmart-api';
+// or if you prefer require:
+// const { WebsocketClient } = require('bitmart-api');
+
+// Create WebSocket client for public streams
+const wsClient = new WebsocketClient();
+
+// Set up event handlers
+wsClient.on('open', (data) => {
+  console.log('WebSocket connected: ', data?.wsKey);
+});
+
+wsClient.on('update', (data) => {
+  console.log('Data received: ', JSON.stringify(data, null, 2));
+});
+
+wsClient.on('reconnected', (data) => {
+  console.log('WebSocket reconnected: ', data);
+});
+
+wsClient.on('exception', (data) => {
+  console.error('WebSocket error: ', data);
+});
+
+// Subscribe to public data streams
+
+// Spot market ticker
+wsClient.subscribe('spot/ticker:BTC_USDT', 'spot');
+
+// Spot market depth
+wsClient.subscribe('spot/depth20:BTC_USDT', 'spot');
+
+// Futures market ticker
+wsClient.subscribe('futures/ticker', 'futures');
+
+// Futures market depth
+wsClient.subscribe('futures/depth20:BTCUSDT', 'futures');
+
+// Futures trades
+wsClient.subscribe('futures/trade:BTCUSDT', 'futures');
+
+// Multiple futures kline subscriptions
+wsClient.subscribe(
+  [
+    'futures/klineBin1m:BTCUSDT',
+    'futures/klineBin1m:ETHUSDT',
+    'futures/klineBin5m:BTCUSDT',
+    'futures/klineBin1h:ETHUSDT',
+  ],
+  'futures',
+);
+```
+
+### Private WebSocket Streams
+
+For private account data streams, API credentials are required:
+
+```typescript
+import { WebsocketClient } from 'bitmart-api';
+
+// Create WebSocket client with API credentials for private streams
+const wsClient = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+});
+
+// Enable demo/simulated trading environment for V2 Futures WebSocket (optional)
+const demoWsClient = new WebsocketClient({
+  apiKey: 'yourAPIKeyHere',
+  apiSecret: 'yourAPISecretHere',
+  apiMemo: 'yourAPIMemoHere',
+  demoTrading: true, // Connect to simulated trading environment (V2 Futures only)
+});
+
+// Set up event handlers
+wsClient.on('open', (data) => {
+  console.log('Private WebSocket connected: ', data?.wsKey);
+});
+
+wsClient.on('update', (data) => {
+  console.log('Private data received: ', JSON.stringify(data, null, 2));
+});
+
+wsClient.on('authenticated', (data) => {
+  console.log('WebSocket authenticated: ', data);
+});
+
+wsClient.on('response', (data) => {
+  console.log('WebSocket response: ', data);
+});
+
+wsClient.on('exception', (data) => {
+  console.error('WebSocket error: ', data);
+});
+
+// Subscribe to private data streams
+
+// Spot account orders
+wsClient.subscribe('spot/user/order:BTC_USDT', 'spot');
+
+// Spot account balance updates
+wsClient.subscribe('spot/user/balance:USDT', 'spot');
+
+// Futures account orders
+wsClient.subscribe('futures/user/order:BTCUSDT', 'futures');
+
+// Futures account positions
+wsClient.subscribe('futures/user/position:BTCUSDT', 'futures');
+```
+
+For more comprehensive examples, including custom logging and error handling, check the [examples](./examples) folder.
+
+## Configuration Options
+
+### Demo Trading
+
+BitMart provides a simulated trading environment for testing futures trading strategies. Enable demo mode by adding `demoTrading: true` to your client configuration:
+
+**REST API (Futures V2 only):**
+
+```typescript
+const demoClient = new FuturesClientV2({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  demoTrading: true, // Uses https://demo-api-cloud-v2.bitmart.com
+});
+```
+
+**WebSocket (V2 Futures only):**
+
+```typescript
+const demoWsClient = new WebsocketClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  demoTrading: true, // Uses wss://openapi-wsdemo-v2.bitmart.com
+});
+```
+
+**Note:** Demo environment is only available for V2 Futures. Spot trading and V1 Futures will continue using production endpoints. The same API keys work for both production and demo environments.
+
+### Recv Window
+
+The receive window parameter determines how long an API request is valid. This can be configured at two levels:
+
+- **Per method**: If provided in a method call, will be used instead of the global default
+- **Global default**: Applied by default to any API call that supports recvWindow, if no recvWindow is provided in the method call
+
+```typescript
+// Set global receive window during client initialization
+const client = new RestClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiMemo: API_MEMO,
+  recvWindow: 10000, // 10 seconds global default
+});
+
+// Override receive window for specific method calls
+client.getAccountBalancesV1({ recvWindow: 5000 }); // 5 seconds for this call
+```
+
+### Custom Sign
+
+Authentication involves HMAC signing on requests using API credentials. Internally, this SDK uses the Web Crypto API for browser compatibility. The REST client also supports injecting a custom sign function if you wish to use an alternative (such as Node.js's native & faster `createHmac`).
+
+Refer to the [fasterHmacSign.ts](./examples/fasterHmacSign.ts) example for a complete demonstration.
+
+## Browser/Frontend Usage
+
+### Webpack
+
+Build a bundle using webpack:
+
+- `npm install`
+- `npm run build`
+- `npm run pack`
+
+The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/bitmart-api/image)](https://github.com/tiagosiebler/bitmart-api/network/dependents)
+
+---
+
+<!-- template_related_projects -->
+
+## Related Projects
+
+Check out our JavaScript/TypeScript/Node.js SDKs & Projects:
+
+- Visit our website: [https://Siebly.io](https://siebly.io/?ref=gh)
+- Try our REST API & WebSocket SDKs published on npmjs:
+  - [Bybit Node.js SDK: bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [Kraken Node.js SDK: @siebly/kraken-api](https://www.npmjs.com/package/@siebly/kraken-api)
+  - [OKX Node.js SDK: okx-api](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK: binance](https://www.npmjs.com/package/binance)
+  - [Gate (gate.com) Node.js SDK: gateio-api](https://www.npmjs.com/package/gateio-api)
+  - [Bitget Node.js SDK: bitget-api](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase Node.js SDK: coinbase-api](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart Node.js SDK: bitmart-api](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [OrderBooks Node.js: orderbooks](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache: accountstate](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
+  <!-- template_related_projects_end -->
+
+## Structure
+
+This connector is fully compatible with both TypeScript and pure JavaScript projects, while the connector is written in TypeScript. A pure JavaScript version can be built using `npm run build`, which is also the version published to [npm](https://www.npmjs.com/package/bitmart-api).
+
+The version on npm is the output from the `build` command and can be used in projects without TypeScript (although TypeScript is definitely recommended).
+
+Note: The build will output both ESM and CJS, although node should automatically import the correct entrypoint for your environment.
+
+- [src](./src) - the whole SDK written in TypeScript
+- [dist](./dist) - ESM & CJS builds of the SDK in JavaScript (this is published to npm)
+- [examples](./examples) - some implementation examples & demonstrations.
+
+---
+
+<!-- template_contributions -->
+
+### Contributions & Thanks
+
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+- Sign up with my referral links:
+  - OKX (receive a 20% fee discount!): https://www.okx.com/join/42013004
+  - Binance (receive a 20% fee discount!): https://accounts.binance.com/register?ref=OKFFGIJJ
+  - HyperLiquid (receive a 4% fee discount!): https://app.hyperliquid.xyz/join/SDK
+  - Gate: https://www.gate.io/signup/NODESDKS?ref_type=103
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+  - gate: https://www.gate.io/signup/AVNNU1WK?ref_type=103
+
+-->
+<!-- template_contributions_end -->
+
+### Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+<!-- template_star_history -->
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+
+<!-- template_star_history_end -->
+
+================
 File: package.json
 ================
 {
   "name": "bitmart-api",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "description": "Complete & robust Node.js SDK for BitMart's REST APIs and WebSockets, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
     "build": "rm -fr dist/* && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
+    "pack": "webpack --config webpack/webpack.config.cjs",
     "test": "jest --passWithNoTests",
     "lint": "eslint src"
   },
@@ -4952,12 +5521,12 @@ File: package.json
     "dist/*",
     "llms.txt"
   ],
-  "author": "Tiago Siebler (https://github.com/tiagosiebler)",
+  "author": "Tiago Siebler (https://siebly.io)",
   "contributors": [
     "Jerko J (https://github.com/JJ-Cro)"
   ],
   "dependencies": {
-    "axios": "^1.12.2",
+    "axios": "^1.13.2",
     "isomorphic-ws": "^4.0.1",
     "ws": "^8.18.3"
   },
@@ -4976,6 +5545,11 @@ File: package.json
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
+  },
+  "optionalDependencies": {
+    "webpack": "^5.0.0",
+    "webpack-bundle-analyzer": "^5.1.1",
+    "webpack-cli": "^4.0.0"
   },
   "keywords": [
     "bitmart",
